@@ -23,34 +23,31 @@ import java.util.TreeMap;
 
 /**
  * int 到 String 的双向map
+ *
  * @author hankcs
  */
-public class Alphabet implements ICacheAble
-{
+public class Alphabet implements ICacheAble {
     ITrie<Integer> trie;
     String[] idToLabelMap;
 
-    public Alphabet()
-    {
+    public Alphabet() {
         trie = new DoubleArrayTrie<Integer>();
     }
 
     /**
      * id转label
+     *
      * @param id
      * @return
      */
-    public String labelOf(int id)
-    {
+    public String labelOf(int id) {
         return idToLabelMap[id];
     }
 
 
-    public int build(TreeMap<String, Integer> keyValueMap)
-    {
+    public int build(TreeMap<String, Integer> keyValueMap) {
         idToLabelMap = new String[keyValueMap.size()];
-        for (Map.Entry<String, Integer> entry : keyValueMap.entrySet())
-        {
+        for (Map.Entry<String, Integer> entry : keyValueMap.entrySet()) {
             idToLabelMap[entry.getValue()] = entry.getKey();
         }
         return trie.build(keyValueMap);
@@ -58,48 +55,44 @@ public class Alphabet implements ICacheAble
 
     /**
      * label转id
+     *
      * @param label
      * @return
      */
-    public Integer idOf(char[] label)
-    {
+    public Integer idOf(char[] label) {
         return trie.get(label);
     }
 
     /**
      * label转id
+     *
      * @param label
      * @return
      */
-    public Integer idOf(String label)
-    {
+    public Integer idOf(String label) {
         return trie.get(label);
     }
 
     /**
      * 字母表大小
+     *
      * @return
      */
-    public int size()
-    {
+    public int size() {
         return trie.size();
     }
 
-    public void save(DataOutputStream out) throws Exception
-    {
+    public void save(DataOutputStream out) throws Exception {
         out.writeInt(idToLabelMap.length);
-        for (String value : idToLabelMap)
-        {
+        for (String value : idToLabelMap) {
             TextUtility.writeString(value, out);
         }
     }
 
-    public boolean load(ByteArray byteArray)
-    {
+    public boolean load(ByteArray byteArray) {
         idToLabelMap = new String[byteArray.nextInt()];
         TreeMap<String, Integer> map = new TreeMap<String, Integer>();
-        for (int i = 0; i < idToLabelMap.length; i++)
-        {
+        for (int i = 0; i < idToLabelMap.length; i++) {
             idToLabelMap[i] = byteArray.nextString();
             map.put(idToLabelMap[i], i);
         }

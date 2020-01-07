@@ -24,26 +24,22 @@ import java.util.*;
 /**
  * @author hankcs
  */
-public class TagSet implements IIdStringMap, IStringIdMap, Iterable<Map.Entry<String, Integer>>, ICacheAble
-{
+public class TagSet implements IIdStringMap, IStringIdMap, Iterable<Map.Entry<String, Integer>>, ICacheAble {
     private Map<String, Integer> stringIdMap;
     private ArrayList<String> idStringMap;
     private int[] allTags;
     public TaskType type;
 
-    public TagSet(TaskType type)
-    {
+    public TagSet(TaskType type) {
         stringIdMap = new TreeMap<String, Integer>();
         idStringMap = new ArrayList<String>();
         this.type = type;
     }
 
-    public int add(String tag)
-    {
+    public int add(String tag) {
 //        assertUnlock();
         Integer id = stringIdMap.get(tag);
-        if (id == null)
-        {
+        if (id == null) {
             id = stringIdMap.size();
             stringIdMap.put(tag, id);
             idStringMap.add(tag);
@@ -52,27 +48,22 @@ public class TagSet implements IIdStringMap, IStringIdMap, Iterable<Map.Entry<St
         return id;
     }
 
-    public int size()
-    {
+    public int size() {
         return stringIdMap.size();
     }
 
-    public int sizeIncludingBos()
-    {
+    public int sizeIncludingBos() {
         return size() + 1;
     }
 
-    public int bosId()
-    {
+    public int bosId() {
         return size();
     }
 
-    public void lock()
-    {
+    public void lock() {
 //        assertUnlock();
         allTags = new int[size()];
-        for (int i = 0; i < size(); i++)
-        {
+        for (int i = 0; i < size(); i++) {
             allTags[i] = i;
         }
     }
@@ -86,22 +77,19 @@ public class TagSet implements IIdStringMap, IStringIdMap, Iterable<Map.Entry<St
 //    }
 
     @Override
-    public String stringOf(int id)
-    {
+    public String stringOf(int id) {
         return idStringMap.get(id);
     }
 
     @Override
-    public int idOf(String string)
-    {
+    public int idOf(String string) {
         Integer id = stringIdMap.get(string);
         if (id == null) id = -1;
         return id;
     }
 
     @Override
-    public Iterator<Map.Entry<String, Integer>> iterator()
-    {
+    public Iterator<Map.Entry<String, Integer>> iterator() {
         return stringIdMap.entrySet().iterator();
     }
 
@@ -110,29 +98,24 @@ public class TagSet implements IIdStringMap, IStringIdMap, Iterable<Map.Entry<St
      *
      * @return
      */
-    public int[] allTags()
-    {
+    public int[] allTags() {
         return allTags;
     }
 
-    public void save(DataOutputStream out) throws IOException
-    {
+    public void save(DataOutputStream out) throws IOException {
         out.writeInt(type.ordinal());
         out.writeInt(size());
-        for (String tag : idStringMap)
-        {
+        for (String tag : idStringMap) {
             out.writeUTF(tag);
         }
     }
 
     @Override
-    public boolean load(ByteArray byteArray)
-    {
+    public boolean load(ByteArray byteArray) {
         idStringMap.clear();
         stringIdMap.clear();
         int size = byteArray.nextInt();
-        for (int i = 0; i < size; i++)
-        {
+        for (int i = 0; i < size; i++) {
             String tag = byteArray.nextUTF();
             idStringMap.add(tag);
             stringIdMap.put(tag, i);
@@ -141,13 +124,11 @@ public class TagSet implements IIdStringMap, IStringIdMap, Iterable<Map.Entry<St
         return true;
     }
 
-    public void load(DataInputStream in) throws IOException
-    {
+    public void load(DataInputStream in) throws IOException {
         idStringMap.clear();
         stringIdMap.clear();
         int size = in.readInt();
-        for (int i = 0; i < size; i++)
-        {
+        for (int i = 0; i < size; i++) {
             String tag = in.readUTF();
             idStringMap.add(tag);
             stringIdMap.put(tag, i);
@@ -155,13 +136,11 @@ public class TagSet implements IIdStringMap, IStringIdMap, Iterable<Map.Entry<St
         lock();
     }
 
-    public Collection<String> tags()
-    {
+    public Collection<String> tags() {
         return idStringMap;
     }
 
-    public boolean contains(String tag)
-    {
+    public boolean contains(String tag) {
         return idStringMap.contains(tag);
     }
 }

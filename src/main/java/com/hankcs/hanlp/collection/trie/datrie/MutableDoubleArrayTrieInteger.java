@@ -11,8 +11,7 @@ import static com.hankcs.hanlp.utility.Predefine.logger;
 /**
  * 可变双数组trie树，重构自：https://github.com/fancyerii/DoubleArrayTrie
  */
-public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<MutableDoubleArrayTrieInteger.KeyValuePair>, ICacheAble
-{
+public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<MutableDoubleArrayTrieInteger.KeyValuePair>, ICacheAble {
     private static final long serialVersionUID = 5586394930559218802L;
     /**
      * 0x40000000
@@ -35,16 +34,13 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
      */
     private int size;
 
-    public MutableDoubleArrayTrieInteger(Map<String, Integer> stringIntegerMap)
-    {
+    public MutableDoubleArrayTrieInteger(Map<String, Integer> stringIntegerMap) {
         this(stringIntegerMap.entrySet());
     }
 
-    public MutableDoubleArrayTrieInteger(Set<Map.Entry<String, Integer>> entrySet)
-    {
+    public MutableDoubleArrayTrieInteger(Set<Map.Entry<String, Integer>> entrySet) {
         this();
-        for (Map.Entry<String, Integer> entry : entrySet)
-        {
+        for (Map.Entry<String, Integer> entry : entrySet) {
             put(entry.getKey(), entry.getValue());
         }
     }
@@ -54,8 +50,7 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
      *
      * @param exponentialExpanding
      */
-    public void setExponentialExpanding(boolean exponentialExpanding)
-    {
+    public void setExponentialExpanding(boolean exponentialExpanding) {
         check.setExponentialExpanding(exponentialExpanding);
         base.setExponentialExpanding(exponentialExpanding);
     }
@@ -65,8 +60,7 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
      *
      * @param exponentialExpandFactor
      */
-    public void setExponentialExpandFactor(double exponentialExpandFactor)
-    {
+    public void setExponentialExpandFactor(double exponentialExpandFactor) {
         check.setExponentialExpandFactor(exponentialExpandFactor);
         base.setExponentialExpandFactor(exponentialExpandFactor);
     }
@@ -76,25 +70,21 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
      *
      * @param linearExpandFactor
      */
-    public void setLinearExpandFactor(int linearExpandFactor)
-    {
+    public void setLinearExpandFactor(int linearExpandFactor) {
         check.setLinearExpandFactor(linearExpandFactor);
         base.setLinearExpandFactor(linearExpandFactor);
     }
 
-    public MutableDoubleArrayTrieInteger()
-    {
+    public MutableDoubleArrayTrieInteger() {
         this(new Utf8CharacterMapping());
     }
 
-    public MutableDoubleArrayTrieInteger(CharacterMapping charMap)
-    {
+    public MutableDoubleArrayTrieInteger(CharacterMapping charMap) {
         this.charMap = charMap;
         clear();
     }
 
-    public void clear()
-    {
+    public void clear() {
         this.base = new IntArrayList(this.charMap.getInitSize());
         this.check = new IntArrayList(this.charMap.getInitSize());
 
@@ -106,17 +96,14 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
         expandArray(this.charMap.getInitSize());
     }
 
-    public int getCheckArraySize()
-    {
+    public int getCheckArraySize() {
         return check.size();
     }
 
-    public int getFreeSize()
-    {
+    public int getFreeSize() {
         int count = 0;
         int chk = this.check.get(0);
-        while (chk != 0)
-        {
+        while (chk != 0) {
             count++;
             chk = this.check.get(-chk);
         }
@@ -124,8 +111,7 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
         return count;
     }
 
-    private boolean isLeafValue(int value)
-    {
+    private boolean isLeafValue(int value) {
         return (value > 0) && ((value & LEAF_BIT) != 0);
     }
 
@@ -135,8 +121,7 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
      * @param value
      * @return
      */
-    private int setLeafValue(int value)
-    {
+    private int setLeafValue(int value) {
         return value | LEAF_BIT;
     }
 
@@ -146,46 +131,37 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
      * @param value
      * @return
      */
-    private int getLeafValue(int value)
-    {
+    private int getLeafValue(int value) {
         return value ^ LEAF_BIT;
     }
 
-    public int getBaseArraySize()
-    {
+    public int getBaseArraySize() {
         return this.base.size();
     }
 
-    private int getBase(int index)
-    {
+    private int getBase(int index) {
         return this.base.get(index);
     }
 
-    private int getCheck(int index)
-    {
+    private int getCheck(int index) {
         return this.check.get(index);
     }
 
-    private void setBase(int index, int value)
-    {
+    private void setBase(int index, int value) {
         this.base.set(index, value);
     }
 
-    private void setCheck(int index, int value)
-    {
+    private void setCheck(int index, int value) {
         this.check.set(index, value);
     }
 
-    protected boolean isEmpty(int index)
-    {
+    protected boolean isEmpty(int index) {
         return getCheck(index) <= 0;
     }
 
-    private int getNextFreeBase(int nextChar)
-    {
+    private int getNextFreeBase(int nextChar) {
         int index = -getCheck(0);
-        while (index != 0)
-        {
+        while (index != 0) {
             if (index > nextChar + 1) // 因为ROOT的index从1开始，所以至少要大于1
             {
                 return index - nextChar;
@@ -197,8 +173,7 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
         return oldSize;
     }
 
-    private void addFreeLink(int index)
-    {
+    private void addFreeLink(int index) {
         this.check.set(index, this.check.get(-this.base.get(0)));
         this.check.set(-this.base.get(0), -index);
         this.base.set(index, this.base.get(0));
@@ -210,8 +185,7 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
      *
      * @param index
      */
-    private void deleteFreeLink(int index)
-    {
+    private void deleteFreeLink(int index) {
         this.base.set(-this.check.get(index), this.base.get(index));
         this.check.set(-this.base.get(index), this.check.get(index));
     }
@@ -221,19 +195,15 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
      *
      * @param maxSize 需要的容量
      */
-    private void expandArray(int maxSize)
-    {
+    private void expandArray(int maxSize) {
         int curSize = getBaseArraySize();
-        if (curSize > maxSize)
-        {
+        if (curSize > maxSize) {
             return;
         }
-        if (maxSize >= LEAF_BIT)
-        {
+        if (maxSize >= LEAF_BIT) {
             throw new RuntimeException("Double Array Trie size exceeds absolute threshold");
         }
-        for (int i = curSize; i <= maxSize; ++i)
-        {
+        for (int i = curSize; i <= maxSize; ++i) {
             this.base.append(0);
             this.check.append(0);
             addFreeLink(i);
@@ -248,14 +218,11 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
      * @param overwrite 是否覆盖
      * @return
      */
-    public boolean insert(String key, int value, boolean overwrite)
-    {
-        if ((null == key) || key.length() == 0 || (key.indexOf(UNUSED_CHAR) != -1))
-        {
+    public boolean insert(String key, int value, boolean overwrite) {
+        if ((null == key) || key.length() == 0 || (key.indexOf(UNUSED_CHAR) != -1)) {
             return false;
         }
-        if ((value < 0) || ((value & LEAF_BIT) != 0))
-        {
+        if ((value < 0) || ((value & LEAF_BIT) != 0)) {
             return false;
         }
 
@@ -266,14 +233,12 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
         int fromState = 1; // 根节点的index为1
         int toState = 1;
         int index = 0;
-        while (index < ids.length)
-        {
+        while (index < ids.length) {
             int c = ids[index];
             toState = getBase(fromState) + c; // to = base[from] + c
             expandArray(toState);
 
-            if (isEmpty(toState))
-            {
+            if (isEmpty(toState)) {
                 deleteFreeLink(toState);
 
                 setCheck(toState, fromState); // check[to] = from
@@ -281,14 +246,11 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
                 {
                     ++this.size;
                     setBase(toState, value);  // base[to] = value
-                }
-                else
-                {
+                } else {
                     int nextChar = ids[(index + 1)];
                     setBase(toState, getNextFreeBase(nextChar)); // base[to] = free_state - c
                 }
-            }
-            else if (getCheck(toState) != fromState) // 冲突
+            } else if (getCheck(toState) != fromState) // 冲突
             {
                 solveConflict(fromState, c);
                 continue;
@@ -296,8 +258,7 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
             fromState = toState;
             ++index;
         }
-        if (overwrite)
-        {
+        if (overwrite) {
             setBase(toState, value);
         }
         return true;
@@ -309,33 +270,28 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
      * @param children 子节点集合
      * @return base值
      */
-    private int searchFreeBase(SortedSet<Integer> children)
-    {
+    private int searchFreeBase(SortedSet<Integer> children) {
         int minChild = children.first();
         int maxChild = children.last();
         int current = 0;
         while (getCheck(current) != 0) // 循环链表回到了头，说明没有符合要求的“连续”区间
         {
-            if (current > minChild + 1)
-            {
+            if (current > minChild + 1) {
                 int base = current - minChild;
                 boolean ok = true;
                 for (Iterator<Integer> it = children.iterator(); it.hasNext(); ) // 检查是否每个子节点的位置都空闲（“连续”区间）
                 {
                     int to = base + it.next();
-                    if (to >= getBaseArraySize())
-                    {
+                    if (to >= getBaseArraySize()) {
                         ok = false;
                         break;
                     }
-                    if (!isEmpty(to))
-                    {
+                    if (!isEmpty(to)) {
                         ok = false;
                         break;
                     }
                 }
-                if (ok)
-                {
+                if (ok) {
                     return base;
                 }
             }
@@ -352,29 +308,24 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
      * @param parent   父节点
      * @param newChild 子节点的char值
      */
-    private void solveConflict(int parent, int newChild)
-    {
+    private void solveConflict(int parent, int newChild) {
         // 找出parent的所有子节点
         TreeSet<Integer> children = new TreeSet<Integer>();
         children.add(newChild);
         final int charsetSize = this.charMap.getCharsetSize();
-        for (int c = 0; c < charsetSize; ++c)
-        {
+        for (int c = 0; c < charsetSize; ++c) {
             int next = getBase(parent) + c;
-            if (next >= getBaseArraySize())
-            {
+            if (next >= getBaseArraySize()) {
                 break;
             }
-            if (getCheck(next) == parent)
-            {
+            if (getCheck(next) == parent) {
                 children.add(c);
             }
         }
         // 移动旧子节点到新的位置
         int newBase = searchFreeBase(children);
         children.remove(newChild);
-        for (Integer c : children)
-        {
+        for (Integer c : children) {
             int child = newBase + c;
             deleteFreeLink(child);
 
@@ -382,17 +333,13 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
             int childBase = getBase(getBase(parent) + c);
             setBase(child, childBase);
 
-            if (!isLeafValue(childBase))
-            {
-                for (int d = 0; d < charsetSize; ++d)
-                {
+            if (!isLeafValue(childBase)) {
+                for (int d = 0; d < charsetSize; ++d) {
                     int to = childBase + d;
-                    if (to >= getBaseArraySize())
-                    {
+                    if (to >= getBaseArraySize()) {
                         break;
                     }
-                    if (getCheck(to) == getBase(parent) + c)
-                    {
+                    if (getCheck(to) == getBase(parent) + c) {
                         setCheck(to, child);
                     }
                 }
@@ -408,13 +355,11 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
      *
      * @return
      */
-    public int size()
-    {
+    public int size() {
         return this.size;
     }
 
-    public boolean isEmpty()
-    {
+    public boolean isEmpty() {
         return size == 0;
     }
 
@@ -425,8 +370,7 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
      * @param value
      * @return
      */
-    public boolean insert(String key, int value)
-    {
+    public boolean insert(String key, int value) {
         return insert(key, value, true);
     }
 
@@ -437,8 +381,7 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
      * @param value
      * @return
      */
-    public boolean add(String key, int value)
-    {
+    public boolean add(String key, int value) {
         return insert(key, value, false);
     }
 
@@ -448,8 +391,7 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
      * @param key
      * @return
      */
-    public boolean add(String key)
-    {
+    public boolean add(String key) {
         return add(key, size);
     }
 
@@ -459,37 +401,28 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
      * @param prefix
      * @return
      */
-    public List<String> prefixMatch(String prefix)
-    {
+    public List<String> prefixMatch(String prefix) {
         int curState = 1;
         IntArrayList bytes = new IntArrayList(prefix.length() * 4);
-        for (int i = 0; i < prefix.length(); i++)
-        {
+        for (int i = 0; i < prefix.length(); i++) {
             int codePoint = prefix.charAt(i);
-            if (curState < 1)
-            {
+            if (curState < 1) {
                 return Collections.emptyList();
             }
-            if ((curState != 1) && (isEmpty(curState)))
-            {
+            if ((curState != 1) && (isEmpty(curState))) {
                 return Collections.emptyList();
             }
             int[] ids = this.charMap.toIdList(codePoint);
-            if (ids.length == 0)
-            {
+            if (ids.length == 0) {
                 return Collections.emptyList();
             }
-            for (int j = 0; j < ids.length; j++)
-            {
+            for (int j = 0; j < ids.length; j++) {
                 int c = ids[j];
                 if ((getBase(curState) + c < getBaseArraySize())
-                    && (getCheck(getBase(curState) + c) == curState))
-                {
+                        && (getCheck(getBase(curState) + c) == curState)) {
                     bytes.append(c);
                     curState = getBase(curState) + c;
-                }
-                else
-                {
+                } else {
                     return Collections.emptyList();
                 }
             }
@@ -501,24 +434,19 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
         return result;
     }
 
-    private void recursiveAddSubTree(int curState, List<String> result, IntArrayList bytes)
-    {
-        if (getCheck(getBase(curState) + UNUSED_CHAR_VALUE) == curState)
-        {
+    private void recursiveAddSubTree(int curState, List<String> result, IntArrayList bytes) {
+        if (getCheck(getBase(curState) + UNUSED_CHAR_VALUE) == curState) {
             byte[] array = new byte[bytes.size()];
-            for (int i = 0; i < bytes.size(); i++)
-            {
+            for (int i = 0; i < bytes.size(); i++) {
                 array[i] = (byte) bytes.get(i);
             }
             result.add(new String(array, Utf8CharacterMapping.UTF_8));
         }
         int base = getBase(curState);
-        for (int c = 0; c < charMap.getCharsetSize(); c++)
-        {
+        for (int c = 0; c < charMap.getCharsetSize(); c++) {
             if (c == UNUSED_CHAR_VALUE) continue;
             int check = getCheck(base + c);
-            if (base + c < getBaseArraySize() && check == curState)
-            {
+            if (base + c < getBaseArraySize() && check == curState) {
                 bytes.append(c);
                 recursiveAddSubTree(base + c, result, bytes);
                 bytes.removeLast();
@@ -531,27 +459,22 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
      *
      * @param query
      * @param start
-     * @return (最长长度，对应的值)
+     * @return (最长长度 ， 对应的值)
      */
-    public int[] findLongest(CharSequence query, int start)
-    {
-        if ((query == null) || (start >= query.length()))
-        {
+    public int[] findLongest(CharSequence query, int start) {
+        if ((query == null) || (start >= query.length())) {
             return new int[]{0, -1};
         }
         int state = 1;
         int maxLength = 0;
         int lastVal = -1;
-        for (int i = start; i < query.length(); i++)
-        {
+        for (int i = start; i < query.length(); i++) {
             int[] res = transferValues(state, query.charAt(i));
-            if (res[0] == -1)
-            {
+            if (res[0] == -1) {
                 break;
             }
             state = res[0];
-            if (res[1] != -1)
-            {
+            if (res[1] != -1) {
                 maxLength = i - start + 1;
                 lastVal = res[1];
             }
@@ -559,28 +482,23 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
         return new int[]{maxLength, lastVal};
     }
 
-    public int[] findWithSupplementary(String query, int start)
-    {
-        if ((query == null) || (start >= query.length()))
-        {
+    public int[] findWithSupplementary(String query, int start) {
+        if ((query == null) || (start >= query.length())) {
             return new int[]{0, -1};
         }
         int curState = 1;
         int maxLength = 0;
         int lastVal = -1;
         int charCount = 1;
-        for (int i = start; i < query.length(); i += charCount)
-        {
+        for (int i = start; i < query.length(); i += charCount) {
             int codePoint = query.codePointAt(i);
             charCount = Character.charCount(codePoint);
             int[] res = transferValues(curState, codePoint);
-            if (res[0] == -1)
-            {
+            if (res[0] == -1) {
                 break;
             }
             curState = res[0];
-            if (res[1] != -1)
-            {
+            if (res[1] != -1) {
                 maxLength = i - start + 1;
                 lastVal = res[1];
             }
@@ -589,27 +507,22 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
 
     }
 
-    public List<int[]> findAllWithSupplementary(String query, int start)
-    {
+    public List<int[]> findAllWithSupplementary(String query, int start) {
         List<int[]> ret = new ArrayList<int[]>(5);
-        if ((query == null) || (start >= query.length()))
-        {
+        if ((query == null) || (start >= query.length())) {
             return ret;
         }
         int curState = 1;
         int charCount = 1;
-        for (int i = start; i < query.length(); i += charCount)
-        {
+        for (int i = start; i < query.length(); i += charCount) {
             int codePoint = query.codePointAt(i);
             charCount = Character.charCount(codePoint);
             int[] res = transferValues(curState, codePoint);
-            if (res[0] == -1)
-            {
+            if (res[0] == -1) {
                 break;
             }
             curState = res[0];
-            if (res[1] != -1)
-            {
+            if (res[1] != -1) {
                 ret.add(new int[]{i - start + 1, res[1]});
             }
         }
@@ -623,24 +536,19 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
      * @param start
      * @return
      */
-    public List<int[]> commonPrefixSearch(String query, int start)
-    {
+    public List<int[]> commonPrefixSearch(String query, int start) {
         List<int[]> ret = new ArrayList<int[]>(5);
-        if ((query == null) || (start >= query.length()))
-        {
+        if ((query == null) || (start >= query.length())) {
             return ret;
         }
         int curState = 1;
-        for (int i = start; i < query.length(); i++)
-        {
+        for (int i = start; i < query.length(); i++) {
             int[] res = transferValues(curState, query.charAt(i));
-            if (res[0] == -1)
-            {
+            if (res[0] == -1) {
                 break;
             }
             curState = res[0];
-            if (res[1] != -1)
-            {
+            if (res[1] != -1) {
                 ret.add(new int[]{i - start + 1, res[1]});
             }
         }
@@ -654,38 +562,29 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
      * @param codePoint char
      * @return
      */
-    public int[] transferValues(int state, int codePoint)
-    {
-        if (state < 1)
-        {
+    public int[] transferValues(int state, int codePoint) {
+        if (state < 1) {
             return EMPTY_WALK_STATE;
         }
-        if ((state != 1) && (isEmpty(state)))
-        {
+        if ((state != 1) && (isEmpty(state))) {
             return EMPTY_WALK_STATE;
         }
         int[] ids = this.charMap.toIdList(codePoint);
-        if (ids.length == 0)
-        {
+        if (ids.length == 0) {
             return EMPTY_WALK_STATE;
         }
-        for (int i = 0; i < ids.length; i++)
-        {
+        for (int i = 0; i < ids.length; i++) {
             int c = ids[i];
             if ((getBase(state) + c < getBaseArraySize())
-                && (getCheck(getBase(state) + c) == state))
-            {
+                    && (getCheck(getBase(state) + c) == state)) {
                 state = getBase(state) + c;
-            }
-            else
-            {
+            } else {
                 return EMPTY_WALK_STATE;
             }
         }
-        if (getCheck(getBase(state) + UNUSED_CHAR_VALUE) == state)
-        {
+        if (getCheck(getBase(state) + UNUSED_CHAR_VALUE) == state) {
             int value = getLeafValue(getBase(getBase(state)
-                                                 + UNUSED_CHAR_VALUE));
+                    + UNUSED_CHAR_VALUE));
             return new int[]{state, value};
         }
         return new int[]{state, -1};
@@ -698,19 +597,15 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
      * @param codePoint
      * @return
      */
-    public int transfer(int state, int codePoint)
-    {
-        if (state < 1)
-        {
+    public int transfer(int state, int codePoint) {
+        if (state < 1) {
             return -1;
         }
-        if ((state != 1) && (isEmpty(state)))
-        {
+        if ((state != 1) && (isEmpty(state))) {
             return -1;
         }
         int[] ids = this.charMap.toIdList(codePoint);
-        if (ids.length == 0)
-        {
+        if (ids.length == 0) {
             return -1;
         }
         return transfer(state, ids);
@@ -723,28 +618,21 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
      * @param ids
      * @return
      */
-    private int transfer(int state, int[] ids)
-    {
-        for (int c : ids)
-        {
+    private int transfer(int state, int[] ids) {
+        for (int c : ids) {
             if ((getBase(state) + c < getBaseArraySize())
-                && (getCheck(getBase(state) + c) == state))
-            {
+                    && (getCheck(getBase(state) + c) == state)) {
                 state = getBase(state) + c;
-            }
-            else
-            {
+            } else {
                 return -1;
             }
         }
         return state;
     }
 
-    public int stateValue(int state)
-    {
+    public int stateValue(int state) {
         int leaf = getBase(state) + UNUSED_CHAR_VALUE;
-        if (getCheck(leaf) == state)
-        {
+        if (getCheck(leaf) == state) {
             return getLeafValue(getBase(leaf));
         }
         return -1;
@@ -753,8 +641,7 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
     /**
      * 去掉多余的buffer
      */
-    public void loseWeight()
-    {
+    public void loseWeight() {
         base.loseWeight();
         check.loseWeight();
     }
@@ -764,16 +651,12 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
      *
      * @param from
      */
-    public void decreaseValues(int from)
-    {
-        for (int state = 1; state < getBaseArraySize(); ++state)
-        {
+    public void decreaseValues(int from) {
+        for (int state = 1; state < getBaseArraySize(); ++state) {
             int leaf = getBase(state) + UNUSED_CHAR_VALUE;
-            if (1 < leaf && leaf < getCheckArraySize() && getCheck(leaf) == state)
-            {
+            if (1 < leaf && leaf < getCheckArraySize() && getCheck(leaf) == state) {
                 int value = getLeafValue(getBase(leaf));
-                if (value >= from)
-                {
+                if (value >= from) {
                     setBase(leaf, setLeafValue(--value));
                 }
             }
@@ -787,15 +670,13 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
      * @param start
      * @return -1表示不存在
      */
-    public int get(String key, int start)
-    {
+    public int get(String key, int start) {
         assert key != null;
         assert 0 <= start && start <= key.length();
         int state = 1;
         int[] ids = charMap.toIdList(key.substring(start));
         state = transfer(state, ids);
-        if (state < 0)
-        {
+        if (state < 0) {
             return -1;
         }
         return stateValue(state);
@@ -807,8 +688,7 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
      * @param key
      * @return -1表示不存在
      */
-    public int get(String key)
-    {
+    public int get(String key) {
         return get(key, 0);
     }
 
@@ -819,8 +699,7 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
      * @param value
      * @return 是否设置成功（失败的原因是键值不合法）
      */
-    public boolean set(String key, int value)
-    {
+    public boolean set(String key, int value) {
         return insert(key, value, true);
     }
 
@@ -831,8 +710,7 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
      * @param value
      * @return 是否设置成功（失败的原因是键值不合法）
      */
-    public boolean put(String key, int value)
-    {
+    public boolean put(String key, int value) {
         return insert(key, value, true);
     }
 
@@ -842,8 +720,7 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
      * @param key
      * @return 值
      */
-    public int remove(String key)
-    {
+    public int remove(String key) {
         return delete(key);
     }
 
@@ -853,10 +730,8 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
      * @param key
      * @return 值
      */
-    public int delete(String key)
-    {
-        if (key == null)
-        {
+    public int delete(String key) {
+        if (key == null) {
             return -1;
         }
         int curState = 1;
@@ -864,44 +739,35 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
 
         int[] path = new int[ids.length + 1];
         int i = 0;
-        for (; i < ids.length; i++)
-        {
+        for (; i < ids.length; i++) {
             int c = ids[i];
             if ((getBase(curState) + c >= getBaseArraySize())
-                || (getCheck(getBase(curState) + c) != curState))
-            {
+                    || (getCheck(getBase(curState) + c) != curState)) {
                 break;
             }
             curState = getBase(curState) + c;
             path[i] = curState;
         }
         int ret = -1;
-        if (i == ids.length)
-        {
-            if (getCheck(getBase(curState) + UNUSED_CHAR_VALUE) == curState)
-            {
+        if (i == ids.length) {
+            if (getCheck(getBase(curState) + UNUSED_CHAR_VALUE) == curState) {
                 --this.size;
                 ret = getLeafValue(getBase(getBase(curState) + UNUSED_CHAR_VALUE));
                 path[(path.length - 1)] = (getBase(curState) + UNUSED_CHAR_VALUE);
-                for (int j = path.length - 1; j >= 0; --j)
-                {
+                for (int j = path.length - 1; j >= 0; --j) {
                     boolean isLeaf = true;
                     int state = path[j];
-                    for (int k = 0; k < this.charMap.getCharsetSize(); k++)
-                    {
-                        if (isLeafValue(getBase(state)))
-                        {
+                    for (int k = 0; k < this.charMap.getCharsetSize(); k++) {
+                        if (isLeafValue(getBase(state))) {
                             break;
                         }
                         if ((getBase(state) + k < getBaseArraySize())
-                            && (getCheck(getBase(state) + k) == state))
-                        {
+                                && (getCheck(getBase(state) + k) == state)) {
                             isLeaf = false;
                             break;
                         }
                     }
-                    if (!isLeaf)
-                    {
+                    if (!isLeaf) {
                         break;
                     }
                     addFreeLink(state);
@@ -916,13 +782,10 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
      *
      * @return
      */
-    public int getEmptySize()
-    {
+    public int getEmptySize() {
         int size = 0;
-        for (int i = 0; i < getBaseArraySize(); i++)
-        {
-            if (isEmpty(i))
-            {
+        for (int i = 0; i < getBaseArraySize(); i++) {
+            if (isEmpty(i)) {
                 ++size;
             }
         }
@@ -934,55 +797,44 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
      *
      * @return
      */
-    public int getMaximumValue()
-    {
+    public int getMaximumValue() {
         return LEAF_BIT - 1;
     }
 
-    public Set<Map.Entry<String, Integer>> entrySet()
-    {
-        return new Set<Map.Entry<String, Integer>>()
-        {
+    public Set<Map.Entry<String, Integer>> entrySet() {
+        return new Set<Map.Entry<String, Integer>>() {
             @Override
-            public int size()
-            {
+            public int size() {
                 return MutableDoubleArrayTrieInteger.this.size;
             }
 
             @Override
-            public boolean isEmpty()
-            {
+            public boolean isEmpty() {
                 return MutableDoubleArrayTrieInteger.this.isEmpty();
             }
 
             @Override
-            public boolean contains(Object o)
-            {
+            public boolean contains(Object o) {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            public Iterator<Map.Entry<String, Integer>> iterator()
-            {
-                return new Iterator<Map.Entry<String, Integer>>()
-                {
+            public Iterator<Map.Entry<String, Integer>> iterator() {
+                return new Iterator<Map.Entry<String, Integer>>() {
                     KeyValuePair iterator = MutableDoubleArrayTrieInteger.this.iterator();
 
                     @Override
-                    public boolean hasNext()
-                    {
+                    public boolean hasNext() {
                         return iterator.hasNext();
                     }
 
                     @Override
-                    public void remove()
-                    {
+                    public void remove() {
                         throw new UnsupportedOperationException();
                     }
 
                     @Override
-                    public Map.Entry<String, Integer> next()
-                    {
+                    public Map.Entry<String, Integer> next() {
                         iterator.next();
                         return new AbstractMap.SimpleEntry<String, Integer>(iterator.key, iterator.value);
                     }
@@ -990,187 +842,154 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
             }
 
             @Override
-            public Object[] toArray()
-            {
+            public Object[] toArray() {
                 ArrayList<Map.Entry<String, Integer>> entries = new ArrayList<Map.Entry<String, Integer>>(size);
-                for (Map.Entry<String, Integer> entry : this)
-                {
+                for (Map.Entry<String, Integer> entry : this) {
                     entries.add(entry);
                 }
                 return entries.toArray();
             }
 
             @Override
-            public <T> T[] toArray(T[] a)
-            {
+            public <T> T[] toArray(T[] a) {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            public boolean add(Map.Entry<String, Integer> stringIntegerEntry)
-            {
+            public boolean add(Map.Entry<String, Integer> stringIntegerEntry) {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            public boolean remove(Object o)
-            {
+            public boolean remove(Object o) {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            public boolean containsAll(Collection<?> c)
-            {
+            public boolean containsAll(Collection<?> c) {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            public boolean addAll(Collection<? extends Map.Entry<String, Integer>> c)
-            {
+            public boolean addAll(Collection<? extends Map.Entry<String, Integer>> c) {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            public boolean retainAll(Collection<?> c)
-            {
+            public boolean retainAll(Collection<?> c) {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            public boolean removeAll(Collection<?> c)
-            {
+            public boolean removeAll(Collection<?> c) {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            public void clear()
-            {
+            public void clear() {
                 throw new UnsupportedOperationException();
             }
         };
     }
 
     @Override
-    public KeyValuePair iterator()
-    {
+    public KeyValuePair iterator() {
         return new KeyValuePair();
     }
 
-    public boolean containsKey(String key)
-    {
+    public boolean containsKey(String key) {
         return get(key) != -1;
     }
 
-    public Set<String> keySet()
-    {
-        return new Set<String>()
-        {
+    public Set<String> keySet() {
+        return new Set<String>() {
             @Override
-            public int size()
-            {
+            public int size() {
                 return MutableDoubleArrayTrieInteger.this.size;
             }
 
             @Override
-            public boolean isEmpty()
-            {
+            public boolean isEmpty() {
                 return MutableDoubleArrayTrieInteger.this.isEmpty();
             }
 
             @Override
-            public boolean contains(Object o)
-            {
+            public boolean contains(Object o) {
                 return MutableDoubleArrayTrieInteger.this.containsKey((String) o);
             }
 
             @Override
-            public Iterator<String> iterator()
-            {
-                return new Iterator<String>()
-                {
+            public Iterator<String> iterator() {
+                return new Iterator<String>() {
                     KeyValuePair iterator = MutableDoubleArrayTrieInteger.this.iterator();
 
                     @Override
-                    public void remove()
-                    {
+                    public void remove() {
                         throw new UnsupportedOperationException();
                     }
 
                     @Override
-                    public boolean hasNext()
-                    {
+                    public boolean hasNext() {
                         return iterator.hasNext();
                     }
 
                     @Override
-                    public String next()
-                    {
+                    public String next() {
                         return iterator.next().key;
                     }
                 };
             }
 
             @Override
-            public Object[] toArray()
-            {
+            public Object[] toArray() {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            public <T> T[] toArray(T[] a)
-            {
+            public <T> T[] toArray(T[] a) {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            public boolean add(String s)
-            {
+            public boolean add(String s) {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            public boolean remove(Object o)
-            {
+            public boolean remove(Object o) {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            public boolean containsAll(Collection<?> c)
-            {
+            public boolean containsAll(Collection<?> c) {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            public boolean addAll(Collection<? extends String> c)
-            {
+            public boolean addAll(Collection<? extends String> c) {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            public boolean retainAll(Collection<?> c)
-            {
+            public boolean retainAll(Collection<?> c) {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            public boolean removeAll(Collection<?> c)
-            {
+            public boolean removeAll(Collection<?> c) {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            public void clear()
-            {
+            public void clear() {
                 throw new UnsupportedOperationException();
             }
         };
     }
 
     @Override
-    public void save(DataOutputStream out) throws IOException
-    {
-        if (!(charMap instanceof Utf8CharacterMapping))
-        {
+    public void save(DataOutputStream out) throws IOException {
+        if (!(charMap instanceof Utf8CharacterMapping)) {
             logger.warning("将来需要在构造的时候传入 " + charMap.getClass());
         }
         out.writeInt(size);
@@ -1179,23 +998,20 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
     }
 
     @Override
-    public boolean load(ByteArray byteArray)
-    {
+    public boolean load(ByteArray byteArray) {
         size = byteArray.nextInt();
         if (!base.load(byteArray)) return false;
         if (!check.load(byteArray)) return false;
         return true;
     }
 
-    private void writeObject(ObjectOutputStream out) throws IOException
-    {
+    private void writeObject(ObjectOutputStream out) throws IOException {
         out.writeInt(size);
         out.writeObject(base);
         out.writeObject(check);
     }
 
-    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException
-    {
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         size = in.readInt();
         base = (IntArrayList) in.readObject();
         check = (IntArrayList) in.readObject();
@@ -1212,8 +1028,7 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
 //        return new KeyValuePair();
 //    }
 
-    public class KeyValuePair implements Iterator<KeyValuePair>
-    {
+    public class KeyValuePair implements Iterator<KeyValuePair> {
         /**
          * 储存(index, charPoint)
          */
@@ -1226,32 +1041,25 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
         private String key = null;
         private int currentBase;
 
-        public KeyValuePair()
-        {
+        public KeyValuePair() {
             path = new IntArrayList(20);
             path.append(1); // ROOT
             int from = 1;
             int b = base.get(from);
-            if (size > 0)
-            {
-                while (true)
-                {
-                    for (int i = 0; i < charMap.getCharsetSize(); i++)
-                    {
+            if (size > 0) {
+                while (true) {
+                    for (int i = 0; i < charMap.getCharsetSize(); i++) {
                         int c = check.get(b + i);
-                        if (c == from)
-                        {
+                        if (c == from) {
                             path.append(i);
                             from = b + i;
                             path.append(from);
                             b = base.get(from);
                             i = 0;
-                            if (getCheck(b + UNUSED_CHAR_VALUE) == from)
-                            {
+                            if (getCheck(b + UNUSED_CHAR_VALUE) == from) {
                                 value = getLeafValue(getBase(b + UNUSED_CHAR_VALUE));
                                 int[] ids = new int[path.size() / 2];
-                                for (int k = 0, j = 1; j < path.size(); k++, j += 2)
-                                {
+                                for (int k = 0, j = 1; j < path.size(); k++, j += 2) {
                                     ids[k] = path.get(j);
                                 }
                                 key = charMap.toString(ids);
@@ -1265,28 +1073,23 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
             }
         }
 
-        public String key()
-        {
+        public String key() {
             return key;
         }
 
-        public int value()
-        {
+        public int value() {
             return value;
         }
 
-        public String getKey()
-        {
+        public String getKey() {
             return key;
         }
 
-        public int getValue()
-        {
+        public int getValue() {
             return value;
         }
 
-        public int setValue(int v)
-        {
+        public int setValue(int v) {
             int value = getLeafValue(v);
             setBase(currentBase + UNUSED_CHAR_VALUE, value);
             this.value = v;
@@ -1294,25 +1097,17 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
         }
 
         @Override
-        public boolean hasNext()
-        {
+        public boolean hasNext() {
             return index < size;
         }
 
         @Override
-        public KeyValuePair next()
-        {
-            if (index >= size)
-            {
+        public KeyValuePair next() {
+            if (index >= size) {
                 throw new NoSuchElementException();
-            }
-            else if (index == 0)
-            {
-            }
-            else
-            {
-                while (path.size() > 0)
-                {
+            } else if (index == 0) {
+            } else {
+                while (path.size() > 0) {
                     int charPoint = path.pop();
                     int base = path.getLast();
                     int n = getNext(base, charPoint);
@@ -1326,8 +1121,7 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
         }
 
         @Override
-        public void remove()
-        {
+        public void remove() {
             throw new UnsupportedOperationException();
         }
 
@@ -1338,36 +1132,29 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
          * @param charPoint 子节点的char
          * @return
          */
-        private int getNext(int parent, int charPoint)
-        {
+        private int getNext(int parent, int charPoint) {
             int startChar = charPoint + 1;
             int baseParent = getBase(parent);
             int from = parent;
 
-            for (int i = startChar; i < charMap.getCharsetSize(); i++)
-            {
+            for (int i = startChar; i < charMap.getCharsetSize(); i++) {
                 int to = baseParent + i;
-                if (check.size() > to && check.get(to) == from)
-                {
+                if (check.size() > to && check.get(to) == from) {
                     path.append(i);
                     from = to;
                     path.append(from);
                     baseParent = base.get(from);
-                    if (getCheck(baseParent + UNUSED_CHAR_VALUE) == from)
-                    {
+                    if (getCheck(baseParent + UNUSED_CHAR_VALUE) == from) {
                         value = getLeafValue(getBase(baseParent + UNUSED_CHAR_VALUE));
                         int[] ids = new int[path.size() / 2];
-                        for (int k = 0, j = 1; j < path.size(); ++k, j += 2)
-                        {
+                        for (int k = 0, j = 1; j < path.size(); ++k, j += 2) {
                             ids[k] = path.get(j);
                         }
                         key = charMap.toString(ids);
                         path.append(UNUSED_CHAR_VALUE);
                         currentBase = baseParent;
                         return from;
-                    }
-                    else
-                    {
+                    } else {
                         return getNext(from, 0);
                     }
                 }
@@ -1376,8 +1163,7 @@ public class MutableDoubleArrayTrieInteger implements Serializable, Iterable<Mut
         }
 
         @Override
-        public String toString()
-        {
+        public String toString() {
             return key + '=' + value;
         }
     }

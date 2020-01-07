@@ -13,7 +13,6 @@ package com.hankcs.hanlp.model.perceptron.common;
 /**
  * @author hankcs
  */
-public enum TaskType
-{
+public enum TaskType {
     CWS, POS, NER, CLASSIFICATION
 }

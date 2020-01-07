@@ -15,13 +15,12 @@ import java.util.TreeSet;
 
 /**
  * 一个不接受空白的字符串set
+ *
  * @author hankcs
  */
-public class UnEmptyStringSet extends TreeSet<String>
-{
+public class UnEmptyStringSet extends TreeSet<String> {
     @Override
-    public boolean add(String s)
-    {
+    public boolean add(String s) {
         if (s.trim().length() == 0) return false;
 
         return super.add(s);

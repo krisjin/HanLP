@@ -23,10 +23,10 @@ import java.util.regex.Pattern;
 
 /**
  * 可以识别URL的分词器
+ *
  * @author hankcs
  */
-public class URLTokenizer
-{
+public class URLTokenizer {
     /**
      * 预置分词器
      */
@@ -35,17 +35,16 @@ public class URLTokenizer
 
     /**
      * 分词
+     *
      * @param text 文本
      * @return 分词结果
      */
-    public static List<Term> segment(String text)
-    {
+    public static List<Term> segment(String text) {
         List<Term> termList = new LinkedList<Term>();
         Matcher matcher = WEB_URL.matcher(text);
         int begin = 0;
         int end;
-        while (matcher.find())
-        {
+        while (matcher.find()) {
             end = matcher.start();
             termList.addAll(SEGMENT.seg(text.substring(begin, end)));
             termList.add(new Term(matcher.group(), Nature.xu));

@@ -11,8 +11,7 @@ import java.util.ArrayList;
 /**
  * CoNLL中的一个句子
  */
-public class Sentence implements Comparable
-{
+public class Sentence implements Comparable {
     /**
      * 词语id
      */
@@ -27,15 +26,13 @@ public class Sentence implements Comparable
     private int[] brownClusterFullString;
 
 
-    public Sentence(ArrayList<Integer> tokens, ArrayList<Integer> pos, ArrayList<Integer> brownCluster4thPrefix, ArrayList<Integer> brownCluster6thPrefix, ArrayList<Integer> brownClusterFullString)
-    {
+    public Sentence(ArrayList<Integer> tokens, ArrayList<Integer> pos, ArrayList<Integer> brownCluster4thPrefix, ArrayList<Integer> brownCluster6thPrefix, ArrayList<Integer> brownClusterFullString) {
         words = new int[tokens.size()];
         tags = new int[tokens.size()];
         this.brownCluster4thPrefix = new int[tokens.size()];
         this.brownCluster6thPrefix = new int[tokens.size()];
         this.brownClusterFullString = new int[tokens.size()];
-        for (int i = 0; i < tokens.size(); i++)
-        {
+        for (int i = 0; i < tokens.size(); i++) {
             words[i] = tokens.get(i);
             tags[i] = pos.get(i);
             this.brownCluster4thPrefix[i] = brownCluster4thPrefix.get(i);
@@ -44,56 +41,46 @@ public class Sentence implements Comparable
         }
     }
 
-    public int size()
-    {
+    public int size() {
         return words.length;
     }
 
-    public int posAt(int position)
-    {
+    public int posAt(int position) {
         if (position == 0)
             return 0;
 
         return tags[position - 1];
     }
 
-    public int[] getWords()
-    {
+    public int[] getWords() {
         return words;
     }
 
-    public int[] getTags()
-    {
+    public int[] getTags() {
         return tags;
     }
 
 
-    public int[] getBrownCluster4thPrefix()
-    {
+    public int[] getBrownCluster4thPrefix() {
         return brownCluster4thPrefix;
     }
 
 
-    public int[] getBrownCluster6thPrefix()
-    {
+    public int[] getBrownCluster6thPrefix() {
         return brownCluster6thPrefix;
     }
 
-    public int[] getBrownClusterFullString()
-    {
+    public int[] getBrownClusterFullString() {
         return brownClusterFullString;
     }
 
     @Override
-    public boolean equals(Object obj)
-    {
-        if (obj instanceof Sentence)
-        {
+    public boolean equals(Object obj) {
+        if (obj instanceof Sentence) {
             Sentence sentence = (Sentence) obj;
             if (sentence.words.length != words.length)
                 return false;
-            for (int i = 0; i < sentence.words.length; i++)
-            {
+            for (int i = 0; i < sentence.words.length; i++) {
                 if (sentence.words[i] != words[i])
                     return false;
                 if (sentence.tags[i] != tags[i])
@@ -105,19 +92,16 @@ public class Sentence implements Comparable
     }
 
     @Override
-    public int compareTo(Object o)
-    {
+    public int compareTo(Object o) {
         if (equals(o))
             return 0;
         return hashCode() - o.hashCode();
     }
 
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         int hash = 0;
-        for (int tokenId = 0; tokenId < words.length; tokenId++)
-        {
+        for (int tokenId = 0; tokenId < words.length; tokenId++) {
             hash ^= (words[tokenId] * tags[tokenId]);
         }
         return hash;

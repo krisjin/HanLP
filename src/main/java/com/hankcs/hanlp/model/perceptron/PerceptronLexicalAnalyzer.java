@@ -25,63 +25,48 @@ import java.util.List;
  *
  * @author hankcs
  */
-public class PerceptronLexicalAnalyzer extends AbstractLexicalAnalyzer
-{
-    public PerceptronLexicalAnalyzer(PerceptronSegmenter segmenter)
-    {
+public class PerceptronLexicalAnalyzer extends AbstractLexicalAnalyzer {
+    public PerceptronLexicalAnalyzer(PerceptronSegmenter segmenter) {
         super(segmenter);
     }
 
-    public PerceptronLexicalAnalyzer(PerceptronSegmenter segmenter, PerceptronPOSTagger posTagger)
-    {
+    public PerceptronLexicalAnalyzer(PerceptronSegmenter segmenter, PerceptronPOSTagger posTagger) {
         super(segmenter, posTagger);
     }
 
-    public PerceptronLexicalAnalyzer(PerceptronSegmenter segmenter, PerceptronPOSTagger posTagger, PerceptronNERecognizer neRecognizer)
-    {
+    public PerceptronLexicalAnalyzer(PerceptronSegmenter segmenter, PerceptronPOSTagger posTagger, PerceptronNERecognizer neRecognizer) {
         super(segmenter, posTagger, neRecognizer);
     }
 
-    public PerceptronLexicalAnalyzer(LinearModel cwsModel, LinearModel posModel, LinearModel nerModel)
-    {
+    public PerceptronLexicalAnalyzer(LinearModel cwsModel, LinearModel posModel, LinearModel nerModel) {
         segmenter = new PerceptronSegmenter(cwsModel);
-        if (posModel != null)
-        {
+        if (posModel != null) {
             this.posTagger = new PerceptronPOSTagger(posModel);
             config.speechTagging = true;
-        }
-        else
-        {
+        } else {
             this.posTagger = null;
         }
-        if (nerModel != null)
-        {
+        if (nerModel != null) {
             neRecognizer = new PerceptronNERecognizer(nerModel);
             config.ner = true;
-        }
-        else
-        {
+        } else {
             neRecognizer = null;
         }
     }
 
-    public PerceptronLexicalAnalyzer(String cwsModelFile, String posModelFile, String nerModelFile) throws IOException
-    {
+    public PerceptronLexicalAnalyzer(String cwsModelFile, String posModelFile, String nerModelFile) throws IOException {
         this(new LinearModel(cwsModelFile), posModelFile == null ? null : new LinearModel(posModelFile), nerModelFile == null ? null : new LinearModel(nerModelFile));
     }
 
-    public PerceptronLexicalAnalyzer(String cwsModelFile, String posModelFile) throws IOException
-    {
+    public PerceptronLexicalAnalyzer(String cwsModelFile, String posModelFile) throws IOException {
         this(new LinearModel(cwsModelFile), posModelFile == null ? null : new LinearModel(posModelFile), null);
     }
 
-    public PerceptronLexicalAnalyzer(String cwsModelFile) throws IOException
-    {
+    public PerceptronLexicalAnalyzer(String cwsModelFile) throws IOException {
         this(new LinearModel(cwsModelFile), null, null);
     }
 
-    public PerceptronLexicalAnalyzer(LinearModel CWSModel)
-    {
+    public PerceptronLexicalAnalyzer(LinearModel CWSModel) {
         this(CWSModel, null, null);
     }
 
@@ -90,8 +75,7 @@ public class PerceptronLexicalAnalyzer extends AbstractLexicalAnalyzer
      *
      * @throws IOException
      */
-    public PerceptronLexicalAnalyzer() throws IOException
-    {
+    public PerceptronLexicalAnalyzer() throws IOException {
         this(HanLP.Config.PerceptronCWSModelPath, HanLP.Config.PerceptronPOSModelPath, HanLP.Config.PerceptronNERModelPath);
     }
 
@@ -101,8 +85,7 @@ public class PerceptronLexicalAnalyzer extends AbstractLexicalAnalyzer
      * @param text
      * @param output
      */
-    public void segment(String text, List<String> output)
-    {
+    public void segment(String text, List<String> output) {
         String normalized = CharTable.convert(text);
         segment(text, normalized, output);
     }
@@ -113,10 +96,8 @@ public class PerceptronLexicalAnalyzer extends AbstractLexicalAnalyzer
      * @param wordList
      * @return
      */
-    public String[] partOfSpeechTag(List<String> wordList)
-    {
-        if (posTagger == null)
-        {
+    public String[] partOfSpeechTag(List<String> wordList) {
+        if (posTagger == null) {
             throw new IllegalStateException("未提供词性标注模型");
         }
         return tag(wordList);
@@ -129,10 +110,8 @@ public class PerceptronLexicalAnalyzer extends AbstractLexicalAnalyzer
      * @param posArray
      * @return
      */
-    public String[] namedEntityRecognize(String[] wordArray, String[] posArray)
-    {
-        if (neRecognizer == null)
-        {
+    public String[] namedEntityRecognize(String[] wordArray, String[] posArray) {
+        if (neRecognizer == null) {
             throw new IllegalStateException("未提供命名实体识别模型");
         }
         return recognize(wordArray, posArray);
@@ -144,8 +123,7 @@ public class PerceptronLexicalAnalyzer extends AbstractLexicalAnalyzer
      * @param segmentedTaggedSentence 已分词、标好词性和命名实体的人民日报2014格式的句子
      * @return 是否学习成果（失败的原因是句子格式不合法）
      */
-    public boolean learn(String segmentedTaggedSentence)
-    {
+    public boolean learn(String segmentedTaggedSentence) {
         Sentence sentence = Sentence.create(segmentedTaggedSentence);
         return learn(sentence);
     }
@@ -156,8 +134,7 @@ public class PerceptronLexicalAnalyzer extends AbstractLexicalAnalyzer
      * @param sentence 已分词、标好词性和命名实体的人民日报2014格式的句子
      * @return 是否学习成果（失败的原因是句子格式不合法）
      */
-    public boolean learn(Sentence sentence)
-    {
+    public boolean learn(Sentence sentence) {
         CharTable.normalize(sentence);
         if (!getPerceptronSegmenter().learn(sentence)) return false;
         if (posTagger != null && !getPerceptronPOSTagger().learn(sentence)) return false;
@@ -170,8 +147,7 @@ public class PerceptronLexicalAnalyzer extends AbstractLexicalAnalyzer
      *
      * @return
      */
-    public PerceptronSegmenter getPerceptronSegmenter()
-    {
+    public PerceptronSegmenter getPerceptronSegmenter() {
         return (PerceptronSegmenter) segmenter;
     }
 
@@ -180,8 +156,7 @@ public class PerceptronLexicalAnalyzer extends AbstractLexicalAnalyzer
      *
      * @return
      */
-    public PerceptronPOSTagger getPerceptronPOSTagger()
-    {
+    public PerceptronPOSTagger getPerceptronPOSTagger() {
         return (PerceptronPOSTagger) posTagger;
     }
 
@@ -190,8 +165,7 @@ public class PerceptronLexicalAnalyzer extends AbstractLexicalAnalyzer
      *
      * @return
      */
-    public PerceptronNERecognizer getPerceptionNERecognizer()
-    {
+    public PerceptronNERecognizer getPerceptionNERecognizer() {
         return (PerceptronNERecognizer) neRecognizer;
     }
 

@@ -31,22 +31,18 @@ import static com.hankcs.hanlp.utility.Predefine.logger;
  *
  * @author hankcs
  */
-public class AhoCorasickDoubleArrayTrieSegment extends DictionaryBasedSegment
-{
+public class AhoCorasickDoubleArrayTrieSegment extends DictionaryBasedSegment {
     AhoCorasickDoubleArrayTrie<CoreDictionary.Attribute> trie;
 
-    public AhoCorasickDoubleArrayTrieSegment() throws IOException
-    {
+    public AhoCorasickDoubleArrayTrieSegment() throws IOException {
         this(HanLP.Config.CoreDictionaryPath);
     }
 
-    public AhoCorasickDoubleArrayTrieSegment(TreeMap<String, CoreDictionary.Attribute> dictionary)
-    {
+    public AhoCorasickDoubleArrayTrieSegment(TreeMap<String, CoreDictionary.Attribute> dictionary) {
         this(new AhoCorasickDoubleArrayTrie<CoreDictionary.Attribute>(dictionary));
     }
 
-    public AhoCorasickDoubleArrayTrieSegment(AhoCorasickDoubleArrayTrie<CoreDictionary.Attribute> trie)
-    {
+    public AhoCorasickDoubleArrayTrieSegment(AhoCorasickDoubleArrayTrie<CoreDictionary.Attribute> trie) {
         this.trie = trie;
         config.useCustomDictionary = false;
         config.speechTagging = false;
@@ -54,37 +50,30 @@ public class AhoCorasickDoubleArrayTrieSegment extends DictionaryBasedSegment
 
     /**
      * 加载自己的词典，构造分词器
-     * @param dictionaryPaths 任意数量个词典
      *
+     * @param dictionaryPaths 任意数量个词典
      * @throws IOException 加载过程中的IO异常
      */
-    public AhoCorasickDoubleArrayTrieSegment(String... dictionaryPaths) throws IOException
-    {
+    public AhoCorasickDoubleArrayTrieSegment(String... dictionaryPaths) throws IOException {
         this(new AhoCorasickDoubleArrayTrie<CoreDictionary.Attribute>(IOUtil.loadDictionary(dictionaryPaths)));
     }
 
     @Override
-    protected List<Term> segSentence(char[] sentence)
-    {
-        if (trie == null)
-        {
+    protected List<Term> segSentence(char[] sentence) {
+        if (trie == null) {
             logger.warning("还未加载任何词典");
             return Collections.emptyList();
         }
         final int[] wordNet = new int[sentence.length];
         Arrays.fill(wordNet, 1);
         final Nature[] natureArray = config.speechTagging ? new Nature[sentence.length] : null;
-        trie.parseText(sentence, new AhoCorasickDoubleArrayTrie.IHit<CoreDictionary.Attribute>()
-        {
+        trie.parseText(sentence, new AhoCorasickDoubleArrayTrie.IHit<CoreDictionary.Attribute>() {
             @Override
-            public void hit(int begin, int end, CoreDictionary.Attribute value)
-            {
+            public void hit(int begin, int end, CoreDictionary.Attribute value) {
                 int length = end - begin;
-                if (length > wordNet[begin])
-                {
+                if (length > wordNet[begin]) {
                     wordNet[begin] = length;
-                    if (config.speechTagging)
-                    {
+                    if (config.speechTagging) {
                         natureArray[begin] = value.nature[0];
                     }
                 }
@@ -92,8 +81,7 @@ public class AhoCorasickDoubleArrayTrieSegment extends DictionaryBasedSegment
         });
         LinkedList<Term> termList = new LinkedList<Term>();
         posTag(sentence, wordNet, natureArray);
-        for (int i = 0; i < wordNet.length; )
-        {
+        for (int i = 0; i < wordNet.length; ) {
             Term term = new Term(new String(sentence, i, wordNet[i]), config.speechTagging ? (natureArray[i] == null ? Nature.nz : natureArray[i]) : null);
             term.offset = i;
             termList.add(term);
@@ -103,36 +91,28 @@ public class AhoCorasickDoubleArrayTrieSegment extends DictionaryBasedSegment
     }
 
     @Override
-    public Segment enableCustomDictionary(boolean enable)
-    {
+    public Segment enableCustomDictionary(boolean enable) {
         throw new UnsupportedOperationException("AhoCorasickDoubleArrayTrieSegment暂时不支持用户词典。");
     }
 
-    public AhoCorasickDoubleArrayTrie<CoreDictionary.Attribute> getTrie()
-    {
+    public AhoCorasickDoubleArrayTrie<CoreDictionary.Attribute> getTrie() {
         return trie;
     }
 
-    public void setTrie(AhoCorasickDoubleArrayTrie<CoreDictionary.Attribute> trie)
-    {
+    public void setTrie(AhoCorasickDoubleArrayTrie<CoreDictionary.Attribute> trie) {
         this.trie = trie;
     }
 
-    public AhoCorasickDoubleArrayTrieSegment loadDictionary(String... pathArray)
-    {
+    public AhoCorasickDoubleArrayTrieSegment loadDictionary(String... pathArray) {
         trie = new AhoCorasickDoubleArrayTrie<CoreDictionary.Attribute>();
         TreeMap<String, CoreDictionary.Attribute> map = null;
-        try
-        {
+        try {
             map = IOUtil.loadDictionary(pathArray);
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             logger.warning("加载词典失败\n" + TextUtility.exceptionToString(e));
             return this;
         }
-        if (map != null && !map.isEmpty())
-        {
+        if (map != null && !map.isEmpty()) {
             trie.build(map);
         }
 

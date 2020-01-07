@@ -27,8 +27,7 @@ import java.io.IOException;
  * double: 双精度浮点数(小数) 占8个字节 64位二进制 byte[0] byte[1] byte[2] byte[3] byte[4]
  * byte[5] byte[6] byte[7]<br>
  */
-public class ByteUtil
-{
+public class ByteUtil {
 
     /**
      * 将一个2位字节数组转换为char字符。<br>
@@ -37,8 +36,7 @@ public class ByteUtil
      * @param b 字节数组
      * @return char字符
      */
-    public static char bytesToChar(byte[] b)
-    {
+    public static char bytesToChar(byte[] b) {
         char c = (char) ((b[0] << 8) & 0xFF00L);
         c |= (char) (b[1] & 0xFFL);
         return c;
@@ -51,8 +49,7 @@ public class ByteUtil
      * @param b 字节数组
      * @return 双精度浮点数
      */
-    public static double bytesToDouble(byte[] b)
-    {
+    public static double bytesToDouble(byte[] b) {
         return Double.longBitsToDouble(bytesToLong(b));
     }
 
@@ -63,8 +60,7 @@ public class ByteUtil
      * @param start
      * @return
      */
-    public static double bytesHighFirstToDouble(byte[] bytes, int start)
-    {
+    public static double bytesHighFirstToDouble(byte[] bytes, int start) {
         long l = ((long) bytes[start] << 56) & 0xFF00000000000000L;
         // 如果不强制转换为long，那么默认会当作int，导致最高32位丢失
         l |= ((long) bytes[1 + start] << 48) & 0xFF000000000000L;
@@ -85,8 +81,7 @@ public class ByteUtil
      * @param b 字节数组
      * @return 浮点数
      */
-    public static float bytesToFloat(byte[] b)
-    {
+    public static float bytesToFloat(byte[] b) {
         return Float.intBitsToFloat(bytesToInt(b));
     }
 
@@ -97,8 +92,7 @@ public class ByteUtil
      * @param b 字节数组
      * @return 整数
      */
-    public static int bytesToInt(byte[] b)
-    {
+    public static int bytesToInt(byte[] b) {
         int i = (b[0] << 24) & 0xFF000000;
         i |= (b[1] << 16) & 0xFF0000;
         i |= (b[2] << 8) & 0xFF00;
@@ -113,8 +107,7 @@ public class ByteUtil
      * @param b 字节数组
      * @return 长整数
      */
-    public static long bytesToLong(byte[] b)
-    {
+    public static long bytesToLong(byte[] b) {
         long l = ((long) b[0] << 56) & 0xFF00000000000000L;
         // 如果不强制转换为long，那么默认会当作int，导致最高32位丢失
         l |= ((long) b[1] << 48) & 0xFF000000000000L;
@@ -127,8 +120,7 @@ public class ByteUtil
         return l;
     }
 
-    public static long bytesHighFirstToLong(byte[] b)
-    {
+    public static long bytesHighFirstToLong(byte[] b) {
         long l = ((long) b[0] << 56) & 0xFF00000000000000L;
         // 如果不强制转换为long，那么默认会当作int，导致最高32位丢失
         l |= ((long) b[1] << 48) & 0xFF000000000000L;
@@ -147,8 +139,7 @@ public class ByteUtil
      * @param c 字符（java char 2个字节）
      * @return 代表字符的字节数组
      */
-    public static byte[] charToBytes(char c)
-    {
+    public static byte[] charToBytes(char c) {
         byte[] b = new byte[8];
         b[0] = (byte) (c >>> 8);
         b[1] = (byte) c;
@@ -161,8 +152,7 @@ public class ByteUtil
      * @param d 双精度浮点数
      * @return 代表双精度浮点数的字节数组
      */
-    public static byte[] doubleToBytes(double d)
-    {
+    public static byte[] doubleToBytes(double d) {
         return longToBytes(Double.doubleToLongBits(d));
     }
 
@@ -172,8 +162,7 @@ public class ByteUtil
      * @param f 浮点数
      * @return 代表浮点数的字节数组
      */
-    public static byte[] floatToBytes(float f)
-    {
+    public static byte[] floatToBytes(float f) {
         return intToBytes(Float.floatToIntBits(f));
     }
 
@@ -183,8 +172,7 @@ public class ByteUtil
      * @param i 整数
      * @return 代表整数的字节数组
      */
-    public static byte[] intToBytes(int i)
-    {
+    public static byte[] intToBytes(int i) {
         byte[] b = new byte[4];
         b[0] = (byte) (i >>> 24);
         b[1] = (byte) (i >>> 16);
@@ -199,8 +187,7 @@ public class ByteUtil
      * @param l 长整数
      * @return 代表长整数的字节数组
      */
-    public static byte[] longToBytes(long l)
-    {
+    public static byte[] longToBytes(long l) {
         byte[] b = new byte[8];
         b[0] = (byte) (l >>> 56);
         b[1] = (byte) (l >>> 48);
@@ -219,8 +206,7 @@ public class ByteUtil
      * @param bytes 字节数组
      * @return 整型
      */
-    public static int bytesToInt(byte[] bytes, int start)
-    {
+    public static int bytesToInt(byte[] bytes, int start) {
         int num = bytes[start] & 0xFF;
         num |= ((bytes[start + 1] << 8) & 0xFF00);
         num |= ((bytes[start + 2] << 16) & 0xFF0000);
@@ -234,8 +220,7 @@ public class ByteUtil
      * @param bytes 字节数组
      * @return 整型
      */
-    public static int bytesHighFirstToInt(byte[] bytes, int start)
-    {
+    public static int bytesHighFirstToInt(byte[] bytes, int start) {
         int num = bytes[start + 3] & 0xFF;
         num |= ((bytes[start + 2] << 8) & 0xFF00);
         num |= ((bytes[start + 1] << 16) & 0xFF0000);
@@ -250,8 +235,7 @@ public class ByteUtil
      * @param start
      * @return
      */
-    public static char bytesHighFirstToChar(byte[] bytes, int start)
-    {
+    public static char bytesHighFirstToChar(byte[] bytes, int start) {
         char c = (char) (((bytes[start] & 0xFF) << 8) | (bytes[start + 1] & 0xFF));
         return c;
     }
@@ -263,33 +247,30 @@ public class ByteUtil
      * @param start
      * @return
      */
-    public static float bytesHighFirstToFloat(byte[] bytes, int start)
-    {
+    public static float bytesHighFirstToFloat(byte[] bytes, int start) {
         int l = bytesHighFirstToInt(bytes, start);
         return Float.intBitsToFloat(l);
     }
 
     /**
      * 无符号整型输出
+     *
      * @param out
      * @param uint
      * @throws IOException
      */
-    public static void writeUnsignedInt(DataOutputStream out, int uint) throws IOException
-    {
+    public static void writeUnsignedInt(DataOutputStream out, int uint) throws IOException {
         out.writeByte((byte) ((uint >>> 8) & 0xFF));
         out.writeByte((byte) ((uint >>> 0) & 0xFF));
     }
 
-    public static int convertTwoCharToInt(char high, char low)
-    {
+    public static int convertTwoCharToInt(char high, char low) {
         int result = high << 16;
         result |= low;
         return result;
     }
 
-    public static char[] convertIntToTwoChar(int n)
-    {
+    public static char[] convertIntToTwoChar(int n) {
         char[] result = new char[2];
         result[0] = (char) (n >>> 16);
         result[1] = (char) (0x0000FFFF & n);

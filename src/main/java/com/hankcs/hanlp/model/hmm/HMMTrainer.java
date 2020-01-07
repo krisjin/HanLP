@@ -11,7 +11,6 @@
 package com.hankcs.hanlp.model.hmm;
 
 import com.hankcs.hanlp.corpus.document.sentence.Sentence;
-import com.hankcs.hanlp.corpus.document.sentence.word.Word;
 import com.hankcs.hanlp.model.perceptron.instance.InstanceHandler;
 import com.hankcs.hanlp.model.perceptron.tagset.TagSet;
 import com.hankcs.hanlp.model.perceptron.utility.IOUtility;
@@ -24,35 +23,28 @@ import java.util.List;
 /**
  * @author hankcs
  */
-public abstract class HMMTrainer
-{
+public abstract class HMMTrainer {
     HiddenMarkovModel model;
     Vocabulary vocabulary;
 
-    public HMMTrainer(HiddenMarkovModel model, Vocabulary vocabulary)
-    {
+    public HMMTrainer(HiddenMarkovModel model, Vocabulary vocabulary) {
         this.model = model;
         this.vocabulary = vocabulary;
     }
 
-    public HMMTrainer(HiddenMarkovModel model)
-    {
+    public HMMTrainer(HiddenMarkovModel model) {
         this(model, new Vocabulary());
     }
 
-    public HMMTrainer()
-    {
+    public HMMTrainer() {
         this(new FirstOrderHiddenMarkovModel());
     }
 
-    public void train(String corpus) throws IOException
-    {
+    public void train(String corpus) throws IOException {
         final List<List<String[]>> sequenceList = new LinkedList<List<String[]>>();
-        IOUtility.loadInstance(corpus, new InstanceHandler()
-        {
+        IOUtility.loadInstance(corpus, new InstanceHandler() {
             @Override
-            public boolean process(Sentence sentence)
-            {
+            public boolean process(Sentence sentence) {
                 sequenceList.add(convertToSequence(sentence));
                 return false;
             }
@@ -61,12 +53,10 @@ public abstract class HMMTrainer
         TagSet tagSet = getTagSet();
 
         List<int[][]> sampleList = new ArrayList<int[][]>(sequenceList.size());
-        for (List<String[]> sequence : sequenceList)
-        {
+        for (List<String[]> sequence : sequenceList) {
             int[][] sample = new int[2][sequence.size()];
             int i = 0;
-            for (String[] os : sequence)
-            {
+            for (String[] os : sequence) {
                 sample[0][i] = vocabulary.idOf(os[0]);
                 assert sample[0][i] != -1;
                 sample[1][i] = tagSet.add(os[1]);
@@ -81,5 +71,6 @@ public abstract class HMMTrainer
     }
 
     protected abstract List<String[]> convertToSequence(Sentence sentence);
+
     protected abstract TagSet getTagSet();
 }

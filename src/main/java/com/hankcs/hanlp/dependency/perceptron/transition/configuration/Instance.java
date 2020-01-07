@@ -7,8 +7,8 @@
 package com.hankcs.hanlp.dependency.perceptron.transition.configuration;
 
 import com.hankcs.hanlp.dependency.perceptron.accessories.Edge;
-import com.hankcs.hanlp.dependency.perceptron.transition.parser.Action;
 import com.hankcs.hanlp.dependency.perceptron.structures.Sentence;
+import com.hankcs.hanlp.dependency.perceptron.transition.parser.Action;
 import com.hankcs.hanlp.dependency.perceptron.transition.parser.ArcEager;
 
 import java.util.HashMap;
@@ -18,8 +18,7 @@ import java.util.Map;
 /**
  * 训练实例
  */
-public class Instance
-{
+public class Instance {
     /**
      * dependent -> head
      */
@@ -30,19 +29,16 @@ public class Instance
     protected HashMap<Integer, HashSet<Integer>> reversedDependencies;
     protected Sentence sentence;
 
-    public Instance(Sentence sentence, HashMap<Integer, Edge> goldDependencies)
-    {
+    public Instance(Sentence sentence, HashMap<Integer, Edge> goldDependencies) {
         this.goldDependencies = new HashMap<Integer, Edge>();
         reversedDependencies = new HashMap<Integer, HashSet<Integer>>();
-        for (Map.Entry<Integer, Edge> entry : goldDependencies.entrySet())
-        {
+        for (Map.Entry<Integer, Edge> entry : goldDependencies.entrySet()) {
             Integer dependent = entry.getKey();
             Edge edge = entry.getValue();
             int head = edge.headIndex;
             this.goldDependencies.put(dependent, edge.clone());
             HashSet<Integer> dependents = reversedDependencies.get(head);
-            if (dependents == null)
-            {
+            if (dependents == null) {
                 dependents = new HashSet<Integer>();
                 reversedDependencies.put(head, dependents);
             }
@@ -52,27 +48,23 @@ public class Instance
     }
 
 
-    public Sentence getSentence()
-    {
+    public Sentence getSentence() {
         return sentence;
     }
 
-    public int head(int dependent)
-    {
+    public int head(int dependent) {
         if (!goldDependencies.containsKey(dependent))
             return -1;
         return goldDependencies.get(dependent).headIndex;
     }
 
-    public String relation(int dependent)
-    {
+    public String relation(int dependent) {
         if (!goldDependencies.containsKey(dependent))
             return "_";
         return goldDependencies.get(dependent).relationId + "";
     }
 
-    public HashMap<Integer, Edge> getGoldDependencies()
-    {
+    public HashMap<Integer, Edge> getGoldDependencies() {
         return goldDependencies;
     }
 
@@ -81,13 +73,10 @@ public class Instance
      *
      * @return true if the tree is non-projective
      */
-    public boolean isNonprojective()
-    {
-        for (int dep1 : goldDependencies.keySet())
-        {
+    public boolean isNonprojective() {
+        for (int dep1 : goldDependencies.keySet()) {
             int head1 = goldDependencies.get(dep1).headIndex;
-            for (int dep2 : goldDependencies.keySet())
-            {
+            for (int dep2 : goldDependencies.keySet()) {
                 int head2 = goldDependencies.get(dep2).headIndex;
                 if (head1 < 0 || head2 < 0)
                     continue;
@@ -102,12 +91,9 @@ public class Instance
         return false;
     }
 
-    public boolean isPartial(boolean rootFirst)
-    {
-        for (int i = 0; i < sentence.size(); i++)
-        {
-            if (rootFirst || i < sentence.size() - 1)
-            {
+    public boolean isPartial(boolean rootFirst) {
+        for (int i = 0; i < sentence.size(); i++) {
+            if (rootFirst || i < sentence.size() - 1) {
                 if (!goldDependencies.containsKey(i + 1))
                     return true;
             }
@@ -115,8 +101,7 @@ public class Instance
         return false;
     }
 
-    public HashMap<Integer, HashSet<Integer>> getReversedDependencies()
-    {
+    public HashMap<Integer, HashSet<Integer>> getReversedDependencies() {
         return reversedDependencies;
     }
 
@@ -132,24 +117,20 @@ public class Instance
      * @return oracle cost of the action
      * @throws Exception
      */
-    public int actionCost(Action action, int dependency, State state)
-    {
+    public int actionCost(Action action, int dependency, State state) {
         if (!ArcEager.canDo(action, state))
             return Integer.MAX_VALUE;
         int cost = 0;
 
         // added by me to take care of labels
-        if (action == Action.LeftArc)
-        { // left arc
+        if (action == Action.LeftArc) { // left arc
             int bufferHead = state.bufferHead();
             int stackHead = state.stackTop();
 
             if (goldDependencies.containsKey(stackHead) && goldDependencies.get(stackHead).headIndex == bufferHead
                     && goldDependencies.get(stackHead).relationId != (dependency))
                 cost += 1;
-        }
-        else if (action == Action.RightArc)
-        { //right arc
+        } else if (action == Action.RightArc) { //right arc
             int bufferHead = state.bufferHead();
             int stackHead = state.stackTop();
             if (goldDependencies.containsKey(bufferHead) && goldDependencies.get(bufferHead).headIndex == stackHead
@@ -157,47 +138,36 @@ public class Instance
                 cost += 1;
         }
 
-        if (action == Action.Shift)
-        { //shift
+        if (action == Action.Shift) { //shift
             int bufferHead = state.bufferHead();
-            for (int stackItem : state.getStack())
-            {
+            for (int stackItem : state.getStack()) {
                 if (goldDependencies.containsKey(stackItem) && goldDependencies.get(stackItem).headIndex == (bufferHead))
                     cost += 1;
                 if (goldDependencies.containsKey(bufferHead) && goldDependencies.get(bufferHead).headIndex == (stackItem))
                     cost += 1;
             }
 
-        }
-        else if (action == Action.Reduce)
-        { //reduce
+        } else if (action == Action.Reduce) { //reduce
             int stackHead = state.stackTop();
             if (!state.bufferEmpty())
-                for (int bufferItem = state.bufferHead(); bufferItem <= state.maxSentenceSize; bufferItem++)
-                {
+                for (int bufferItem = state.bufferHead(); bufferItem <= state.maxSentenceSize; bufferItem++) {
                     if (goldDependencies.containsKey(bufferItem) && goldDependencies.get(bufferItem).headIndex == (stackHead))
                         cost += 1;
                 }
-        }
-        else if (action == Action.LeftArc && cost == 0)
-        { //left arc
+        } else if (action == Action.LeftArc && cost == 0) { //left arc
             int stackHead = state.stackTop();
             if (!state.bufferEmpty())
-                for (int bufferItem = state.bufferHead(); bufferItem <= state.maxSentenceSize; bufferItem++)
-                {
+                for (int bufferItem = state.bufferHead(); bufferItem <= state.maxSentenceSize; bufferItem++) {
                     if (goldDependencies.containsKey(bufferItem) && goldDependencies.get(bufferItem).headIndex == (stackHead))
                         cost += 1;
                     if (goldDependencies.containsKey(stackHead) && goldDependencies.get(stackHead).headIndex == (bufferItem))
                         if (bufferItem != state.bufferHead())
                             cost += 1;
                 }
-        }
-        else if (action == Action.RightArc && cost == 0)
-        { //right arc
+        } else if (action == Action.RightArc && cost == 0) { //right arc
             int stackHead = state.stackTop();
             int bufferHead = state.bufferHead();
-            for (int stackItem : state.getStack())
-            {
+            for (int stackItem : state.getStack()) {
                 if (goldDependencies.containsKey(bufferHead) && goldDependencies.get(bufferHead).headIndex == (stackItem))
                     if (stackItem != stackHead)
                         cost += 1;
@@ -206,8 +176,7 @@ public class Instance
                     cost += 1;
             }
             if (!state.bufferEmpty())
-                for (int bufferItem = state.bufferHead(); bufferItem <= state.maxSentenceSize; bufferItem++)
-                {
+                for (int bufferItem = state.bufferHead(); bufferItem <= state.maxSentenceSize; bufferItem++) {
                     if (goldDependencies.containsKey(bufferHead) && goldDependencies.get(bufferHead).headIndex == (bufferItem))
                         cost += 1;
                 }

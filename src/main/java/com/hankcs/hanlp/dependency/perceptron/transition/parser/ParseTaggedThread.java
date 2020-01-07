@@ -1,7 +1,7 @@
 package com.hankcs.hanlp.dependency.perceptron.transition.parser;
 
-import com.hankcs.hanlp.dependency.perceptron.structures.IndexMaps;
 import com.hankcs.hanlp.dependency.perceptron.accessories.Pair;
+import com.hankcs.hanlp.dependency.perceptron.structures.IndexMaps;
 import com.hankcs.hanlp.dependency.perceptron.structures.Sentence;
 import com.hankcs.hanlp.dependency.perceptron.transition.configuration.Configuration;
 
@@ -17,8 +17,7 @@ import java.util.concurrent.Callable;
  * To report any bugs or problems contact rasooli@cs.columbia.edu
  */
 
-public class ParseTaggedThread implements Callable<Pair<String, Integer>>
-{
+public class ParseTaggedThread implements Callable<Pair<String, Integer>> {
     int lineNum;
     String line;
     String delim;
@@ -28,8 +27,7 @@ public class ParseTaggedThread implements Callable<Pair<String, Integer>>
     int beamWidth;
     KBeamArcEagerParser parser;
 
-    public ParseTaggedThread(int lineNum, String line, String delim, boolean rootFirst, boolean lowerCased, IndexMaps maps, int beamWidth, KBeamArcEagerParser parser)
-    {
+    public ParseTaggedThread(int lineNum, String line, String delim, boolean rootFirst, boolean lowerCased, IndexMaps maps, int beamWidth, KBeamArcEagerParser parser) {
         this.lineNum = lineNum;
         this.line = line;
         this.delim = delim;
@@ -41,8 +39,7 @@ public class ParseTaggedThread implements Callable<Pair<String, Integer>>
     }
 
     @Override
-    public Pair<String, Integer> call() throws Exception
-    {
+    public Pair<String, Integer> call() throws Exception {
         HashMap<String, Integer> wordMap = maps.getWordId();
 
         line = line.trim();
@@ -57,8 +54,7 @@ public class ParseTaggedThread implements Callable<Pair<String, Integer>>
         ArrayList<Integer> brownClusterFullString = new ArrayList<Integer>();
 
         int i = 0;
-        for (String w : wrds)
-        {
+        for (String w : wrds) {
             if (w.length() == 0)
                 continue;
             int index = w.lastIndexOf(delim);
@@ -85,10 +81,8 @@ public class ParseTaggedThread implements Callable<Pair<String, Integer>>
             tags.add(pi);
         }
 
-        if (tokens.size() > 0)
-        {
-            if (!rootFirst)
-            {
+        if (tokens.size() > 0) {
+            if (!rootFirst) {
                 tokens.add(0);
                 tags.add(0);
                 brownClusterFullString.add(0);
@@ -100,8 +94,7 @@ public class ParseTaggedThread implements Callable<Pair<String, Integer>>
             Configuration bestParse = parser.parse(sentence, rootFirst, beamWidth, 1);
 
             StringBuilder finalOutput = new StringBuilder();
-            for (i = 0; i < words.length; i++)
-            {
+            for (i = 0; i < words.length; i++) {
 
                 String word = words[i];
                 String pos = posTags[i];

@@ -16,8 +16,7 @@ import com.hankcs.hanlp.HanLP;
 /**
  * @author hankcs
  */
-public class ConfigOption
-{
+public class ConfigOption {
     public static String PATH = HanLP.Config.NNParserModelPath;
     public static String DEPRL_DESCRIPTION_PATH = PATH + ".description.txt";
 }

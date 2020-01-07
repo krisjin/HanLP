@@ -17,8 +17,7 @@ import com.hankcs.hanlp.model.perceptron.tagset.NERTagSet;
  *
  * @author hankcs
  */
-public interface NERecognizer
-{
+public interface NERecognizer {
     /**
      * 命名实体识别
      *

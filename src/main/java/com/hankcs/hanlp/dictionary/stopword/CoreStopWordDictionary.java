@@ -22,80 +22,70 @@ import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
 import java.util.List;
 import java.util.ListIterator;
+
 import static com.hankcs.hanlp.utility.Predefine.logger;
 
 
 /**
  * 核心停用词词典
+ *
  * @author hankcs
  */
-public class CoreStopWordDictionary
-{
+public class CoreStopWordDictionary {
     /**
      * 储存词条的结构
      */
     public static StopWordDictionary dictionary;
-    static
-    {
+
+    static {
         load(HanLP.Config.CoreStopWordDictionaryPath, true);
     }
 
     /**
      * 重新加载{@link HanLP.Config#CoreStopWordDictionaryPath}所指定的停用词词典，并且生成新缓存。
      */
-    public static void reload()
-    {
+    public static void reload() {
         load(HanLP.Config.CoreStopWordDictionaryPath, false);
     }
 
     /**
      * 加载另一部停用词词典
+     *
      * @param coreStopWordDictionaryPath 词典路径
-     * @param loadCacheIfPossible 是否优先加载缓存（速度更快）
+     * @param loadCacheIfPossible        是否优先加载缓存（速度更快）
      */
-    public static void load(String coreStopWordDictionaryPath, boolean loadCacheIfPossible)
-    {
+    public static void load(String coreStopWordDictionaryPath, boolean loadCacheIfPossible) {
         ByteArray byteArray = loadCacheIfPossible ? ByteArray.createByteArray(coreStopWordDictionaryPath + Predefine.BIN_EXT) : null;
-        if (byteArray == null)
-        {
-            try
-            {
+        if (byteArray == null) {
+            try {
                 dictionary = new StopWordDictionary(coreStopWordDictionaryPath);
                 DataOutputStream out = new DataOutputStream(new BufferedOutputStream(IOUtil.newOutputStream(coreStopWordDictionaryPath + Predefine.BIN_EXT)));
                 dictionary.save(out);
                 out.close();
-            }
-            catch (Exception e)
-            {
-                logger.severe("载入停用词词典" + coreStopWordDictionaryPath + "失败"  + TextUtility.exceptionToString(e));
+            } catch (Exception e) {
+                logger.severe("载入停用词词典" + coreStopWordDictionaryPath + "失败" + TextUtility.exceptionToString(e));
                 throw new RuntimeException("载入停用词词典" + coreStopWordDictionaryPath + "失败");
             }
-        }
-        else
-        {
+        } else {
             dictionary = new StopWordDictionary();
             dictionary.load(byteArray);
         }
     }
 
-    public static boolean contains(String key)
-    {
+    public static boolean contains(String key) {
         return dictionary.contains(key);
     }
 
     /**
      * 核心停用词典的核心过滤器，词性属于名词、动词、副词、形容词，并且不在停用词表中才不会被过滤
      */
-    public static Filter FILTER = new Filter()
-    {
+    public static Filter FILTER = new Filter() {
         @Override
-        public boolean shouldInclude(Term term)
-        {
+        public boolean shouldInclude(Term term) {
             // 除掉停用词
             String nature = term.nature != null ? term.nature.toString() : "空";
             char firstChar = nature.charAt(0);
-            switch (firstChar)
-            {
+            switch (firstChar) {
                 case 'm':
                 case 'b':
                 case 'c':
@@ -107,14 +97,11 @@ public class CoreStopWordDictionary
                 case 'y':
                 case 'z':
                 case 'r':
-                case 'w':
-                {
+                case 'w': {
                     return false;
                 }
-                default:
-                {
-                    if (!CoreStopWordDictionary.contains(term.word))
-                    {
+                default: {
+                    if (!CoreStopWordDictionary.contains(term.word)) {
                         return true;
                     }
                 }
@@ -131,50 +118,48 @@ public class CoreStopWordDictionary
      * @param term
      * @return 是否应当
      */
-    public static boolean shouldInclude(Term term)
-    {
+    public static boolean shouldInclude(Term term) {
         return FILTER.shouldInclude(term);
     }
 
     /**
      * 是否应当去掉这个词
+     *
      * @param term 词
      * @return 是否应当去掉
      */
-    public static boolean shouldRemove(Term term)
-    {
+    public static boolean shouldRemove(Term term) {
         return !shouldInclude(term);
     }
 
     /**
      * 加入停用词到停用词词典中
+     *
      * @param stopWord 停用词
      * @return 词典是否发生了改变
      */
-    public static boolean add(String stopWord)
-    {
+    public static boolean add(String stopWord) {
         return dictionary.add(stopWord);
     }
 
     /**
      * 从停用词词典中删除停用词
+     *
      * @param stopWord 停用词
      * @return 词典是否发生了改变
      */
-    public static boolean remove(String stopWord)
-    {
+    public static boolean remove(String stopWord) {
         return dictionary.remove(stopWord);
     }
 
     /**
      * 对分词结果应用过滤
+     *
      * @param termList
      */
-    public static List<Term> apply(List<Term> termList)
-    {
+    public static List<Term> apply(List<Term> termList) {
         ListIterator<Term> listIterator = termList.listIterator();
-        while (listIterator.hasNext())
-        {
+        while (listIterator.hasNext()) {
             if (shouldRemove(listIterator.next())) listIterator.remove();
         }
         return termList;

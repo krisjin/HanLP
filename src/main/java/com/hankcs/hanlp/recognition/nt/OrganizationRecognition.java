@@ -31,17 +31,13 @@ import static com.hankcs.hanlp.corpus.tag.Nature.*;
  *
  * @author hankcs
  */
-public class OrganizationRecognition
-{
-    public static boolean recognition(List<Vertex> pWordSegResult, WordNet wordNetOptimum, WordNet wordNetAll)
-    {
+public class OrganizationRecognition {
+    public static boolean recognition(List<Vertex> pWordSegResult, WordNet wordNetOptimum, WordNet wordNetAll) {
         List<EnumItem<NT>> roleTagList = roleTag(pWordSegResult, wordNetAll);
-        if (HanLP.Config.DEBUG)
-        {
+        if (HanLP.Config.DEBUG) {
             StringBuilder sbLog = new StringBuilder();
             Iterator<Vertex> iterator = pWordSegResult.iterator();
-            for (EnumItem<NT> NTEnumItem : roleTagList)
-            {
+            for (EnumItem<NT> NTEnumItem : roleTagList) {
                 sbLog.append('[');
                 sbLog.append(iterator.next().realWord);
                 sbLog.append(' ');
@@ -51,13 +47,11 @@ public class OrganizationRecognition
             System.out.printf("机构名角色观察：%s\n", sbLog.toString());
         }
         List<NT> NTList = viterbiCompute(roleTagList);
-        if (HanLP.Config.DEBUG)
-        {
+        if (HanLP.Config.DEBUG) {
             StringBuilder sbLog = new StringBuilder();
             Iterator<Vertex> iterator = pWordSegResult.iterator();
             sbLog.append('[');
-            for (NT NT : NTList)
-            {
+            for (NT NT : NTList) {
                 sbLog.append(iterator.next().realWord);
                 sbLog.append('/');
                 sbLog.append(NT);
@@ -72,39 +66,30 @@ public class OrganizationRecognition
         return true;
     }
 
-    public static List<EnumItem<NT>> roleTag(List<Vertex> vertexList, WordNet wordNetAll)
-    {
+    public static List<EnumItem<NT>> roleTag(List<Vertex> vertexList, WordNet wordNetAll) {
         List<EnumItem<NT>> tagList = new LinkedList<EnumItem<NT>>();
         //        int line = 0;
-        for (Vertex vertex : vertexList)
-        {
+        for (Vertex vertex : vertexList) {
             // 构成更长的
             Nature nature = vertex.guessNature();
-            if (nature == nrf)
-            {
-                if (vertex.getAttribute().totalFrequency <= 1000)
-                {
+            if (nature == nrf) {
+                if (vertex.getAttribute().totalFrequency <= 1000) {
                     tagList.add(new EnumItem<NT>(NT.F, 1000));
                     continue;
                 }
-            }
-            else if (nature == ni || nature == nic || nature == nis || nature == nit)
-            {
+            } else if (nature == ni || nature == nic || nature == nis || nature == nit) {
                 EnumItem<NT> ntEnumItem = new EnumItem<NT>(NT.K, 1000);
                 ntEnumItem.addLabel(NT.D, 1000);
                 tagList.add(ntEnumItem);
                 continue;
-            }
-            else if (nature == m)
-            {
+            } else if (nature == m) {
                 EnumItem<NT> ntEnumItem = new EnumItem<NT>(NT.M, 1000);
                 tagList.add(ntEnumItem);
                 continue;
             }
 
             EnumItem<NT> NTEnumItem = OrganizationDictionary.dictionary.get(vertex.word);  // 此处用等效词，更加精准
-            if (NTEnumItem == null)
-            {
+            if (NTEnumItem == null) {
                 NTEnumItem = new EnumItem<NT>(NT.Z, OrganizationDictionary.transformMatrixDictionary.getTotalFrequency(NT.Z));
             }
             tagList.add(NTEnumItem);
@@ -119,8 +104,7 @@ public class OrganizationRecognition
      * @param roleTagList
      * @return
      */
-    public static List<NT> viterbiCompute(List<EnumItem<NT>> roleTagList)
-    {
+    public static List<NT> viterbiCompute(List<EnumItem<NT>> roleTagList) {
         return Viterbi.computeEnum(roleTagList, OrganizationDictionary.transformMatrixDictionary);
     }
 }

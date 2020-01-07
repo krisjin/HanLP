@@ -10,12 +10,10 @@
  */
 package com.hankcs.hanlp.model.perceptron.instance;
 
-import com.hankcs.hanlp.model.perceptron.feature.FeatureMap;
-import com.hankcs.hanlp.model.perceptron.feature.MutableFeatureMap;
-import com.hankcs.hanlp.model.perceptron.tagset.CWSTagSet;
-import com.hankcs.hanlp.model.perceptron.utility.Utility;
 import com.hankcs.hanlp.corpus.document.sentence.Sentence;
 import com.hankcs.hanlp.corpus.document.sentence.word.Word;
+import com.hankcs.hanlp.model.perceptron.feature.FeatureMap;
+import com.hankcs.hanlp.model.perceptron.tagset.CWSTagSet;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -23,8 +21,7 @@ import java.util.List;
 /**
  * @author hankcs
  */
-public class CWSInstance extends Instance
-{
+public class CWSInstance extends Instance {
     private static final char CHAR_BEGIN = '\u0001';
     private static final char CHAR_END = '\u0002';
 
@@ -34,19 +31,16 @@ public class CWSInstance extends Instance
      * @param termArray  分词序列
      * @param featureMap 特征收集
      */
-    public CWSInstance(String[] termArray, FeatureMap featureMap)
-    {
+    public CWSInstance(String[] termArray, FeatureMap featureMap) {
         String sentence = com.hankcs.hanlp.utility.TextUtility.combine(termArray);
         CWSTagSet tagSet = (CWSTagSet) featureMap.tagSet;
 
         tagArray = new int[sentence.length()];
-        for (int i = 0, j = 0; i < termArray.length; i++)
-        {
+        for (int i = 0, j = 0; i < termArray.length; i++) {
             assert termArray[i].length() > 0 : "句子中出现了长度为0的单词，不合法：" + sentence;
             if (termArray[i].length() == 1)
                 tagArray[j++] = tagSet.S;
-            else
-            {
+            else {
                 tagArray[j++] = tagSet.B;
                 for (int k = 1; k < termArray[i].length() - 1; k++)
                     tagArray[j++] = tagSet.M;
@@ -57,14 +51,12 @@ public class CWSInstance extends Instance
         initFeatureMatrix(sentence, featureMap);
     }
 
-    public CWSInstance(String sentence, FeatureMap featureMap)
-    {
+    public CWSInstance(String sentence, FeatureMap featureMap) {
         initFeatureMatrix(sentence, featureMap);
         tagArray = new int[sentence.length()];
     }
 
-    protected int[] extractFeature(String sentence, FeatureMap featureMap, int position)
-    {
+    protected int[] extractFeature(String sentence, FeatureMap featureMap, int position) {
         List<Integer> featureVec = new LinkedList<Integer>();
 
         char pre2Char = position >= 2 ? sentence.charAt(position - 2) : CHAR_BEGIN;
@@ -201,26 +193,21 @@ public class CWSInstance extends Instance
         return toFeatureArray(featureVec);
     }
 
-    protected void initFeatureMatrix(String sentence, FeatureMap featureMap)
-    {
+    protected void initFeatureMatrix(String sentence, FeatureMap featureMap) {
         featureMatrix = new int[sentence.length()][];
-        for (int i = 0; i < sentence.length(); i++)
-        {
+        for (int i = 0; i < sentence.length(); i++) {
             featureMatrix[i] = extractFeature(sentence, featureMap, i);
         }
     }
 
-    public static CWSInstance create(Sentence sentence, FeatureMap featureMap)
-    {
-        if (sentence == null || featureMap == null)
-        {
+    public static CWSInstance create(Sentence sentence, FeatureMap featureMap) {
+        if (sentence == null || featureMap == null) {
             return null;
         }
         List<Word> wordList = sentence.toSimpleWordList();
         String[] termArray = new String[wordList.size()];
         int i = 0;
-        for (Word word : wordList)
-        {
+        for (Word word : wordList) {
             termArray[i] = word.getValue();
             ++i;
         }

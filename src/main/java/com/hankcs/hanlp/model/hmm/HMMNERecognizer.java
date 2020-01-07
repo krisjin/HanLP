@@ -21,12 +21,10 @@ import java.util.List;
 /**
  * @author hankcs
  */
-public class HMMNERecognizer extends HMMTrainer implements NERecognizer
-{
+public class HMMNERecognizer extends HMMTrainer implements NERecognizer {
     NERTagSet tagSet;
 
-    public HMMNERecognizer(HiddenMarkovModel model)
-    {
+    public HMMNERecognizer(HiddenMarkovModel model) {
         super(model);
         tagSet = new NERTagSet();
         tagSet.nerLabels.add("nr");
@@ -34,17 +32,14 @@ public class HMMNERecognizer extends HMMTrainer implements NERecognizer
         tagSet.nerLabels.add("nt");
     }
 
-    public HMMNERecognizer()
-    {
+    public HMMNERecognizer() {
         this(new FirstOrderHiddenMarkovModel());
     }
 
     @Override
-    protected List<String[]> convertToSequence(Sentence sentence)
-    {
+    protected List<String[]> convertToSequence(Sentence sentence) {
         List<String[]> collector = Utility.convertSentenceToNER(sentence, tagSet);
-        for (String[] pair : collector)
-        {
+        for (String[] pair : collector) {
             pair[1] = pair[2];
         }
 
@@ -52,24 +47,20 @@ public class HMMNERecognizer extends HMMTrainer implements NERecognizer
     }
 
     @Override
-    protected TagSet getTagSet()
-    {
+    protected TagSet getTagSet() {
         return tagSet;
     }
 
     @Override
-    public String[] recognize(String[] wordArray, String[] posArray)
-    {
+    public String[] recognize(String[] wordArray, String[] posArray) {
         int[] obsArray = new int[wordArray.length];
-        for (int i = 0; i < obsArray.length; i++)
-        {
+        for (int i = 0; i < obsArray.length; i++) {
             obsArray[i] = vocabulary.idOf(wordArray[i]);
         }
         int[] tagArray = new int[obsArray.length];
         model.predict(obsArray, tagArray);
         String[] tags = new String[obsArray.length];
-        for (int i = 0; i < tagArray.length; i++)
-        {
+        for (int i = 0; i < tagArray.length; i++) {
             tags[i] = tagSet.stringOf(tagArray[i]);
         }
 
@@ -77,8 +68,7 @@ public class HMMNERecognizer extends HMMTrainer implements NERecognizer
     }
 
     @Override
-    public NERTagSet getNERTagSet()
-    {
+    public NERTagSet getNERTagSet() {
         return tagSet;
     }
 }

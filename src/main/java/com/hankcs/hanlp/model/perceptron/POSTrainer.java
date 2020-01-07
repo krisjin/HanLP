@@ -10,35 +10,31 @@
  */
 package com.hankcs.hanlp.model.perceptron;
 
+import com.hankcs.hanlp.corpus.document.sentence.Sentence;
 import com.hankcs.hanlp.model.perceptron.feature.FeatureMap;
 import com.hankcs.hanlp.model.perceptron.instance.Instance;
 import com.hankcs.hanlp.model.perceptron.instance.POSInstance;
 import com.hankcs.hanlp.model.perceptron.tagset.POSTagSet;
 import com.hankcs.hanlp.model.perceptron.tagset.TagSet;
-import com.hankcs.hanlp.corpus.document.sentence.Sentence;
 
 import java.io.IOException;
 
 /**
  * @author hankcs
  */
-public class POSTrainer extends PerceptronTrainer
-{
+public class POSTrainer extends PerceptronTrainer {
     @Override
-    protected TagSet createTagSet()
-    {
+    protected TagSet createTagSet() {
         return new POSTagSet();
     }
 
     @Override
-    protected Instance createInstance(Sentence sentence, FeatureMap featureMap)
-    {
+    protected Instance createInstance(Sentence sentence, FeatureMap featureMap) {
         return POSInstance.create(sentence, featureMap);
     }
 
     @Override
-    public Result train(String trainingFile, String developFile, String modelFile) throws IOException
-    {
+    public Result train(String trainingFile, String developFile, String modelFile) throws IOException {
         // 词性标注模型压缩会显著降低效果
         return train(trainingFile, developFile, modelFile, 0, 10, Runtime.getRuntime().availableProcessors());
     }

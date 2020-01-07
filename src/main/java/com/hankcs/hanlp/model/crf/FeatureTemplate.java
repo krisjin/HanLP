@@ -14,7 +14,6 @@ package com.hankcs.hanlp.model.crf;
 import com.hankcs.hanlp.corpus.io.ByteArray;
 import com.hankcs.hanlp.corpus.io.ICacheAble;
 
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,10 +24,10 @@ import java.util.regex.Pattern;
 
 /**
  * 特征模板
+ *
  * @author hankcs
  */
-public class FeatureTemplate implements ICacheAble
-{
+public class FeatureTemplate implements ICacheAble {
     /**
      * 用来解析模板的正则表达式
      */
@@ -40,20 +39,17 @@ public class FeatureTemplate implements ICacheAble
     ArrayList<int[]> offsetList;
     List<String> delimiterList;
 
-    public FeatureTemplate()
-    {
+    public FeatureTemplate() {
     }
 
-    public static FeatureTemplate create(String template)
-    {
+    public static FeatureTemplate create(String template) {
         FeatureTemplate featureTemplate = new FeatureTemplate();
         featureTemplate.delimiterList = new LinkedList<String>();
         featureTemplate.offsetList = new ArrayList<int[]>(3);
         featureTemplate.template = template;
         Matcher matcher = pattern.matcher(template);
         int start = 0;
-        while (matcher.find())
-        {
+        while (matcher.find()) {
             featureTemplate.delimiterList.add(template.substring(start, matcher.start()));
             start = matcher.end();
             featureTemplate.offsetList.add(new int[]{Integer.parseInt(matcher.group(1)), Integer.parseInt(matcher.group(2))});
@@ -61,12 +57,10 @@ public class FeatureTemplate implements ICacheAble
         return featureTemplate;
     }
 
-    public char[] generateParameter(Table table, int current)
-    {
+    public char[] generateParameter(Table table, int current) {
         StringBuilder sb = new StringBuilder();
         int i = 0;
-        for (String d : delimiterList)
-        {
+        for (String d : delimiterList) {
             sb.append(d);
             int[] offset = offsetList.get(i++);
             sb.append(table.get(current + offset[0], offset[1]));
@@ -79,44 +73,37 @@ public class FeatureTemplate implements ICacheAble
     }
 
     @Override
-    public void save(DataOutputStream out) throws IOException
-    {
+    public void save(DataOutputStream out) throws IOException {
         out.writeUTF(template);
         out.writeInt(offsetList.size());
-        for (int[] offset : offsetList)
-        {
+        for (int[] offset : offsetList) {
             out.writeInt(offset[0]);
             out.writeInt(offset[1]);
         }
         out.writeInt(delimiterList.size());
-        for (String s : delimiterList)
-        {
+        for (String s : delimiterList) {
             out.writeUTF(s);
         }
     }
 
     @Override
-    public boolean load(ByteArray byteArray)
-    {
+    public boolean load(ByteArray byteArray) {
         template = byteArray.nextUTF();
         int size = byteArray.nextInt();
         offsetList = new ArrayList<int[]>(size);
-        for (int i = 0; i < size; ++i)
-        {
+        for (int i = 0; i < size; ++i) {
             offsetList.add(new int[]{byteArray.nextInt(), byteArray.nextInt()});
         }
         size = byteArray.nextInt();
         delimiterList = new ArrayList<String>(size);
-        for (int i = 0; i < size; ++i)
-        {
+        for (int i = 0; i < size; ++i) {
             delimiterList.add(byteArray.nextUTF());
         }
         return true;
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         final StringBuilder sb = new StringBuilder("FeatureTemplate{");
         sb.append("template='").append(template).append('\'');
         sb.append(", delimiterList=").append(delimiterList);
@@ -124,8 +111,7 @@ public class FeatureTemplate implements ICacheAble
         return sb.toString();
     }
 
-    public String getTemplate()
-    {
+    public String getTemplate() {
         return template;
     }
 }

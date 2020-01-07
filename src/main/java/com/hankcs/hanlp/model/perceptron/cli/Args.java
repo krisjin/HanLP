@@ -17,8 +17,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-public class Args
-{
+public class Args {
 
     /**
      * A convenience method for parsing and automatically producing error messages.
@@ -27,14 +26,10 @@ public class Args
      * @param args   The arguments you want to parse and populate
      * @return The list of arguments that were not consumed
      */
-    public static List<String> parseOrExit(Object target, String[] args)
-    {
-        try
-        {
+    public static List<String> parseOrExit(Object target, String[] args) {
+        try {
             return parse(target, args);
-        }
-        catch (IllegalArgumentException e)
-        {
+        } catch (IllegalArgumentException e) {
             System.err.println(e.getMessage());
             Args.usage(target);
             System.exit(1);
@@ -42,8 +37,7 @@ public class Args
         }
     }
 
-    public static List<String> parse(Object target, String[] args)
-    {
+    public static List<String> parse(Object target, String[] args) {
         return parse(target, args, true);
     }
 
@@ -55,47 +49,34 @@ public class Args
      * @param failOnExtraFlags Throw an IllegalArgumentException if extra flags are present
      * @return The list of arguments that were not consumed
      */
-    public static List<String> parse(Object target, String[] args, boolean failOnExtraFlags)
-    {
+    public static List<String> parse(Object target, String[] args, boolean failOnExtraFlags) {
         List<String> arguments = new ArrayList<String>();
         arguments.addAll(Arrays.asList(args));
         Class<?> clazz;
-        if (target instanceof Class)
-        {
+        if (target instanceof Class) {
             clazz = (Class) target;
-        }
-        else
-        {
+        } else {
             clazz = target.getClass();
-            try
-            {
+            try {
                 BeanInfo info = Introspector.getBeanInfo(clazz);
-                for (PropertyDescriptor pd : info.getPropertyDescriptors())
-                {
+                for (PropertyDescriptor pd : info.getPropertyDescriptors()) {
                     processProperty(target, pd, arguments);
                 }
-            }
-            catch (IntrospectionException e)
-            {
+            } catch (IntrospectionException e) {
                 // If its not a JavaBean we ignore it
             }
         }
 
         // Check fields of 'target' class and its superclasses
-        for (Class<?> currentClazz = clazz; currentClazz != null; currentClazz = currentClazz.getSuperclass())
-        {
-            for (Field field : currentClazz.getDeclaredFields())
-            {
+        for (Class<?> currentClazz = clazz; currentClazz != null; currentClazz = currentClazz.getSuperclass()) {
+            for (Field field : currentClazz.getDeclaredFields()) {
                 processField(target, field, arguments);
             }
         }
 
-        if (failOnExtraFlags)
-        {
-            for (String argument : arguments)
-            {
-                if (argument.startsWith("-"))
-                {
+        if (failOnExtraFlags) {
+            for (String argument : arguments) {
+                if (argument.startsWith("-")) {
                     throw new IllegalArgumentException("无效参数: " + argument);
                 }
             }
@@ -103,34 +84,26 @@ public class Args
         return arguments;
     }
 
-    private static void processField(Object target, Field field, List<String> arguments)
-    {
+    private static void processField(Object target, Field field, List<String> arguments) {
         Argument argument = field.getAnnotation(Argument.class);
-        if (argument != null)
-        {
+        if (argument != null) {
             boolean set = false;
-            for (Iterator<String> i = arguments.iterator(); i.hasNext(); )
-            {
+            for (Iterator<String> i = arguments.iterator(); i.hasNext(); ) {
                 String arg = i.next();
                 String prefix = argument.prefix();
                 String delimiter = argument.delimiter();
-                if (arg.startsWith(prefix))
-                {
+                if (arg.startsWith(prefix)) {
                     Object value;
                     String name = getName(argument, field);
                     String alias = getAlias(argument);
                     arg = arg.substring(prefix.length());
                     Class<?> type = field.getType();
-                    if (arg.equals(name) || (alias != null && arg.equals(alias)))
-                    {
+                    if (arg.equals(name) || (alias != null && arg.equals(alias))) {
                         i.remove();
                         value = consumeArgumentValue(name, type, argument, i);
-                        if (!set)
-                        {
+                        if (!set) {
                             setField(type, field, target, value, delimiter);
-                        }
-                        else
-                        {
+                        } else {
                             addArgument(type, field, target, value, delimiter);
                         }
                         set = true;
@@ -138,91 +111,67 @@ public class Args
                     if (set && !type.isArray()) break;
                 }
             }
-            if (!set && argument.required())
-            {
+            if (!set && argument.required()) {
                 String name = getName(argument, field);
                 throw new IllegalArgumentException("缺少必需参数: " + argument.prefix() + name);
             }
         }
     }
 
-    private static void addArgument(Class type, Field field, Object target, Object value, String delimiter)
-    {
-        try
-        {
+    private static void addArgument(Class type, Field field, Object target, Object value, String delimiter) {
+        try {
             Object[] os = (Object[]) field.get(target);
             Object[] vs = (Object[]) getValue(type, value, delimiter);
             Object[] s = (Object[]) Array.newInstance(type.getComponentType(), os.length + vs.length);
             System.arraycopy(os, 0, s, 0, os.length);
             System.arraycopy(vs, 0, s, os.length, vs.length);
             field.set(target, s);
-        }
-        catch (IllegalAccessException iae)
-        {
+        } catch (IllegalAccessException iae) {
             throw new IllegalArgumentException("Could not set field " + field, iae);
-        }
-        catch (NoSuchMethodException e)
-        {
+        } catch (NoSuchMethodException e) {
             throw new IllegalArgumentException("Could not find constructor in class " + type.getName() + " that takes a string", e);
         }
     }
 
-    private static void addPropertyArgument(Class type, PropertyDescriptor property, Object target, Object value, String delimiter)
-    {
-        try
-        {
+    private static void addPropertyArgument(Class type, PropertyDescriptor property, Object target, Object value, String delimiter) {
+        try {
             Object[] os = (Object[]) property.getReadMethod().invoke(target);
             Object[] vs = (Object[]) getValue(type, value, delimiter);
             Object[] s = (Object[]) Array.newInstance(type.getComponentType(), os.length + vs.length);
             System.arraycopy(os, 0, s, 0, os.length);
             System.arraycopy(vs, 0, s, os.length, vs.length);
             property.getWriteMethod().invoke(target, (Object) s);
-        }
-        catch (IllegalAccessException iae)
-        {
+        } catch (IllegalAccessException iae) {
             throw new IllegalArgumentException("Could not set property " + property, iae);
-        }
-        catch (NoSuchMethodException e)
-        {
+        } catch (NoSuchMethodException e) {
             throw new IllegalArgumentException("Could not find constructor in class " + type.getName() + " that takes a string", e);
-        }
-        catch (InvocationTargetException e)
-        {
+        } catch (InvocationTargetException e) {
             throw new IllegalArgumentException("Failed to validate argument " + value + " for " + property);
         }
     }
 
-    private static void processProperty(Object target, PropertyDescriptor property, List<String> arguments)
-    {
+    private static void processProperty(Object target, PropertyDescriptor property, List<String> arguments) {
         Method writeMethod = property.getWriteMethod();
-        if (writeMethod != null)
-        {
+        if (writeMethod != null) {
             Argument argument = writeMethod.getAnnotation(Argument.class);
-            if (argument != null)
-            {
+            if (argument != null) {
                 boolean set = false;
-                for (Iterator<String> i = arguments.iterator(); i.hasNext(); )
-                {
+                for (Iterator<String> i = arguments.iterator(); i.hasNext(); ) {
                     String arg = i.next();
                     String prefix = argument.prefix();
                     String delimiter = argument.delimiter();
-                    if (arg.startsWith(prefix))
-                    {
+                    if (arg.startsWith(prefix)) {
                         Object value;
                         String name = getName(argument, property);
                         String alias = getAlias(argument);
                         arg = arg.substring(prefix.length());
                         Class<?> type = property.getPropertyType();
-                        if (arg.equals(name) || (alias != null && arg.equals(alias)))
-                        {
+                        if (arg.equals(name) || (alias != null && arg.equals(alias))) {
                             i.remove();
                             value = consumeArgumentValue(name, type, argument, i);
-                            if (!set)
-                            {
+                            if (!set) {
                                 setProperty(type, property, target, value, delimiter);
-                            }
-                            else
-                            {
+                            } else {
                                 addPropertyArgument(type, property, target, value, delimiter);
                             }
                             set = true;
@@ -230,8 +179,7 @@ public class Args
                         if (set && !type.isArray()) break;
                     }
                 }
-                if (!set && argument.required())
-                {
+                if (!set && argument.required()) {
                     String name = getName(argument, property);
                     throw new IllegalArgumentException("You must set argument " + name);
                 }
@@ -244,8 +192,7 @@ public class Args
      *
      * @param target An instance or class.
      */
-    public static void usage(Object target)
-    {
+    public static void usage(Object target) {
         usage(System.err, target);
     }
 
@@ -255,105 +202,78 @@ public class Args
      * @param errStream A {@link PrintStream} to print the usage information to.
      * @param target    An instance or class.
      */
-    public static void usage(PrintStream errStream, Object target)
-    {
+    public static void usage(PrintStream errStream, Object target) {
         Class<?> clazz;
-        if (target instanceof Class)
-        {
+        if (target instanceof Class) {
             clazz = (Class) target;
-        }
-        else
-        {
+        } else {
             clazz = target.getClass();
         }
         String clazzName = clazz.getName();
         {
             int index = clazzName.lastIndexOf('$');
-            if (index > 0)
-            {
+            if (index > 0) {
                 clazzName = clazzName.substring(0, index);
             }
         }
         errStream.println("Usage: " + clazzName);
-        for (Class<?> currentClazz = clazz; currentClazz != null; currentClazz = currentClazz.getSuperclass())
-        {
-            for (Field field : currentClazz.getDeclaredFields())
-            {
+        for (Class<?> currentClazz = clazz; currentClazz != null; currentClazz = currentClazz.getSuperclass()) {
+            for (Field field : currentClazz.getDeclaredFields()) {
                 fieldUsage(errStream, target, field);
             }
         }
-        try
-        {
+        try {
             BeanInfo info = Introspector.getBeanInfo(clazz);
-            for (PropertyDescriptor pd : info.getPropertyDescriptors())
-            {
+            for (PropertyDescriptor pd : info.getPropertyDescriptors()) {
                 propertyUsage(errStream, target, pd);
             }
-        }
-        catch (IntrospectionException e)
-        {
+        } catch (IntrospectionException e) {
             // If its not a JavaBean we ignore it
         }
     }
 
-    private static void fieldUsage(PrintStream errStream, Object target, Field field)
-    {
+    private static void fieldUsage(PrintStream errStream, Object target, Field field) {
         Argument argument = field.getAnnotation(Argument.class);
-        if (argument != null)
-        {
+        if (argument != null) {
             String name = getName(argument, field);
             String alias = getAlias(argument);
             String prefix = argument.prefix();
             String delimiter = argument.delimiter();
             String description = argument.description();
             makeAccessible(field);
-            try
-            {
+            try {
                 Object defaultValue = field.get(target);
                 Class<?> type = field.getType();
                 propertyUsage(errStream, prefix, name, alias, type, delimiter, description, defaultValue);
-            }
-            catch (IllegalAccessException e)
-            {
+            } catch (IllegalAccessException e) {
                 throw new IllegalArgumentException("Could not use thie field " + field + " as an argument field", e);
             }
         }
     }
 
-    private static void propertyUsage(PrintStream errStream, Object target, PropertyDescriptor field)
-    {
+    private static void propertyUsage(PrintStream errStream, Object target, PropertyDescriptor field) {
         Method writeMethod = field.getWriteMethod();
-        if (writeMethod != null)
-        {
+        if (writeMethod != null) {
             Argument argument = writeMethod.getAnnotation(Argument.class);
-            if (argument != null)
-            {
+            if (argument != null) {
                 String name = getName(argument, field);
                 String alias = getAlias(argument);
                 String prefix = argument.prefix();
                 String delimiter = argument.delimiter();
                 String description = argument.description();
-                try
-                {
+                try {
                     Method readMethod = field.getReadMethod();
                     Object defaultValue;
-                    if (readMethod == null)
-                    {
+                    if (readMethod == null) {
                         defaultValue = null;
-                    }
-                    else
-                    {
+                    } else {
                         defaultValue = readMethod.invoke(target, (Object[]) null);
                     }
                     Class<?> type = field.getPropertyType();
                     propertyUsage(errStream, prefix, name, alias, type, delimiter, description, defaultValue);
-                }
-                catch (IllegalAccessException e)
-                {
+                } catch (IllegalAccessException e) {
                     throw new IllegalArgumentException("Could not use thie field " + field + " as an argument field", e);
-                }
-                catch (InvocationTargetException e)
-                {
+                } catch (InvocationTargetException e) {
                     throw new IllegalArgumentException("Could not get default value for " + field, e);
                 }
             }
@@ -361,56 +281,43 @@ public class Args
 
     }
 
-    private static void propertyUsage(PrintStream errStream, String prefix, String name, String alias, Class<?> type, String delimiter, String description, Object defaultValue)
-    {
+    private static void propertyUsage(PrintStream errStream, String prefix, String name, String alias, Class<?> type, String delimiter, String description, Object defaultValue) {
         StringBuilder sb = new StringBuilder("  ");
         sb.append(prefix);
         sb.append(name);
-        if (alias != null)
-        {
+        if (alias != null) {
             sb.append(" (");
             sb.append(prefix);
             sb.append(alias);
             sb.append(")");
         }
-        if (type == Boolean.TYPE || type == Boolean.class)
-        {
+        if (type == Boolean.TYPE || type == Boolean.class) {
             sb.append("\t[flag]\t");
             sb.append(description);
-        }
-        else
-        {
+        } else {
             sb.append("\t[");
-            if (type.isArray())
-            {
+            if (type.isArray()) {
                 String typeName = getTypeName(type.getComponentType());
                 sb.append(typeName);
                 sb.append("[");
                 sb.append(delimiter);
                 sb.append("]");
-            }
-            else
-            {
+            } else {
                 String typeName = getTypeName(type);
                 sb.append(typeName);
             }
             sb.append("]\t");
             sb.append(description);
-            if (defaultValue != null)
-            {
+            if (defaultValue != null) {
                 sb.append(" (");
-                if (type.isArray())
-                {
+                if (type.isArray()) {
                     List<Object> list = new ArrayList<Object>();
                     int len = Array.getLength(defaultValue);
-                    for (int i = 0; i < len; i++)
-                    {
+                    for (int i = 0; i < len; i++) {
                         list.add(Array.get(defaultValue, i));
                     }
                     sb.append(list);
-                }
-                else
-                {
+                } else {
                     sb.append(defaultValue);
                 }
                 sb.append(")");
@@ -420,164 +327,120 @@ public class Args
         errStream.println(sb);
     }
 
-    private static String getTypeName(Class<?> type)
-    {
+    private static String getTypeName(Class<?> type) {
         String typeName = type.getName();
         int beginIndex = typeName.lastIndexOf(".");
         typeName = typeName.substring(beginIndex + 1);
         return typeName;
     }
 
-    static String getName(Argument argument, PropertyDescriptor property)
-    {
+    static String getName(Argument argument, PropertyDescriptor property) {
         String name = argument.value();
-        if (name.equals(""))
-        {
+        if (name.equals("")) {
             name = property.getName();
         }
         return name;
 
     }
 
-    private static Object consumeArgumentValue(String name, Class<?> type, Argument argument, Iterator<String> i)
-    {
+    private static Object consumeArgumentValue(String name, Class<?> type, Argument argument, Iterator<String> i) {
         Object value;
-        if (type == Boolean.TYPE || type == Boolean.class)
-        {
+        if (type == Boolean.TYPE || type == Boolean.class) {
             value = true;
-        }
-        else
-        {
-            if (i.hasNext())
-            {
+        } else {
+            if (i.hasNext()) {
                 value = i.next();
                 i.remove();
-            }
-            else
-            {
+            } else {
                 throw new IllegalArgumentException("非flag参数必须指定值: " + argument.prefix() + name);
             }
         }
         return value;
     }
 
-    static void setProperty(Class<?> type, PropertyDescriptor property, Object target, Object value, String delimiter)
-    {
-        try
-        {
+    static void setProperty(Class<?> type, PropertyDescriptor property, Object target, Object value, String delimiter) {
+        try {
             value = getValue(type, value, delimiter);
             property.getWriteMethod().invoke(target, value);
-        }
-        catch (IllegalAccessException iae)
-        {
+        } catch (IllegalAccessException iae) {
             throw new IllegalArgumentException("Could not set property " + property, iae);
-        }
-        catch (NoSuchMethodException e)
-        {
+        } catch (NoSuchMethodException e) {
             throw new IllegalArgumentException("Could not find constructor in class " + type.getName() + " that takes a string", e);
-        }
-        catch (InvocationTargetException e)
-        {
+        } catch (InvocationTargetException e) {
             throw new IllegalArgumentException("Failed to validate argument " + value + " for " + property);
         }
     }
 
-    static String getAlias(Argument argument)
-    {
+    static String getAlias(Argument argument) {
         String alias = argument.alias();
-        if (alias.equals(""))
-        {
+        if (alias.equals("")) {
             alias = null;
         }
         return alias;
     }
 
-    static String getName(Argument argument, Field field)
-    {
+    static String getName(Argument argument, Field field) {
         String name = argument.value();
-        if (name.equals(""))
-        {
+        if (name.equals("")) {
             name = field.getName();
         }
         return name;
     }
 
-    static void setField(Class<?> type, Field field, Object target, Object value, String delimiter)
-    {
+    static void setField(Class<?> type, Field field, Object target, Object value, String delimiter) {
         makeAccessible(field);
-        try
-        {
+        try {
             value = getValue(type, value, delimiter);
             field.set(target, value);
-        }
-        catch (IllegalAccessException iae)
-        {
+        } catch (IllegalAccessException iae) {
             throw new IllegalArgumentException("Could not set field " + field, iae);
-        }
-        catch (NoSuchMethodException e)
-        {
+        } catch (NoSuchMethodException e) {
             throw new IllegalArgumentException("Could not find constructor in class " + type.getName() + " that takes a string", e);
         }
     }
 
-    private static Object getValue(Class<?> type, Object value, String delimiter) throws NoSuchMethodException
-    {
-        if (type != String.class && type != Boolean.class && type != Boolean.TYPE)
-        {
+    private static Object getValue(Class<?> type, Object value, String delimiter) throws NoSuchMethodException {
+        if (type != String.class && type != Boolean.class && type != Boolean.TYPE) {
             String string = (String) value;
-            if (type.isArray())
-            {
+            if (type.isArray()) {
                 String[] strings = string.split(delimiter);
                 type = type.getComponentType();
-                if (type == String.class)
-                {
+                if (type == String.class) {
                     value = strings;
-                }
-                else
-                {
+                } else {
                     Object[] array = (Object[]) Array.newInstance(type, strings.length);
-                    for (int i = 0; i < array.length; i++)
-                    {
+                    for (int i = 0; i < array.length; i++) {
                         array[i] = createValue(type, strings[i]);
                     }
                     value = array;
                 }
-            }
-            else
-            {
+            } else {
                 value = createValue(type, string);
             }
         }
         return value;
     }
 
-    private static Object createValue(Class<?> type, String valueAsString) throws NoSuchMethodException
-    {
-        for (ValueCreator valueCreator : valueCreators)
-        {
+    private static Object createValue(Class<?> type, String valueAsString) throws NoSuchMethodException {
+        for (ValueCreator valueCreator : valueCreators) {
             Object createdValue = valueCreator.createValue(type, valueAsString);
-            if (createdValue != null)
-            {
+            if (createdValue != null) {
                 return createdValue;
             }
         }
         throw new IllegalArgumentException(String.format("cannot instanciate any %s object using %s value", type.toString(), valueAsString));
     }
 
-    private static void makeAccessible(AccessibleObject ao)
-    {
-        if (ao instanceof Member)
-        {
+    private static void makeAccessible(AccessibleObject ao) {
+        if (ao instanceof Member) {
             Member member = (Member) ao;
-            if (!Modifier.isPublic(member.getModifiers()))
-            {
+            if (!Modifier.isPublic(member.getModifiers())) {
                 ao.setAccessible(true);
             }
         }
     }
 
-    public static interface ValueCreator
-    {
+    public static interface ValueCreator {
         /**
          * Creates a value object of the given type using the given string value representation;
          *
@@ -596,26 +459,17 @@ public class Args
      * @param methodName     the name of the one arg method taking a String as parameter that will be used to built a new value
      * @return null if the object could not be created, the value otherwise
      */
-    public static ValueCreator byStaticMethodInvocation(final Class<?> compatibleType, final String methodName)
-    {
-        return new ValueCreator()
-        {
-            public Object createValue(Class<?> type, String value)
-            {
+    public static ValueCreator byStaticMethodInvocation(final Class<?> compatibleType, final String methodName) {
+        return new ValueCreator() {
+            public Object createValue(Class<?> type, String value) {
                 Object v = null;
-                if (compatibleType.isAssignableFrom(type))
-                {
-                    try
-                    {
+                if (compatibleType.isAssignableFrom(type)) {
+                    try {
                         Method m = type.getMethod(methodName, String.class);
                         return m.invoke(null, value);
-                    }
-                    catch (NoSuchMethodException e)
-                    {
+                    } catch (NoSuchMethodException e) {
                         // ignore
-                    }
-                    catch (Exception e)
-                    {
+                    } catch (Exception e) {
                         throw new IllegalArgumentException(String.format("could not invoke %s#%s to create an obejct from %s", type.toString(), methodName, value));
                     }
                 }
@@ -627,35 +481,25 @@ public class Args
     /**
      * {@link ValueCreator} building object using a one arg constructor taking a {@link String} object as parameter
      */
-    public static final ValueCreator FROM_STRING_CONSTRUCTOR = new ValueCreator()
-    {
-        public Object createValue(Class<?> type, String value)
-        {
+    public static final ValueCreator FROM_STRING_CONSTRUCTOR = new ValueCreator() {
+        public Object createValue(Class<?> type, String value) {
             Object v = null;
-            try
-            {
+            try {
                 Constructor<?> init = type.getDeclaredConstructor(String.class);
                 v = init.newInstance(value);
-            }
-            catch (NoSuchMethodException e)
-            {
+            } catch (NoSuchMethodException e) {
                 // ignore
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to convertPKUtoCWS " + value + " to type " + type.getName(), e);
             }
             return v;
         }
     };
 
-    public static final ValueCreator ENUM_CREATOR = new ValueCreator()
-    {
+    public static final ValueCreator ENUM_CREATOR = new ValueCreator() {
         @SuppressWarnings({"unchecked", "rawtypes"})
-        public Object createValue(Class type, String value)
-        {
-            if (Enum.class.isAssignableFrom(type))
-            {
+        public Object createValue(Class type, String value) {
+            if (Enum.class.isAssignableFrom(type)) {
                 return Enum.valueOf(type, value);
             }
             return null;
@@ -670,16 +514,14 @@ public class Args
      *
      * @param vc another value creator to take into account for trying to create values
      */
-    public static void registerValueCreator(ValueCreator vc)
-    {
+    public static void registerValueCreator(ValueCreator vc) {
         valueCreators.add(vc);
     }
 
     /**
      * Cleanup of registered ValueCreators (mainly for tests)
      */
-    public static void resetValueCreators()
-    {
+    public static void resetValueCreators() {
         valueCreators.clear();
         valueCreators.addAll(DEFAULT_VALUE_CREATORS);
     }

@@ -24,8 +24,7 @@ import java.util.List;
  *
  * @author hankcs
  */
-public class SegmentWrapper
-{
+public class SegmentWrapper {
     BufferedReader br;
     Segment segment;
     /**
@@ -37,8 +36,7 @@ public class SegmentWrapper
      */
     int index;
 
-    public SegmentWrapper(BufferedReader br, Segment segment)
-    {
+    public SegmentWrapper(BufferedReader br, Segment segment) {
         this.br = br;
         this.segment = segment;
     }
@@ -48,19 +46,16 @@ public class SegmentWrapper
      *
      * @param br
      */
-    public void reset(BufferedReader br)
-    {
+    public void reset(BufferedReader br) {
         this.br = br;
         termArray = null;
         index = 0;
     }
 
-    public Term next() throws IOException
-    {
+    public Term next() throws IOException {
         if (termArray != null && index < termArray.length) return termArray[index++];
         String line = br.readLine();
-        while (TextUtility.isBlank(line))
-        {
+        while (TextUtility.isBlank(line)) {
             if (line == null) return null;
             line = br.readLine();
         }

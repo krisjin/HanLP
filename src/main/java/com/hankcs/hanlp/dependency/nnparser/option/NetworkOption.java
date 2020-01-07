@@ -14,8 +14,7 @@ package com.hankcs.hanlp.dependency.nnparser.option;
 /**
  * @author hankcs
  */
-public class NetworkOption
-{
+public class NetworkOption {
     int hidden_layer_size;    //! Size for hidden layer.
     int embedding_size;       //! Size for embedding.
 }

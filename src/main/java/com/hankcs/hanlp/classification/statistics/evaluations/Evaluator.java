@@ -21,29 +21,25 @@ import java.util.Map;
 
 /**
  * 分类器性能评测
+ *
  * @author hankcs
  */
-public class Evaluator
-{
-    private Evaluator()
-    {
+public class Evaluator {
+    private Evaluator() {
     }
 
-    public static FMeasure evaluate(IClassifier classifier, IDataSet testingDataSet)
-    {
+    public static FMeasure evaluate(IClassifier classifier, IDataSet testingDataSet) {
         int c = classifier.getModel().catalog.length;
         double[] TP_FP = new double[c]; // 判定为某个类别的数量
         double[] TP_FN = new double[c]; // 某个类别的样本数量
         double[] TP = new double[c];    // 判定为某个类别且判断正确的数量
         double time = System.currentTimeMillis();
-        for (Document document : testingDataSet)
-        {
+        for (Document document : testingDataSet) {
             final int out = classifier.label(document);
             final int key = document.category;
             ++TP_FP[out];
             ++TP_FN[key];
-            if (key == out)
-            {
+            if (key == out) {
                 ++TP[out];
             }
         }
@@ -56,22 +52,19 @@ public class Evaluator
         return result;
     }
 
-    public static FMeasure evaluate(IClassifier classifier, Map<String, String[]> testingDataSet)
-    {
+    public static FMeasure evaluate(IClassifier classifier, Map<String, String[]> testingDataSet) {
         return evaluate(classifier, new MemoryDataSet(classifier.getModel()).add(testingDataSet));
     }
 
     /**
-     *
-     * @param c 类目数量
-     * @param size 样本数量
-     * @param TP 判定为某个类别且判断正确的数量
+     * @param c     类目数量
+     * @param size  样本数量
+     * @param TP    判定为某个类别且判断正确的数量
      * @param TP_FP 判定为某个类别的数量
      * @param TP_FN 某个类别的样本数量
      * @return
      */
-    private static FMeasure calculate(int c, int size, double[] TP, double[] TP_FP, double[] TP_FN)
-    {
+    private static FMeasure calculate(int c, int size, double[] TP, double[] TP_FP, double[] TP_FN) {
         double precision[] = new double[c];
         double recall[] = new double[c];
         double f1[] = new double[c];
@@ -79,18 +72,14 @@ public class Evaluator
         FMeasure result = new FMeasure();
         result.size = size;
 
-        for (int i = 0; i < c; i++)
-        {
+        for (int i = 0; i < c; i++) {
             double TN = result.size - TP_FP[i] - (TP_FN[i] - TP[i]);
             accuracy[i] = (TP[i] + TN) / result.size;
-            if (TP[i] != 0)
-            {
+            if (TP[i] != 0) {
                 precision[i] = TP[i] / TP_FP[i];
                 recall[i] = TP[i] / TP_FN[i];
                 result.average_accuracy += TP[i];
-            }
-            else
-            {
+            } else {
                 precision[i] = 0;
                 recall[i] = 0;
             }

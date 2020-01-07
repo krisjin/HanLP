@@ -11,8 +11,8 @@
  */
 package com.hankcs.hanlp.model.perceptron.feature;
 
-import com.hankcs.hanlp.model.perceptron.tagset.TagSet;
 import com.hankcs.hanlp.collection.trie.DoubleArrayTrie;
+import com.hankcs.hanlp.model.perceptron.tagset.TagSet;
 
 import java.util.Map;
 import java.util.Set;
@@ -21,32 +21,27 @@ import java.util.TreeMap;
 /**
  * @author hankcs
  */
-public class ImmutableFeatureDatMap extends FeatureMap
-{
+public class ImmutableFeatureDatMap extends FeatureMap {
     DoubleArrayTrie<Integer> dat;
 
-    public ImmutableFeatureDatMap(TreeMap<String, Integer> featureIdMap, TagSet tagSet)
-    {
+    public ImmutableFeatureDatMap(TreeMap<String, Integer> featureIdMap, TagSet tagSet) {
         super(tagSet);
         dat = new DoubleArrayTrie<Integer>();
         dat.build(featureIdMap);
     }
 
     @Override
-    public int idOf(String string)
-    {
+    public int idOf(String string) {
         return dat.exactMatchSearch(string);
     }
 
     @Override
-    public int size()
-    {
+    public int size() {
         return dat.size();
     }
 
     @Override
-    public Set<Map.Entry<String, Integer>> entrySet()
-    {
+    public Set<Map.Entry<String, Integer>> entrySet() {
         throw new UnsupportedOperationException("这份DAT实现不支持遍历");
     }
 }

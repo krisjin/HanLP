@@ -27,7 +27,10 @@ import com.hankcs.hanlp.model.perceptron.tagset.TagSet;
 import com.hankcs.hanlp.utility.MathUtility;
 
 import java.io.*;
-import java.util.*;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Map;
+import java.util.Set;
 
 import static com.hankcs.hanlp.classification.utilities.io.ConsoleLogger.logger;
 
@@ -36,8 +39,7 @@ import static com.hankcs.hanlp.classification.utilities.io.ConsoleLogger.logger;
  *
  * @author hankcs
  */
-public class LinearModel implements ICacheAble
-{
+public class LinearModel implements ICacheAble {
     /**
      * 特征函数
      */
@@ -48,52 +50,45 @@ public class LinearModel implements ICacheAble
     public float[] parameter;
 
 
-    public LinearModel(FeatureMap featureMap, float[] parameter)
-    {
+    public LinearModel(FeatureMap featureMap, float[] parameter) {
         this.featureMap = featureMap;
         this.parameter = parameter;
     }
 
-    public LinearModel(FeatureMap featureMap)
-    {
+    public LinearModel(FeatureMap featureMap) {
         this.featureMap = featureMap;
         parameter = new float[featureMap.size() * featureMap.tagSet.size()];
     }
 
-    public LinearModel(String modelFile) throws IOException
-    {
+    public LinearModel(String modelFile) throws IOException {
         load(modelFile);
     }
 
     /**
      * 模型压缩
+     *
      * @param ratio 压缩比c（压缩掉的体积，压缩后体积变为1-c）
      * @return
      */
-    public LinearModel compress(final double ratio)
-    {
+    public LinearModel compress(final double ratio) {
         return compress(ratio, 1e-3f);
     }
 
     /**
-     * @param ratio 压缩比c（压缩掉的体积，压缩后体积变为1-c）
+     * @param ratio     压缩比c（压缩掉的体积，压缩后体积变为1-c）
      * @param threshold 特征权重绝对值之和最低阈值
      * @return
      */
-    public LinearModel compress(final double ratio, final double threshold)
-    {
-        if (ratio < 0 || ratio >= 1)
-        {
+    public LinearModel compress(final double ratio, final double threshold) {
+        if (ratio < 0 || ratio >= 1) {
             throw new IllegalArgumentException("压缩比必须介于 0 和 1 之间");
         }
         if (ratio == 0) return this;
         Set<Map.Entry<String, Integer>> featureIdSet = featureMap.entrySet();
         TagSet tagSet = featureMap.tagSet;
-        MaxHeap<FeatureSortItem> heap = new MaxHeap<FeatureSortItem>((int) ((featureIdSet.size() - tagSet.sizeIncludingBos()) * (1.0f - ratio)), new Comparator<FeatureSortItem>()
-        {
+        MaxHeap<FeatureSortItem> heap = new MaxHeap<FeatureSortItem>((int) ((featureIdSet.size() - tagSet.sizeIncludingBos()) * (1.0f - ratio)), new Comparator<FeatureSortItem>() {
             @Override
-            public int compare(FeatureSortItem o1, FeatureSortItem o2)
-            {
+            public int compare(FeatureSortItem o1, FeatureSortItem o2) {
                 return Float.compare(o1.total, o2.total);
             }
         });
@@ -101,14 +96,11 @@ public class LinearModel implements ICacheAble
         logger.start("裁剪特征...\n");
         int logEvery = (int) Math.ceil(featureMap.size() / 10000f);
         int n = 0;
-        for (Map.Entry<String, Integer> entry : featureIdSet)
-        {
-            if (++n % logEvery == 0 || n == featureMap.size())
-            {
+        for (Map.Entry<String, Integer> entry : featureIdSet) {
+            if (++n % logEvery == 0 || n == featureMap.size()) {
                 logger.out("\r%.2f%% ", MathUtility.percentage(n, featureMap.size()));
             }
-            if (entry.getValue() < tagSet.sizeIncludingBos())
-            {
+            if (entry.getValue() < tagSet.sizeIncludingBos()) {
                 continue;
             }
             FeatureSortItem item = new FeatureSortItem(entry, this.parameter, tagSet.size());
@@ -120,28 +112,23 @@ public class LinearModel implements ICacheAble
         int size = heap.size() + tagSet.sizeIncludingBos();
         float[] parameter = new float[size * tagSet.size()];
         MutableDoubleArrayTrieInteger mdat = new MutableDoubleArrayTrieInteger();
-        for (Map.Entry<String, Integer> tag : tagSet)
-        {
+        for (Map.Entry<String, Integer> tag : tagSet) {
             mdat.add("BL=" + tag.getKey());
         }
         mdat.add("BL=_BL_");
-        for (int i = 0; i < tagSet.size() * tagSet.sizeIncludingBos(); i++)
-        {
+        for (int i = 0; i < tagSet.size() * tagSet.sizeIncludingBos(); i++) {
             parameter[i] = this.parameter[i];
         }
         logger.start("构建双数组trie树...\n");
         logEvery = (int) Math.ceil(heap.size() / 10000f);
         n = 0;
-        for (FeatureSortItem item : heap)
-        {
-            if (++n % logEvery == 0 || n == heap.size())
-            {
+        for (FeatureSortItem item : heap) {
+            if (++n % logEvery == 0 || n == heap.size()) {
                 logger.out("\r%.2f%% ", MathUtility.percentage(n, heap.size()));
             }
             int id = mdat.size();
             mdat.put(item.key, id);
-            for (int i = 0; i < tagSet.size(); ++i)
-            {
+            for (int i = 0; i < tagSet.size(); ++i) {
                 parameter[id * tagSet.size() + i] = this.parameter[item.id * tagSet.size() + i];
             }
         }
@@ -157,8 +144,7 @@ public class LinearModel implements ICacheAble
      * @param modelFile
      * @throws IOException
      */
-    public void save(String modelFile) throws IOException
-    {
+    public void save(String modelFile) throws IOException {
         DataOutputStream out = new DataOutputStream(new BufferedOutputStream(IOUtil.newOutputStream(modelFile)));
         save(out);
         out.close();
@@ -171,13 +157,11 @@ public class LinearModel implements ICacheAble
      * @param ratio     压缩比c（压缩掉的体积，压缩后体积变为1-c）
      * @throws IOException
      */
-    public void save(String modelFile, final double ratio) throws IOException
-    {
+    public void save(String modelFile, final double ratio) throws IOException {
         save(modelFile, featureMap.entrySet(), ratio);
     }
 
-    public void save(String modelFile, Set<Map.Entry<String, Integer>> featureIdSet, final double ratio) throws IOException
-    {
+    public void save(String modelFile, Set<Map.Entry<String, Integer>> featureIdSet, final double ratio) throws IOException {
         save(modelFile, featureIdSet, ratio, false);
     }
 
@@ -190,8 +174,7 @@ public class LinearModel implements ICacheAble
      * @param text         是否输出文本以供调试
      * @throws IOException
      */
-    public void save(String modelFile, Set<Map.Entry<String, Integer>> featureIdSet, final double ratio, boolean text) throws IOException
-    {
+    public void save(String modelFile, Set<Map.Entry<String, Integer>> featureIdSet, final double ratio, boolean text) throws IOException {
         float[] parameter = this.parameter;
         this.compress(ratio, 1e-3f);
 
@@ -199,22 +182,16 @@ public class LinearModel implements ICacheAble
         save(out);
         out.close();
 
-        if (text)
-        {
+        if (text) {
             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(IOUtil.newOutputStream(modelFile + ".txt"), "UTF-8"));
             TagSet tagSet = featureMap.tagSet;
-            for (Map.Entry<String, Integer> entry : featureIdSet)
-            {
+            for (Map.Entry<String, Integer> entry : featureIdSet) {
                 bw.write(entry.getKey());
-                if (featureIdSet.size() == parameter.length)
-                {
+                if (featureIdSet.size() == parameter.length) {
                     bw.write("\t");
                     bw.write(String.valueOf(parameter[entry.getValue()]));
-                }
-                else
-                {
-                    for (int i = 0; i < tagSet.size(); ++i)
-                    {
+                } else {
+                    for (int i = 0; i < tagSet.size(); ++i) {
                         bw.write("\t");
                         bw.write(String.valueOf(parameter[entry.getValue() * tagSet.size() + i]));
                     }
@@ -231,8 +208,7 @@ public class LinearModel implements ICacheAble
      * @param x 特征向量
      * @param y 正确答案
      */
-    public void update(Collection<Integer> x, int y)
-    {
+    public void update(Collection<Integer> x, int y) {
         assert y == 1 || y == -1 : "感知机的标签y必须是±1";
         for (Integer f : x)
             parameter[f] += y;
@@ -244,8 +220,7 @@ public class LinearModel implements ICacheAble
      * @param x 特征向量
      * @return sign(wx)
      */
-    public int decode(Collection<Integer> x)
-    {
+    public int decode(Collection<Integer> x) {
         float y = 0;
         for (Integer f : x)
             y += parameter[f];
@@ -258,8 +233,7 @@ public class LinearModel implements ICacheAble
      * @param instance 实例
      * @return
      */
-    public double viterbiDecode(Instance instance)
-    {
+    public double viterbiDecode(Instance instance) {
         return viterbiDecode(instance, instance.tagArray);
     }
 
@@ -270,8 +244,7 @@ public class LinearModel implements ICacheAble
      * @param guessLabel 输出标签
      * @return
      */
-    public double viterbiDecode(Instance instance, int[] guessLabel)
-    {
+    public double viterbiDecode(Instance instance, int[] guessLabel) {
         final int[] allLabel = featureMap.allLabels();
         final int bos = featureMap.bosTag();
         final int sentenceLength = instance.tagArray.length;
@@ -280,41 +253,33 @@ public class LinearModel implements ICacheAble
         int[][] preMatrix = new int[sentenceLength][labelSize];
         double[][] scoreMatrix = new double[2][labelSize];
 
-        for (int i = 0; i < sentenceLength; i++)
-        {
+        for (int i = 0; i < sentenceLength; i++) {
             int _i = i & 1;
             int _i_1 = 1 - _i;
             int[] allFeature = instance.getFeatureAt(i);
             final int transitionFeatureIndex = allFeature.length - 1;
-            if (0 == i)
-            {
+            if (0 == i) {
                 allFeature[transitionFeatureIndex] = bos;
-                for (int j = 0; j < allLabel.length; j++)
-                {
+                for (int j = 0; j < allLabel.length; j++) {
                     preMatrix[0][j] = j;
 
                     double score = score(allFeature, j);
 
                     scoreMatrix[0][j] = score;
                 }
-            }
-            else
-            {
-                for (int curLabel = 0; curLabel < allLabel.length; curLabel++)
-                {
+            } else {
+                for (int curLabel = 0; curLabel < allLabel.length; curLabel++) {
 
                     double maxScore = Integer.MIN_VALUE;
 
-                    for (int preLabel = 0; preLabel < allLabel.length; preLabel++)
-                    {
+                    for (int preLabel = 0; preLabel < allLabel.length; preLabel++) {
 
                         allFeature[transitionFeatureIndex] = preLabel;
                         double score = score(allFeature, curLabel);
 
                         double curScore = scoreMatrix[_i_1][preLabel] + score;
 
-                        if (maxScore < curScore)
-                        {
+                        if (maxScore < curScore) {
                             maxScore = curScore;
                             preMatrix[i][curLabel] = preLabel;
                             scoreMatrix[_i][curLabel] = maxScore;
@@ -328,17 +293,14 @@ public class LinearModel implements ICacheAble
         int maxIndex = 0;
         double maxScore = scoreMatrix[(sentenceLength - 1) & 1][0];
 
-        for (int index = 1; index < allLabel.length; index++)
-        {
-            if (maxScore < scoreMatrix[(sentenceLength - 1) & 1][index])
-            {
+        for (int index = 1; index < allLabel.length; index++) {
+            if (maxScore < scoreMatrix[(sentenceLength - 1) & 1][index]) {
                 maxIndex = index;
                 maxScore = scoreMatrix[(sentenceLength - 1) & 1][index];
             }
         }
 
-        for (int i = sentenceLength - 1; i >= 0; --i)
-        {
+        for (int i = sentenceLength - 1; i >= 0; --i) {
             guessLabel[i] = allLabel[maxIndex];
             maxIndex = preMatrix[i][maxIndex];
         }
@@ -352,21 +314,14 @@ public class LinearModel implements ICacheAble
      * @param featureVector 压缩形式的特征id构成的特征向量
      * @return
      */
-    public double score(int[] featureVector, int currentTag)
-    {
+    public double score(int[] featureVector, int currentTag) {
         double score = 0;
-        for (int index : featureVector)
-        {
-            if (index == -1)
-            {
+        for (int index : featureVector) {
+            if (index == -1) {
                 continue;
-            }
-            else if (index < -1 || index >= featureMap.size())
-            {
+            } else if (index < -1 || index >= featureMap.size()) {
                 throw new IllegalArgumentException("在打分时传入了非法的下标");
-            }
-            else
-            {
+            } else {
                 index = index * featureMap.tagSet.size() + currentTag;
                 score += parameter[index];    // 其实就是特征权重的累加
             }
@@ -380,62 +335,49 @@ public class LinearModel implements ICacheAble
      * @param modelFile
      * @throws IOException
      */
-    public void load(String modelFile) throws IOException
-    {
+    public void load(String modelFile) throws IOException {
         if (HanLP.Config.DEBUG)
             logger.start("加载 %s ... ", modelFile);
         ByteArrayStream byteArray = ByteArrayStream.createByteArrayStream(modelFile);
-        if (!load(byteArray))
-        {
+        if (!load(byteArray)) {
             throw new IOException(String.format("%s 加载失败", modelFile));
         }
         if (HanLP.Config.DEBUG)
             logger.finish(" 加载完毕\n");
     }
 
-    public TagSet tagSet()
-    {
+    public TagSet tagSet() {
         return featureMap.tagSet;
     }
 
     @Override
-    public void save(DataOutputStream out) throws IOException
-    {
-        if (!(featureMap instanceof ImmutableFeatureMDatMap))
-        {
+    public void save(DataOutputStream out) throws IOException {
+        if (!(featureMap instanceof ImmutableFeatureMDatMap)) {
             featureMap = new ImmutableFeatureMDatMap(featureMap.entrySet(), tagSet());
         }
         featureMap.save(out);
-        for (float aParameter : this.parameter)
-        {
+        for (float aParameter : this.parameter) {
             out.writeFloat(aParameter);
         }
     }
 
     @Override
-    public boolean load(ByteArray byteArray)
-    {
+    public boolean load(ByteArray byteArray) {
         if (byteArray == null)
             return false;
         featureMap = new ImmutableFeatureMDatMap();
         featureMap.load(byteArray);
         int size = featureMap.size();
         TagSet tagSet = featureMap.tagSet;
-        if (tagSet.type == TaskType.CLASSIFICATION)
-        {
+        if (tagSet.type == TaskType.CLASSIFICATION) {
             parameter = new float[size];
-            for (int i = 0; i < size; i++)
-            {
+            for (int i = 0; i < size; i++) {
                 parameter[i] = byteArray.nextFloat();
             }
-        }
-        else
-        {
+        } else {
             parameter = new float[size * tagSet.size()];
-            for (int i = 0; i < size; i++)
-            {
-                for (int j = 0; j < tagSet.size(); ++j)
-                {
+            for (int i = 0; i < size; i++) {
+                for (int j = 0; j < tagSet.size(); ++j) {
                     parameter[i * tagSet.size() + j] = byteArray.nextFloat();
                 }
             }
@@ -447,8 +389,7 @@ public class LinearModel implements ICacheAble
         return true;
     }
 
-    public TaskType taskType()
-    {
+    public TaskType taskType() {
         return featureMap.tagSet.type;
     }
 }

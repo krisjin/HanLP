@@ -22,53 +22,44 @@ import java.util.List;
 /**
  * @author hankcs
  */
-public class HMMPOSTagger extends HMMTrainer implements POSTagger
-{
+public class HMMPOSTagger extends HMMTrainer implements POSTagger {
     POSTagSet tagSet;
 
-    public HMMPOSTagger(HiddenMarkovModel model)
-    {
+    public HMMPOSTagger(HiddenMarkovModel model) {
         super(model);
         tagSet = new POSTagSet();
     }
 
-    public HMMPOSTagger()
-    {
+    public HMMPOSTagger() {
         super();
         tagSet = new POSTagSet();
     }
 
     @Override
-    protected List<String[]> convertToSequence(Sentence sentence)
-    {
+    protected List<String[]> convertToSequence(Sentence sentence) {
         List<Word> wordList = sentence.toSimpleWordList();
         List<String[]> xyList = new ArrayList<String[]>(wordList.size());
-        for (Word word : wordList)
-        {
+        for (Word word : wordList) {
             xyList.add(new String[]{word.getValue(), word.getLabel()});
         }
         return xyList;
     }
 
     @Override
-    protected TagSet getTagSet()
-    {
+    protected TagSet getTagSet() {
         return tagSet;
     }
 
     @Override
-    public String[] tag(String... words)
-    {
+    public String[] tag(String... words) {
         int[] obsArray = new int[words.length];
-        for (int i = 0; i < obsArray.length; i++)
-        {
+        for (int i = 0; i < obsArray.length; i++) {
             obsArray[i] = vocabulary.idOf(words[i]);
         }
         int[] tagArray = new int[obsArray.length];
         model.predict(obsArray, tagArray);
         String[] tags = new String[obsArray.length];
-        for (int i = 0; i < tagArray.length; i++)
-        {
+        for (int i = 0; i < tagArray.length; i++) {
             tags[i] = tagSet.stringOf(tagArray[i]);
         }
 
@@ -76,8 +67,7 @@ public class HMMPOSTagger extends HMMTrainer implements POSTagger
     }
 
     @Override
-    public String[] tag(List<String> wordList)
-    {
+    public String[] tag(List<String> wordList) {
         return tag(wordList.toArray(new String[0]));
     }
 }

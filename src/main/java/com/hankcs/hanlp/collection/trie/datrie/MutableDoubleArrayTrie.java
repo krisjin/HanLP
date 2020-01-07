@@ -17,19 +17,16 @@ import java.util.*;
  *
  * @author hankcs
  */
-public class MutableDoubleArrayTrie<V> implements SortedMap<String, V>, Iterable<Map.Entry<String, V>>
-{
+public class MutableDoubleArrayTrie<V> implements SortedMap<String, V>, Iterable<Map.Entry<String, V>> {
     MutableDoubleArrayTrieInteger trie;
     ArrayList<V> values;
 
-    public MutableDoubleArrayTrie()
-    {
+    public MutableDoubleArrayTrie() {
         trie = new MutableDoubleArrayTrieInteger();
         values = new ArrayList<V>();
     }
 
-    public MutableDoubleArrayTrie(Map<String, V> map)
-    {
+    public MutableDoubleArrayTrie(Map<String, V> map) {
         this();
         putAll(map);
     }
@@ -37,14 +34,12 @@ public class MutableDoubleArrayTrie<V> implements SortedMap<String, V>, Iterable
     /**
      * 去掉多余的buffer
      */
-    public void loseWeight()
-    {
+    public void loseWeight() {
         trie.loseWeight();
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         final StringBuilder sb = new StringBuilder("MutableDoubleArrayTrie{");
         sb.append("size=").append(size()).append(',');
         sb.append("allocated=").append(trie.getBaseArraySize()).append(',');
@@ -53,91 +48,74 @@ public class MutableDoubleArrayTrie<V> implements SortedMap<String, V>, Iterable
     }
 
     @Override
-    public Comparator<? super String> comparator()
-    {
-        return new Comparator<String>()
-        {
+    public Comparator<? super String> comparator() {
+        return new Comparator<String>() {
             @Override
-            public int compare(String o1, String o2)
-            {
+            public int compare(String o1, String o2) {
                 return o1.compareTo(o2);
             }
         };
     }
 
     @Override
-    public SortedMap<String, V> subMap(String fromKey, String toKey)
-    {
+    public SortedMap<String, V> subMap(String fromKey, String toKey) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public SortedMap<String, V> headMap(String toKey)
-    {
+    public SortedMap<String, V> headMap(String toKey) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public SortedMap<String, V> tailMap(String fromKey)
-    {
+    public SortedMap<String, V> tailMap(String fromKey) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public String firstKey()
-    {
+    public String firstKey() {
         return trie.iterator().key();
     }
 
     @Override
-    public String lastKey()
-    {
+    public String lastKey() {
         MutableDoubleArrayTrieInteger.KeyValuePair iterator = trie.iterator();
-        while (iterator.hasNext())
-        {
+        while (iterator.hasNext()) {
             iterator.next();
         }
         return iterator.key();
     }
 
     @Override
-    public int size()
-    {
+    public int size() {
         return trie.size();
     }
 
     @Override
-    public boolean isEmpty()
-    {
+    public boolean isEmpty() {
         return trie.isEmpty();
     }
 
     @Override
-    public boolean containsKey(Object key)
-    {
+    public boolean containsKey(Object key) {
         if (key == null || !(key instanceof String))
             return false;
         return trie.containsKey((String) key);
     }
 
     @Override
-    public boolean containsValue(Object value)
-    {
+    public boolean containsValue(Object value) {
         return values.contains(value);
     }
 
     @Override
-    public V get(Object key)
-    {
+    public V get(Object key) {
         if (key == null)
             return null;
         int id;
-        if (key instanceof String)
-        {
+        if (key instanceof String) {
             id = trie.get((String) key);
-        }
-        else
-        {
+        } else {
             id = trie.get(key.toString());
         }
         if (id == -1)
@@ -146,17 +124,13 @@ public class MutableDoubleArrayTrie<V> implements SortedMap<String, V>, Iterable
     }
 
     @Override
-    public V put(String key, V value)
-    {
+    public V put(String key, V value) {
         int id = trie.get(key);
-        if (id == -1)
-        {
+        if (id == -1) {
             trie.set(key, values.size());
             values.add(value);
             return null;
-        }
-        else
-        {
+        } else {
             V v = values.get(id);
             values.set(id, value);
             return v;
@@ -164,8 +138,7 @@ public class MutableDoubleArrayTrie<V> implements SortedMap<String, V>, Iterable
     }
 
     @Override
-    public V remove(Object key)
-    {
+    public V remove(Object key) {
         if (key == null) return null;
         int id = trie.remove(key instanceof String ? (String) key : key.toString());
         if (id == -1)
@@ -175,100 +148,81 @@ public class MutableDoubleArrayTrie<V> implements SortedMap<String, V>, Iterable
     }
 
     @Override
-    public void putAll(Map<? extends String, ? extends V> m)
-    {
-        for (Entry<? extends String, ? extends V> entry : m.entrySet())
-        {
+    public void putAll(Map<? extends String, ? extends V> m) {
+        for (Entry<? extends String, ? extends V> entry : m.entrySet()) {
             put(entry.getKey(), entry.getValue());
         }
     }
 
     @Override
-    public void clear()
-    {
+    public void clear() {
         trie.clear();
         values.clear();
     }
 
     @Override
-    public Set<String> keySet()
-    {
-        return new Set<String>()
-        {
+    public Set<String> keySet() {
+        return new Set<String>() {
             MutableDoubleArrayTrieInteger.KeyValuePair iterator = trie.iterator();
 
             @Override
-            public int size()
-            {
+            public int size() {
                 return trie.size();
             }
 
             @Override
-            public boolean isEmpty()
-            {
+            public boolean isEmpty() {
                 return trie.isEmpty();
             }
 
             @Override
-            public boolean contains(Object o)
-            {
+            public boolean contains(Object o) {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            public Iterator<String> iterator()
-            {
-                return new Iterator<String>()
-                {
+            public Iterator<String> iterator() {
+                return new Iterator<String>() {
                     @Override
-                    public boolean hasNext()
-                    {
+                    public boolean hasNext() {
                         return iterator.hasNext();
                     }
 
                     @Override
-                    public String next()
-                    {
+                    public String next() {
                         return iterator.next().key();
                     }
 
                     @Override
-                    public void remove()
-                    {
+                    public void remove() {
                         throw new UnsupportedOperationException();
                     }
                 };
             }
 
             @Override
-            public Object[] toArray()
-            {
+            public Object[] toArray() {
                 return values.toArray();
             }
 
             @Override
-            public <T> T[] toArray(T[] a)
-            {
+            public <T> T[] toArray(T[] a) {
                 return values.toArray(a);
             }
 
             @Override
-            public boolean add(String s)
-            {
+            public boolean add(String s) {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            public boolean remove(Object o)
-            {
+            public boolean remove(Object o) {
                 return trie.remove((String) o) != -1;
             }
 
             @Override
-            public boolean containsAll(Collection<?> c)
-            {
-                for (Object o : c)
-                {
+            public boolean containsAll(Collection<?> c) {
+                for (Object o : c) {
                     if (!trie.containsKey((String) o))
                         return false;
                 }
@@ -276,23 +230,19 @@ public class MutableDoubleArrayTrie<V> implements SortedMap<String, V>, Iterable
             }
 
             @Override
-            public boolean addAll(Collection<? extends String> c)
-            {
+            public boolean addAll(Collection<? extends String> c) {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            public boolean retainAll(Collection<?> c)
-            {
+            public boolean retainAll(Collection<?> c) {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            public boolean removeAll(Collection<?> c)
-            {
+            public boolean removeAll(Collection<?> c) {
                 boolean changed = false;
-                for (Object o : c)
-                {
+                for (Object o : c) {
                     if (!changed)
                         changed = MutableDoubleArrayTrie.this.remove(o) != null;
                 }
@@ -300,129 +250,107 @@ public class MutableDoubleArrayTrie<V> implements SortedMap<String, V>, Iterable
             }
 
             @Override
-            public void clear()
-            {
+            public void clear() {
                 MutableDoubleArrayTrie.this.clear();
             }
         };
     }
 
     @Override
-    public Collection<V> values()
-    {
+    public Collection<V> values() {
         return values;
     }
 
     @Override
-    public Set<Entry<String, V>> entrySet()
-    {
-        return new Set<Entry<String, V>>()
-        {
+    public Set<Entry<String, V>> entrySet() {
+        return new Set<Entry<String, V>>() {
             @Override
-            public int size()
-            {
+            public int size() {
                 return trie.size();
             }
 
             @Override
-            public boolean isEmpty()
-            {
+            public boolean isEmpty() {
                 return trie.isEmpty();
             }
 
             @Override
-            public boolean contains(Object o)
-            {
+            public boolean contains(Object o) {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            public Iterator<Entry<String, V>> iterator()
-            {
-                return new Iterator<Entry<String, V>>()
-                {
+            public Iterator<Entry<String, V>> iterator() {
+                return new Iterator<Entry<String, V>>() {
                     MutableDoubleArrayTrieInteger.KeyValuePair iterator = trie.iterator();
 
                     @Override
-                    public boolean hasNext()
-                    {
+                    public boolean hasNext() {
                         return iterator.hasNext();
                     }
 
                     @Override
-                    public Entry<String, V> next()
-                    {
+                    public Entry<String, V> next() {
                         iterator.next();
                         return new AbstractMap.SimpleEntry<String, V>(iterator.key(), values.get(iterator.value()));
                     }
 
                     @Override
-                    public void remove()
-                    {
+                    public void remove() {
                         throw new UnsupportedOperationException();
                     }
                 };
             }
 
             @Override
-            public Object[] toArray()
-            {
+            public Object[] toArray() {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            public <T> T[] toArray(T[] a)
-            {
+            public <T> T[] toArray(T[] a) {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            public boolean add(Entry<String, V> stringVEntry)
-            {
+            public boolean add(Entry<String, V> stringVEntry) {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            public boolean remove(Object o)
-            {
+            public boolean remove(Object o) {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            public boolean containsAll(Collection<?> c)
-            {
+            public boolean containsAll(Collection<?> c) {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            public boolean addAll(Collection<? extends Entry<String, V>> c)
-            {
+            public boolean addAll(Collection<? extends Entry<String, V>> c) {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            public boolean retainAll(Collection<?> c)
-            {
+            public boolean retainAll(Collection<?> c) {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            public boolean removeAll(Collection<?> c)
-            {
+            public boolean removeAll(Collection<?> c) {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            public void clear()
-            {
+            public void clear() {
                 MutableDoubleArrayTrie.this.clear();
             }
         };
     }
 
     @Override
-    public Iterator<Entry<String, V>> iterator()
-    {
+    public Iterator<Entry<String, V>> iterator() {
         return entrySet().iterator();
     }
 }

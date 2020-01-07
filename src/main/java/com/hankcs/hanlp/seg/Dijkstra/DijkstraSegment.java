@@ -21,71 +21,63 @@ import com.hankcs.hanlp.seg.Dijkstra.Path.State;
 import com.hankcs.hanlp.seg.WordBasedSegment;
 import com.hankcs.hanlp.seg.common.*;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.PriorityQueue;
 
 /**
  * 最短路径分词
+ *
  * @author hankcs
  */
-public class DijkstraSegment extends WordBasedSegment
-{
+public class DijkstraSegment extends WordBasedSegment {
     @Override
-    public List<Term> segSentence(char[] sentence)
-    {
+    public List<Term> segSentence(char[] sentence) {
         WordNet wordNetOptimum = new WordNet(sentence);
         WordNet wordNetAll = new WordNet(wordNetOptimum.charArray);
         ////////////////生成词网////////////////////
         generateWordNet(wordNetAll);
         ///////////////生成词图////////////////////
         Graph graph = generateBiGraph(wordNetAll);
-        if (HanLP.Config.DEBUG)
-        {
+        if (HanLP.Config.DEBUG) {
             System.out.printf("粗分词图：%s\n", graph.printByTo());
         }
         List<Vertex> vertexList = dijkstra(graph);
 //        fixResultByRule(vertexList);
 
-        if (config.useCustomDictionary)
-        {
+        if (config.useCustomDictionary) {
             if (config.indexMode > 0)
                 combineByCustomDictionary(vertexList, wordNetAll);
             else combineByCustomDictionary(vertexList);
         }
 
-        if (HanLP.Config.DEBUG)
-        {
+        if (HanLP.Config.DEBUG) {
             System.out.println("粗分结果" + convert(vertexList, false));
         }
 
         // 数字识别
-        if (config.numberQuantifierRecognize)
-        {
+        if (config.numberQuantifierRecognize) {
             mergeNumberQuantifier(vertexList, wordNetAll, config);
         }
 
         // 实体命名识别
-        if (config.ner)
-        {
+        if (config.ner) {
             wordNetOptimum.addAll(vertexList);
             int preSize = wordNetOptimum.size();
-            if (config.nameRecognize)
-            {
+            if (config.nameRecognize) {
                 PersonRecognition.recognition(vertexList, wordNetOptimum, wordNetAll);
             }
-            if (config.translatedNameRecognize)
-            {
+            if (config.translatedNameRecognize) {
                 TranslatedPersonRecognition.recognition(vertexList, wordNetOptimum, wordNetAll);
             }
-            if (config.japaneseNameRecognize)
-            {
+            if (config.japaneseNameRecognize) {
                 JapanesePersonRecognition.recognition(vertexList, wordNetOptimum, wordNetAll);
             }
-            if (config.placeRecognize)
-            {
+            if (config.placeRecognize) {
                 PlaceRecognition.recognition(vertexList, wordNetOptimum, wordNetAll);
             }
-            if (config.organizationRecognize)
-            {
+            if (config.organizationRecognize) {
                 // 层叠隐马模型——生成输出作为下一级隐马输入
                 graph = generateBiGraph(wordNetOptimum);
                 vertexList = dijkstra(graph);
@@ -94,12 +86,10 @@ public class DijkstraSegment extends WordBasedSegment
                 preSize = wordNetOptimum.size();
                 OrganizationRecognition.recognition(vertexList, wordNetOptimum, wordNetAll);
             }
-            if (wordNetOptimum.size() != preSize)
-            {
+            if (wordNetOptimum.size() != preSize) {
                 graph = generateBiGraph(wordNetOptimum);
                 vertexList = dijkstra(graph);
-                if (HanLP.Config.DEBUG)
-                {
+                if (HanLP.Config.DEBUG) {
                     System.out.printf("细分词网：\n%s\n", wordNetOptimum);
                     System.out.printf("细分词图：%s\n", graph.printByTo());
                 }
@@ -107,14 +97,12 @@ public class DijkstraSegment extends WordBasedSegment
         }
 
         // 如果是索引模式则全切分
-        if (config.indexMode > 0)
-        {
+        if (config.indexMode > 0) {
             return decorateResultForIndexMode(vertexList, wordNetAll);
         }
 
         // 是否标注词性
-        if (config.speechTagging)
-        {
+        if (config.speechTagging) {
             speechTagging(vertexList);
         }
 
@@ -123,11 +111,11 @@ public class DijkstraSegment extends WordBasedSegment
 
     /**
      * dijkstra最短路径
+     *
      * @param graph
      * @return
      */
-    private static List<Vertex> dijkstra(Graph graph)
-    {
+    private static List<Vertex> dijkstra(Graph graph) {
         List<Vertex> resultList = new LinkedList<Vertex>();
         Vertex[] vertexes = graph.getVertexes();
         List<EdgeFrom>[] edgesTo = graph.getEdgesTo();
@@ -138,22 +126,18 @@ public class DijkstraSegment extends WordBasedSegment
         Arrays.fill(path, -1);
         PriorityQueue<State> que = new PriorityQueue<State>();
         que.add(new State(0, vertexes.length - 1));
-        while (!que.isEmpty())
-        {
+        while (!que.isEmpty()) {
             State p = que.poll();
             if (d[p.vertex] < p.cost) continue;
-            for (EdgeFrom edgeFrom : edgesTo[p.vertex])
-            {
-                if (d[edgeFrom.from] > d[p.vertex] + edgeFrom.weight)
-                {
+            for (EdgeFrom edgeFrom : edgesTo[p.vertex]) {
+                if (d[edgeFrom.from] > d[p.vertex] + edgeFrom.weight) {
                     d[edgeFrom.from] = d[p.vertex] + edgeFrom.weight;
                     que.add(new State(d[edgeFrom.from], edgeFrom.from));
                     path[edgeFrom.from] = p.vertex;
                 }
             }
         }
-        for (int t = 0; t != -1; t = path[t])
-        {
+        for (int t = 0; t != -1; t = path[t]) {
             resultList.add(vertexes[t]);
         }
         return resultList;

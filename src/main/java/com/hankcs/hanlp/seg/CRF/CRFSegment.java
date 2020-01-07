@@ -25,7 +25,10 @@ import com.hankcs.hanlp.seg.common.Term;
 import com.hankcs.hanlp.utility.CharacterHelper;
 import com.hankcs.hanlp.utility.GlobalObjectPool;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 import static com.hankcs.hanlp.utility.Predefine.logger;
 
@@ -36,87 +39,70 @@ import static com.hankcs.hanlp.utility.Predefine.logger;
  * @author hankcs
  * @deprecated 已废弃，请使用{@link com.hankcs.hanlp.model.crf.CRFLexicalAnalyzer}
  */
-public class CRFSegment extends CharacterBasedSegment
-{
+public class CRFSegment extends CharacterBasedSegment {
     private CRFModel crfModel;
 
-    public CRFSegment(CRFSegmentModel crfModel)
-    {
+    public CRFSegment(CRFSegmentModel crfModel) {
         this.crfModel = crfModel;
     }
 
-    public CRFSegment(String modelPath)
-    {
+    public CRFSegment(String modelPath) {
         logger.warning("已废弃CRFSegment，请使用功能更丰富、设计更优雅的CRFLexicalAnalyzer");
         crfModel = GlobalObjectPool.get(modelPath);
-        if (crfModel != null)
-        {
+        if (crfModel != null) {
             return;
         }
         logger.info("CRF分词模型正在加载 " + modelPath);
         long start = System.currentTimeMillis();
         crfModel = CRFModel.loadTxt(modelPath, new CRFSegmentModel(new BinTrie<FeatureFunction>()));
-        if (crfModel == null)
-        {
+        if (crfModel == null) {
             String error = "CRF分词模型加载 " + modelPath + " 失败，耗时 " + (System.currentTimeMillis() - start) + " ms";
             logger.severe(error);
             throw new IllegalArgumentException(error);
-        }
-        else
+        } else
             logger.info("CRF分词模型加载 " + modelPath + " 成功，耗时 " + (System.currentTimeMillis() - start) + " ms");
         GlobalObjectPool.put(modelPath, crfModel);
     }
 
     // 已废弃，请使用功能更丰富、设计更优雅的{@link com.hankcs.hanlp.model.crf.CRFLexicalAnalyzer}。
-    public CRFSegment()
-    {
+    public CRFSegment() {
         this(HanLP.Config.CRFSegmentModelPath);
     }
 
     @Override
-    protected List<Term> roughSegSentence(char[] sentence)
-    {
+    protected List<Term> roughSegSentence(char[] sentence) {
         if (sentence.length == 0) return Collections.emptyList();
         char[] sentenceConverted = CharTable.convert(sentence);
         Table table = new Table();
         table.v = atomSegmentToTable(sentenceConverted);
         crfModel.tag(table);
         List<Term> termList = new LinkedList<Term>();
-        if (HanLP.Config.DEBUG)
-        {
+        if (HanLP.Config.DEBUG) {
             System.out.println("CRF标注结果");
             System.out.println(table);
         }
         int offset = 0;
         OUTER:
-        for (int i = 0; i < table.v.length; offset += table.v[i][1].length(), ++i)
-        {
+        for (int i = 0; i < table.v.length; offset += table.v[i][1].length(), ++i) {
             String[] line = table.v[i];
-            switch (line[2].charAt(0))
-            {
-                case 'B':
-                {
+            switch (line[2].charAt(0)) {
+                case 'B': {
                     int begin = offset;
-                    while (table.v[i][2].charAt(0) != 'E')
-                    {
+                    while (table.v[i][2].charAt(0) != 'E') {
                         offset += table.v[i][1].length();
                         ++i;
-                        if (i == table.v.length)
-                        {
+                        if (i == table.v.length) {
                             break;
                         }
                     }
-                    if (i == table.v.length)
-                    {
+                    if (i == table.v.length) {
                         termList.add(new Term(new String(sentence, begin, offset - begin), toDefaultNature(table.v[i][0])));
                         break OUTER;
-                    }
-                    else
+                    } else
                         termList.add(new Term(new String(sentence, begin, offset - begin + table.v[i][1].length()), toDefaultNature(table.v[i][0])));
                 }
                 break;
-                default:
-                {
+                default: {
                     termList.add(new Term(new String(sentence, offset, table.v[i][1].length()), toDefaultNature(table.v[i][0])));
                 }
                 break;
@@ -125,8 +111,7 @@ public class CRFSegment extends CharacterBasedSegment
         return termList;
     }
 
-    protected static Nature toDefaultNature(String compiledChar)
-    {
+    protected static Nature toDefaultNature(String compiledChar) {
         if (compiledChar.equals("M"))
             return Nature.m;
         if (compiledChar.equals("W"))
@@ -134,29 +119,23 @@ public class CRFSegment extends CharacterBasedSegment
         return null;
     }
 
-    public static List<String> atomSegment(char[] sentence)
-    {
+    public static List<String> atomSegment(char[] sentence) {
         List<String> atomList = new ArrayList<String>(sentence.length);
         final int maxLen = sentence.length - 1;
         final StringBuilder sbAtom = new StringBuilder();
         out:
-        for (int i = 0; i < sentence.length; i++)
-        {
-            if (sentence[i] >= '0' && sentence[i] <= '9')
-            {
+        for (int i = 0; i < sentence.length; i++) {
+            if (sentence[i] >= '0' && sentence[i] <= '9') {
                 sbAtom.append(sentence[i]);
-                if (i == maxLen)
-                {
+                if (i == maxLen) {
                     atomList.add(sbAtom.toString());
                     sbAtom.setLength(0);
                     break;
                 }
                 char c = sentence[++i];
-                while (c == '.' || c == '%' || (c >= '0' && c <= '9'))
-                {
+                while (c == '.' || c == '%' || (c >= '0' && c <= '9')) {
                     sbAtom.append(sentence[i]);
-                    if (i == maxLen)
-                    {
+                    if (i == maxLen) {
                         atomList.add(sbAtom.toString());
                         sbAtom.setLength(0);
                         break out;
@@ -166,22 +145,17 @@ public class CRFSegment extends CharacterBasedSegment
                 atomList.add(sbAtom.toString());
                 sbAtom.setLength(0);
                 --i;
-            }
-            else if (CharacterHelper.isEnglishLetter(sentence[i]))
-            {
+            } else if (CharacterHelper.isEnglishLetter(sentence[i])) {
                 sbAtom.append(sentence[i]);
-                if (i == maxLen)
-                {
+                if (i == maxLen) {
                     atomList.add(sbAtom.toString());
                     sbAtom.setLength(0);
                     break;
                 }
                 char c = sentence[++i];
-                while (CharacterHelper.isEnglishLetter(c))
-                {
+                while (CharacterHelper.isEnglishLetter(c)) {
                     sbAtom.append(sentence[i]);
-                    if (i == maxLen)
-                    {
+                    if (i == maxLen) {
                         atomList.add(sbAtom.toString());
                         sbAtom.setLength(0);
                         break out;
@@ -191,9 +165,7 @@ public class CRFSegment extends CharacterBasedSegment
                 atomList.add(sbAtom.toString());
                 sbAtom.setLength(0);
                 --i;
-            }
-            else
-            {
+            } else {
                 atomList.add(String.valueOf(sentence[i]));
             }
         }
@@ -201,20 +173,16 @@ public class CRFSegment extends CharacterBasedSegment
         return atomList;
     }
 
-    public static String[][] atomSegmentToTable(char[] sentence)
-    {
+    public static String[][] atomSegmentToTable(char[] sentence) {
         String table[][] = new String[sentence.length][3];
         int size = 0;
         final int maxLen = sentence.length - 1;
         final StringBuilder sbAtom = new StringBuilder();
         out:
-        for (int i = 0; i < sentence.length; i++)
-        {
-            if (sentence[i] >= '0' && sentence[i] <= '9')
-            {
+        for (int i = 0; i < sentence.length; i++) {
+            if (sentence[i] >= '0' && sentence[i] <= '9') {
                 sbAtom.append(sentence[i]);
-                if (i == maxLen)
-                {
+                if (i == maxLen) {
                     table[size][0] = "M";
                     table[size][1] = sbAtom.toString();
                     ++size;
@@ -222,11 +190,9 @@ public class CRFSegment extends CharacterBasedSegment
                     break;
                 }
                 char c = sentence[++i];
-                while (c == '.' || c == '%' || (c >= '0' && c <= '9'))
-                {
+                while (c == '.' || c == '%' || (c >= '0' && c <= '9')) {
                     sbAtom.append(sentence[i]);
-                    if (i == maxLen)
-                    {
+                    if (i == maxLen) {
                         table[size][0] = "M";
                         table[size][1] = sbAtom.toString();
                         ++size;
@@ -240,12 +206,9 @@ public class CRFSegment extends CharacterBasedSegment
                 ++size;
                 sbAtom.setLength(0);
                 --i;
-            }
-            else if (CharacterHelper.isEnglishLetter(sentence[i]) || sentence[i] == ' ')
-            {
+            } else if (CharacterHelper.isEnglishLetter(sentence[i]) || sentence[i] == ' ') {
                 sbAtom.append(sentence[i]);
-                if (i == maxLen)
-                {
+                if (i == maxLen) {
                     table[size][0] = "W";
                     table[size][1] = sbAtom.toString();
                     ++size;
@@ -253,11 +216,9 @@ public class CRFSegment extends CharacterBasedSegment
                     break;
                 }
                 char c = sentence[++i];
-                while (CharacterHelper.isEnglishLetter(c) || c == ' ')
-                {
+                while (CharacterHelper.isEnglishLetter(c) || c == ' ') {
                     sbAtom.append(sentence[i]);
-                    if (i == maxLen)
-                    {
+                    if (i == maxLen) {
                         table[size][0] = "W";
                         table[size][1] = sbAtom.toString();
                         ++size;
@@ -271,9 +232,7 @@ public class CRFSegment extends CharacterBasedSegment
                 ++size;
                 sbAtom.setLength(0);
                 --i;
-            }
-            else
-            {
+            } else {
                 table[size][0] = table[size][1] = String.valueOf(sentence[i]);
                 ++size;
             }
@@ -289,8 +248,7 @@ public class CRFSegment extends CharacterBasedSegment
      * @param size
      * @return
      */
-    private static String[][] resizeArray(String[][] array, int size)
-    {
+    private static String[][] resizeArray(String[][] array, int size) {
         if (array.length == size) return array;
         String[][] nArray = new String[size][];
         System.arraycopy(array, 0, nArray, 0, size);
@@ -298,8 +256,7 @@ public class CRFSegment extends CharacterBasedSegment
     }
 
     @Override
-    public Segment enableNumberQuantifierRecognize(boolean enable)
-    {
+    public Segment enableNumberQuantifierRecognize(boolean enable) {
         throw new UnsupportedOperationException("暂不支持");
 //        enablePartOfSpeechTagging(enable);
 //        return super.enableNumberQuantifierRecognize(enable);

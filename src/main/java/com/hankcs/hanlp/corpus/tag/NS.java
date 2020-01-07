@@ -16,8 +16,7 @@ package com.hankcs.hanlp.corpus.tag;
  *
  * @author hankcs
  */
-public enum NS
-{
+public enum NS {
     /**
      * 地名的上文 我【来到】中关园
      */

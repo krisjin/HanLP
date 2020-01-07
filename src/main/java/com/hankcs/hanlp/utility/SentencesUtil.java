@@ -9,16 +9,14 @@ import java.util.List;
 /**
  * 文本断句
  */
-public class SentencesUtil
-{
+public class SentencesUtil {
     /**
      * 将文本切割为最细小的句子（逗号也视作分隔符）
      *
      * @param content
      * @return
      */
-    public static List<String> toSentenceList(String content)
-    {
+    public static List<String> toSentenceList(String content) {
         return toSentenceList(content.toCharArray(), true);
     }
 
@@ -29,44 +27,35 @@ public class SentencesUtil
      * @param shortest 是否切割为最细的单位（将逗号也视作分隔符）
      * @return
      */
-    public static List<String> toSentenceList(String content, boolean shortest)
-    {
+    public static List<String> toSentenceList(String content, boolean shortest) {
         return toSentenceList(content.toCharArray(), shortest);
     }
 
-    public static List<String> toSentenceList(char[] chars)
-    {
+    public static List<String> toSentenceList(char[] chars) {
         return toSentenceList(chars, true);
     }
 
-    public static List<String> toSentenceList(char[] chars, boolean shortest)
-    {
+    public static List<String> toSentenceList(char[] chars, boolean shortest) {
 
         StringBuilder sb = new StringBuilder();
 
         List<String> sentences = new LinkedList<String>();
 
-        for (int i = 0; i < chars.length; ++i)
-        {
-            if (sb.length() == 0 && (Character.isWhitespace(chars[i]) || chars[i] == ' '))
-            {
+        for (int i = 0; i < chars.length; ++i) {
+            if (sb.length() == 0 && (Character.isWhitespace(chars[i]) || chars[i] == ' ')) {
                 continue;
             }
 
             sb.append(chars[i]);
-            switch (chars[i])
-            {
+            switch (chars[i]) {
                 case '.':
-                    if (i < chars.length - 1 && chars[i + 1] > 128)
-                    {
+                    if (i < chars.length - 1 && chars[i + 1] > 128) {
                         insertIntoList(sb, sentences);
                         sb = new StringBuilder();
                     }
                     break;
-                case '…':
-                {
-                    if (i < chars.length - 1 && chars[i + 1] == '…')
-                    {
+                case '…': {
+                    if (i < chars.length - 1 && chars[i + 1] == '…') {
                         sb.append('…');
                         ++i;
                         insertIntoList(sb, sentences);
@@ -78,8 +67,7 @@ public class SentencesUtil
                 case ',':
                 case ';':
                 case '；':
-                    if (!shortest)
-                    {
+                    if (!shortest) {
                         continue;
                     }
                 case ' ':
@@ -98,19 +86,16 @@ public class SentencesUtil
             }
         }
 
-        if (sb.length() > 0)
-        {
+        if (sb.length() > 0) {
             insertIntoList(sb, sentences);
         }
 
         return sentences;
     }
 
-    private static void insertIntoList(StringBuilder sb, List<String> sentences)
-    {
+    private static void insertIntoList(StringBuilder sb, List<String> sentences) {
         String content = sb.toString().trim();
-        if (content.length() > 0)
-        {
+        if (content.length() > 0) {
             sentences.add(content);
         }
     }
@@ -122,12 +107,9 @@ public class SentencesUtil
      * @param nature
      * @return
      */
-    public static boolean hasNature(List<Term> sentence, Nature nature)
-    {
-        for (Term term : sentence)
-        {
-            if (term.nature == nature)
-            {
+    public static boolean hasNature(List<Term> sentence, Nature nature) {
+        for (Term term : sentence) {
+            if (term.nature == nature) {
                 return true;
             }
         }

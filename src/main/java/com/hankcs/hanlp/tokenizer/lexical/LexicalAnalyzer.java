@@ -15,8 +15,7 @@ import com.hankcs.hanlp.corpus.document.sentence.Sentence;
 /**
  * @author hankcs
  */
-public interface LexicalAnalyzer extends Segmenter, POSTagger, NERecognizer
-{
+public interface LexicalAnalyzer extends Segmenter, POSTagger, NERecognizer {
     /**
      * 对句子进行词法分析
      *

@@ -26,15 +26,13 @@ import java.util.Stack;
 /**
  * 储存{@code Integer}的{@code DoubleArrayTrie}，相当于{@code DoubleArrayTrie<Integer>}，但比后者省内存，所以保留两份代码
  */
-public class DoubleArrayTrieInteger implements Serializable
-{
+public class DoubleArrayTrieInteger implements Serializable {
 
     private final static int BUF_SIZE = 16384;
     private final static int UNIT_SIZE = 8; // size of int + int
     private static final long serialVersionUID = -4908582458604586299L;
 
-    private static class Node
-    {
+    private static class Node {
         int code;
         int depth;
         int left;
@@ -58,13 +56,11 @@ public class DoubleArrayTrieInteger implements Serializable
     // boolean no_delete_;
     int error_;
 
-    private int resize(int newSize)
-    {
+    private int resize(int newSize) {
         int[] base2 = new int[newSize];
         int[] check2 = new int[newSize];
         boolean used2[] = new boolean[newSize];
-        if (allocSize > 0)
-        {
+        if (allocSize > 0) {
             System.arraycopy(base, 0, base2, 0, allocSize);
             System.arraycopy(check, 0, check2, 0, allocSize);
             System.arraycopy(used, 0, used2, 0, allocSize);
@@ -77,15 +73,13 @@ public class DoubleArrayTrieInteger implements Serializable
         return allocSize = newSize;
     }
 
-    private int fetch(Node parent, List<Node> siblings)
-    {
+    private int fetch(Node parent, List<Node> siblings) {
         if (error_ < 0)
             return 0;
 
         int prev = 0;
 
-        for (int i = parent.left; i < parent.right; i++)
-        {
+        for (int i = parent.left; i < parent.right; i++) {
             if ((length != null ? length[i] : key.get(i).length()) < parent.depth)
                 continue;
 
@@ -95,14 +89,12 @@ public class DoubleArrayTrieInteger implements Serializable
             if ((length != null ? length[i] : tmp.length()) != parent.depth)
                 cur = (int) tmp.charAt(parent.depth) + 1;
 
-            if (prev > cur)
-            {
+            if (prev > cur) {
                 error_ = -3;
                 return 0;
             }
 
-            if (cur != prev || siblings.size() == 0)
-            {
+            if (cur != prev || siblings.size() == 0) {
                 Node tmp_node = new Node();
                 tmp_node.depth = parent.depth + 1;
                 tmp_node.code = cur;
@@ -122,14 +114,13 @@ public class DoubleArrayTrieInteger implements Serializable
         return siblings.size();
     }
 
-    private int insert(List<Node> siblings)
-    {
+    private int insert(List<Node> siblings) {
         if (error_ < 0)
             return 0;
 
         int begin = 0;
         int pos = ((siblings.get(0).code + 1 > nextCheckPos) ? siblings.get(0).code + 1
-            : nextCheckPos) - 1;
+                : nextCheckPos) - 1;
         int nonzero_num = 0;
         int first = 0;
 
@@ -137,30 +128,25 @@ public class DoubleArrayTrieInteger implements Serializable
             resize(pos + 1);
 
         outer:
-        while (true)
-        {
+        while (true) {
             pos++;
 
             if (allocSize <= pos)
                 resize(pos + 1);
 
-            if (check[pos] != 0)
-            {
+            if (check[pos] != 0) {
                 nonzero_num++;
                 continue;
-            }
-            else if (first == 0)
-            {
+            } else if (first == 0) {
                 nextCheckPos = pos;
                 first = 1;
             }
 
             begin = pos - siblings.get(0).code;
-            if (allocSize <= (begin + siblings.get(siblings.size() - 1).code))
-            {
+            if (allocSize <= (begin + siblings.get(siblings.size() - 1).code)) {
                 // progress can be zero
                 double l = (1.05 > 1.0 * keySize / (progress + 1)) ? 1.05 : 1.0
-                    * keySize / (progress + 1);
+                        * keySize / (progress + 1);
                 resize((int) (allocSize * l));
             }
 
@@ -185,30 +171,25 @@ public class DoubleArrayTrieInteger implements Serializable
 
         used[begin] = true;
         size = (size > begin + siblings.get(siblings.size() - 1).code + 1) ? size
-            : begin + siblings.get(siblings.size() - 1).code + 1;
+                : begin + siblings.get(siblings.size() - 1).code + 1;
 
         for (int i = 0; i < siblings.size(); i++)
             check[begin + siblings.get(i).code] = begin;
 
-        for (int i = 0; i < siblings.size(); i++)
-        {
+        for (int i = 0; i < siblings.size(); i++) {
             List<Node> new_siblings = new ArrayList<Node>();
 
-            if (fetch(siblings.get(i), new_siblings) == 0)
-            {
+            if (fetch(siblings.get(i), new_siblings) == 0) {
                 base[begin + siblings.get(i).code] = (value != null) ? (-value[siblings
-                    .get(i).left] - 1) : (-siblings.get(i).left - 1);
+                        .get(i).left] - 1) : (-siblings.get(i).left - 1);
 
-                if (value != null && (-value[siblings.get(i).left] - 1) >= 0)
-                {
+                if (value != null && (-value[siblings.get(i).left] - 1) >= 0) {
                     error_ = -2;
                     return 0;
                 }
 
                 progress++;
-            }
-            else
-            {
+            } else {
                 int h = insert(new_siblings);
                 base[begin + siblings.get(i).code] = h;
             }
@@ -216,8 +197,7 @@ public class DoubleArrayTrieInteger implements Serializable
         return begin;
     }
 
-    public DoubleArrayTrieInteger()
-    {
+    public DoubleArrayTrieInteger() {
         check = null;
         base = null;
         used = null;
@@ -236,8 +216,7 @@ public class DoubleArrayTrieInteger implements Serializable
     // set_array omitted
     // array omitted
 
-    void clear()
-    {
+    void clear() {
         // if (! no_delete_)
         check = null;
         base = null;
@@ -247,23 +226,19 @@ public class DoubleArrayTrieInteger implements Serializable
         // no_delete_ = false;
     }
 
-    public int getUnitSize()
-    {
+    public int getUnitSize() {
         return UNIT_SIZE;
     }
 
-    public int getSize()
-    {
+    public int getSize() {
         return size;
     }
 
-    public int getTotalSize()
-    {
+    public int getTotalSize() {
         return size * UNIT_SIZE;
     }
 
-    public int getNonzeroSize()
-    {
+    public int getNonzeroSize() {
         int result = 0;
         for (int i = 0; i < size; i++)
             if (check[i] != 0)
@@ -271,14 +246,12 @@ public class DoubleArrayTrieInteger implements Serializable
         return result;
     }
 
-    public int build(List<String> key)
-    {
+    public int build(List<String> key) {
         return build(key, null, null, key.size());
     }
 
     public int build(List<String> _key, int _length[], int _value[],
-                     int _keySize)
-    {
+                     int _keySize) {
         if (_keySize > _key.size() || _key == null)
             return 0;
 
@@ -311,16 +284,13 @@ public class DoubleArrayTrieInteger implements Serializable
     /*
      * recover original key list and value array from a DoubleArrayTrie object
      */
-    public void recoverKeyValue()
-    {
+    public void recoverKeyValue() {
         key = new ArrayList<String>();
         List<Integer> val1 = new ArrayList<Integer>();
         HashMap<Integer, List<Integer>> childIdxMap = new HashMap<Integer, List<Integer>>();
-        for (int i = 0; i < check.length; i++)
-        {
+        for (int i = 0; i < check.length; i++) {
             if (check[i] <= 0) continue;
-            if (!childIdxMap.containsKey(check[i]))
-            {
+            if (!childIdxMap.containsKey(check[i])) {
                 List<Integer> childList = new ArrayList<Integer>();
                 childIdxMap.put(check[i], childList);
             }
@@ -330,45 +300,32 @@ public class DoubleArrayTrieInteger implements Serializable
         s.add(new Integer[]{1, -1});
 
         List<Integer> charBuf = new ArrayList<Integer>();
-        while (true)
-        {
+        while (true) {
             Integer[] pair = s.peek();
             List<Integer> childList = childIdxMap.get(pair[0]);
-            if (childList == null || (childList.size() - 1) == pair[1])
-            {
+            if (childList == null || (childList.size() - 1) == pair[1]) {
                 s.pop();
-                if (s.empty())
-                {
+                if (s.empty()) {
                     break;
-                }
-                else
-                {
-                    if (!charBuf.isEmpty())
-                    {
+                } else {
+                    if (!charBuf.isEmpty()) {
                         charBuf.remove(charBuf.size() - 1);
                     }
                     continue;
                 }
-            }
-            else
-            {
+            } else {
                 pair[1]++;
             }
             int c = (int) childList.get(pair[1]);
             int code = (c - 1 - pair[0]);
-            if (base[c] > 0)
-            {
+            if (base[c] > 0) {
                 s.add(new Integer[]{base[c], -1});
                 charBuf.add(code);
                 continue;
-            }
-            else if (base[c] < 0)
-            {
-                if (check[c] == c)
-                {
+            } else if (base[c] < 0) {
+                if (check[c] == c) {
                     char[] chars = new char[charBuf.size()];
-                    for (int i = 0; i < charBuf.size(); i++)
-                    {
+                    for (int i = 0; i < charBuf.size(); i++) {
                         chars[i] = (char) (int) charBuf.get(i);
                     }
                     key.add(new String(chars));
@@ -377,69 +334,55 @@ public class DoubleArrayTrieInteger implements Serializable
                 continue;
             }
         }
-        if (!val1.isEmpty())
-        {
+        if (!val1.isEmpty()) {
             value = new int[val1.size()];
-            for (int i = 0; i < val1.size(); i++)
-            {
+            for (int i = 0; i < val1.size(); i++) {
                 value[i] = val1.get(i);
             }
         }
     }
 
-    public void open(String fileName) throws IOException
-    {
+    public void open(String fileName) throws IOException {
         File file = new File(fileName);
         size = (int) file.length() / UNIT_SIZE;
         check = new int[size];
         base = new int[size];
 
         DataInputStream is = null;
-        try
-        {
+        try {
             is = new DataInputStream(new BufferedInputStream(
-                new FileInputStream(file), BUF_SIZE));
-            for (int i = 0; i < size; i++)
-            {
+                    new FileInputStream(file), BUF_SIZE));
+            for (int i = 0; i < size; i++) {
                 base[i] = is.readInt();
                 check[i] = is.readInt();
             }
-        }
-        finally
-        {
+        } finally {
             if (is != null)
                 is.close();
         }
     }
 
-    public void save(String fileName) throws IOException
-    {
+    public void save(String fileName) throws IOException {
         DataOutputStream out = null;
-        try
-        {
+        try {
             out = new DataOutputStream(new BufferedOutputStream(
-                IOUtil.newOutputStream(fileName)));
-            for (int i = 0; i < size; i++)
-            {
+                    IOUtil.newOutputStream(fileName)));
+            for (int i = 0; i < size; i++) {
                 out.writeInt(base[i]);
                 out.writeInt(check[i]);
             }
             out.close();
-        }
-        finally
-        {
+        } finally {
             if (out != null)
                 out.close();
         }
     }
 
-    public int exactMatchSearch(String key)
-    {
+    public int exactMatchSearch(String key) {
         return exactMatchSearch(key, 0, 0, 0);
     }
 
-    public int exactMatchSearch(String key, int pos, int len, int nodePos)
-    {
+    public int exactMatchSearch(String key, int pos, int len, int nodePos) {
         if (len <= 0)
             len = key.length();
         if (nodePos <= 0)
@@ -452,8 +395,7 @@ public class DoubleArrayTrieInteger implements Serializable
         int b = base[nodePos];
         int p;
 
-        for (int i = pos; i < len; i++)
-        {
+        for (int i = pos; i < len; i++) {
             p = b + (int) (keyChars[i]) + 1;
             if (b == check[p])
                 b = base[p];
@@ -463,21 +405,18 @@ public class DoubleArrayTrieInteger implements Serializable
 
         p = b;
         int n = base[p];
-        if (b == check[p] && n < 0)
-        {
+        if (b == check[p] && n < 0) {
             result = -n - 1;
         }
         return result;
     }
 
-    public List<Integer> commonPrefixSearch(String key)
-    {
+    public List<Integer> commonPrefixSearch(String key) {
         return commonPrefixSearch(key, 0, 0, 0);
     }
 
     public List<Integer> commonPrefixSearch(String key, int pos, int len,
-                                            int nodePos)
-    {
+                                            int nodePos) {
         if (len <= 0)
             len = key.length();
         if (nodePos <= 0)
@@ -491,13 +430,11 @@ public class DoubleArrayTrieInteger implements Serializable
         int n;
         int p;
 
-        for (int i = pos; i < len; i++)
-        {
+        for (int i = pos; i < len; i++) {
             p = b;
             n = base[p];
 
-            if (b == check[p] && n < 0)
-            {
+            if (b == check[p] && n < 0) {
                 result.add(-n - 1);
             }
 
@@ -511,8 +448,7 @@ public class DoubleArrayTrieInteger implements Serializable
         p = b;
         n = base[p];
 
-        if (b == check[p] && n < 0)
-        {
+        if (b == check[p] && n < 0) {
             result.add(-n - 1);
         }
 
@@ -520,67 +456,54 @@ public class DoubleArrayTrieInteger implements Serializable
     }
 
     // debug
-    public void dump()
-    {
-        for (int i = 0; i < size; i++)
-        {
+    public void dump() {
+        for (int i = 0; i < size; i++) {
             System.err.println("i: " + i + " [" + base[i] + ", " + check[i]
-                                   + "]");
+                    + "]");
         }
     }
 
-    public List<String> getKey()
-    {
+    public List<String> getKey() {
         return key;
     }
 
-    public int[] getValue()
-    {
+    public int[] getValue() {
         return value;
     }
 
-    public void setValue(int[] value)
-    {
+    public void setValue(int[] value) {
         this.value = value;
     }
 
-    public void setKey(List<String> key)
-    {
+    public void setKey(List<String> key) {
         this.key = key;
     }
 
-    public int[] getCheck()
-    {
+    public int[] getCheck() {
         return check;
     }
 
-    public void setCheck(int[] check)
-    {
+    public void setCheck(int[] check) {
         this.check = check;
     }
 
-    public int[] getBase()
-    {
+    public int[] getBase() {
         return base;
     }
 
-    public void setBase(int[] base)
-    {
+    public void setBase(int[] base) {
         this.base = base;
     }
 
-    public int[] getLength()
-    {
+    public int[] getLength() {
         return length;
     }
 
-    public void setLength(int[] length)
-    {
+    public void setLength(int[] length) {
         this.length = length;
     }
 
-    public void setSize(int size)
-    {
+    public void setSize(int size) {
         this.size = size;
     }
 }

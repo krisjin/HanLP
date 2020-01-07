@@ -11,8 +11,7 @@ import java.lang.annotation.RetentionPolicy;
 
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Argument
-{
+public @interface Argument {
     /**
      * This is the actual command line argument itself
      */

@@ -1,18 +1,17 @@
 package com.hankcs.hanlp.classification.features;
 
-import com.hankcs.hanlp.collection.trie.bintrie.BinTrie;
 import com.hankcs.hanlp.classification.corpus.Catalog;
 import com.hankcs.hanlp.classification.corpus.Document;
 import com.hankcs.hanlp.classification.corpus.IDataSet;
 import com.hankcs.hanlp.classification.corpus.Lexicon;
+import com.hankcs.hanlp.collection.trie.bintrie.BinTrie;
 
 import java.util.Map;
 
 /**
  * 储存所有必需的统计数据,尽量不要存太多东西在这里,因为多个分类器都用这个结构,所以里面的数据仅保留必需的数据
  */
-public class BaseFeatureData
-{
+public class BaseFeatureData {
     /**
      * 样本数量
      */
@@ -36,8 +35,7 @@ public class BaseFeatureData
     /**
      * 构造一个空白的统计对象
      */
-    public BaseFeatureData(IDataSet dataSet)
-    {
+    public BaseFeatureData(IDataSet dataSet) {
         Catalog catalog = dataSet.getCatalog();
         Lexicon lexicon = dataSet.getLexicon();
         n = dataSet.size();
@@ -45,12 +43,10 @@ public class BaseFeatureData
         categoryCounts = new int[catalog.size()];
 
         // 执行统计
-        for (Document document : dataSet)
-        {
+        for (Document document : dataSet) {
             ++categoryCounts[document.category];
 
-            for (Map.Entry<Integer, int[]> entry : document.tfMap.entrySet())
-            {
+            for (Map.Entry<Integer, int[]> entry : document.tfMap.entrySet()) {
                 featureCategoryJointCount[entry.getKey()][document.category] += 1;
             }
         }

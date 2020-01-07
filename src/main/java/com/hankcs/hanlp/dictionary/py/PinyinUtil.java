@@ -17,8 +17,7 @@ import java.util.List;
 /**
  * @author hankcs
  */
-public class PinyinUtil
-{
+public class PinyinUtil {
     /**
      * Convert tone numbers to tone marks using Unicode <br/><br/>
      * <p/>
@@ -43,12 +42,10 @@ public class PinyinUtil
      * @param pinyinStr the ascii represention with tone numbers
      * @return the unicode represention with tone marks
      */
-    public static String convertToneNumber2ToneMark(final String pinyinStr)
-    {
+    public static String convertToneNumber2ToneMark(final String pinyinStr) {
         String lowerCasePinyinStr = pinyinStr.toLowerCase();
 
-        if (lowerCasePinyinStr.matches("[a-z]*[1-5]?"))
-        {
+        if (lowerCasePinyinStr.matches("[a-z]*[1-5]?")) {
             final char defautlCharValue = '$';
             final int defautlIndexValue = -1;
 
@@ -61,8 +58,7 @@ public class PinyinUtil
             final String allUnmarkedVowelStr = "aeiouv";
             final String allMarkedVowelStr = "āáǎàaēéěèeīíǐìiōóǒòoūúǔùuǖǘǚǜü";
 
-            if (lowerCasePinyinStr.matches("[a-z]*[1-5]"))
-            {
+            if (lowerCasePinyinStr.matches("[a-z]*[1-5]")) {
 
                 int tuneNumber =
                         Character.getNumericValue(lowerCasePinyinStr.charAt(lowerCasePinyinStr.length() - 1));
@@ -71,28 +67,19 @@ public class PinyinUtil
                 int indexOfE = lowerCasePinyinStr.indexOf(charE);
                 int ouIndex = lowerCasePinyinStr.indexOf(ouStr);
 
-                if (-1 != indexOfA)
-                {
+                if (-1 != indexOfA) {
                     indexOfUnmarkedVowel = indexOfA;
                     unmarkedVowel = charA;
-                }
-                else if (-1 != indexOfE)
-                {
+                } else if (-1 != indexOfE) {
                     indexOfUnmarkedVowel = indexOfE;
                     unmarkedVowel = charE;
-                }
-                else if (-1 != ouIndex)
-                {
+                } else if (-1 != ouIndex) {
                     indexOfUnmarkedVowel = ouIndex;
                     unmarkedVowel = ouStr.charAt(0);
-                }
-                else
-                {
-                    for (int i = lowerCasePinyinStr.length() - 1; i >= 0; i--)
-                    {
+                } else {
+                    for (int i = lowerCasePinyinStr.length() - 1; i >= 0; i--) {
                         if (String.valueOf(lowerCasePinyinStr.charAt(i)).matches(
-                                "[" + allUnmarkedVowelStr + "]"))
-                        {
+                                "[" + allUnmarkedVowelStr + "]")) {
                             indexOfUnmarkedVowel = i;
                             unmarkedVowel = lowerCasePinyinStr.charAt(i);
                             break;
@@ -100,8 +87,7 @@ public class PinyinUtil
                     }
                 }
 
-                if ((defautlCharValue != unmarkedVowel) && (defautlIndexValue != indexOfUnmarkedVowel))
-                {
+                if ((defautlCharValue != unmarkedVowel) && (defautlIndexValue != indexOfUnmarkedVowel)) {
                     int rowIndex = allUnmarkedVowelStr.indexOf(unmarkedVowel);
                     int columnIndex = tuneNumber - 1;
 
@@ -112,28 +98,25 @@ public class PinyinUtil
                     StringBuffer resultBuffer = new StringBuffer();
 
                     resultBuffer.append(lowerCasePinyinStr.substring(0, indexOfUnmarkedVowel).replaceAll("v",
-                                                                                                         "ü"));
+                            "ü"));
                     resultBuffer.append(markedVowel);
                     resultBuffer.append(lowerCasePinyinStr.substring(indexOfUnmarkedVowel + 1,
-                                                                     lowerCasePinyinStr.length() - 1).replaceAll("v", "ü"));
+                            lowerCasePinyinStr.length() - 1).replaceAll("v", "ü"));
 
                     return resultBuffer.toString();
 
-                }
-                else
+                } else
                 // error happens in the procedure of locating vowel
                 {
                     return lowerCasePinyinStr;
                 }
-            }
-            else
+            } else
             // input string has no any tune number
             {
                 // only replace v with ü (umlat) character
                 return lowerCasePinyinStr.replaceAll("v", "ü");
             }
-        }
-        else
+        } else
         // bad format
         {
             return lowerCasePinyinStr;
@@ -142,29 +125,27 @@ public class PinyinUtil
 
     /**
      * 将列表转为数组
+     *
      * @param pinyinList
      * @return
      */
-    public static Pinyin[] convertList2Array(List<Pinyin> pinyinList)
-    {
+    public static Pinyin[] convertList2Array(List<Pinyin> pinyinList) {
         return pinyinList.toArray(new Pinyin[0]);
     }
 
-    public static Pinyin removeTone(Pinyin p)
-    {
+    public static Pinyin removeTone(Pinyin p) {
         return Pinyin.none5;
     }
 
     /**
      * 转换List<Pinyin> pinyinList到List<String>，其中的String为带声调符号形式
+     *
      * @param pinyinList
      * @return
      */
-    public static List<String> convertPinyinList2TonePinyinList(List<Pinyin> pinyinList)
-    {
+    public static List<String> convertPinyinList2TonePinyinList(List<Pinyin> pinyinList) {
         List<String> tonePinyinList = new ArrayList<String>(pinyinList.size());
-        for (Pinyin pinyin : pinyinList)
-        {
+        for (Pinyin pinyin : pinyinList) {
             tonePinyinList.add(pinyin.getPinyinWithToneMark());
         }
 

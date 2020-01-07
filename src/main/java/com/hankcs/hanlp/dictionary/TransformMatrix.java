@@ -20,8 +20,7 @@ import static com.hankcs.hanlp.utility.Predefine.logger;
 /**
  * @author hankcs
  */
-public abstract class TransformMatrix
-{
+public abstract class TransformMatrix {
     // HMM的五元组
     //int[] observations;
     /**
@@ -53,10 +52,8 @@ public abstract class TransformMatrix
      */
     int totalFrequency;
 
-    public boolean load(String path)
-    {
-        try
-        {
+    public boolean load(String path) {
+        try {
             BufferedReader br = new BufferedReader(new InputStreamReader(IOUtil.newInputStream(path), "UTF-8"));
             // 第一行是矩阵的各个类型
             String line = br.readLine();
@@ -66,76 +63,60 @@ public abstract class TransformMatrix
             System.arraycopy(_param, 1, labels, 0, labels.length);
             int[] ordinaryArray = new int[labels.length];
             ordinaryMax = 0;
-            for (int i = 0; i < ordinaryArray.length; ++i)
-            {
+            for (int i = 0; i < ordinaryArray.length; ++i) {
                 ordinaryArray[i] = ordinal(labels[i]);
                 ordinaryMax = Math.max(ordinaryMax, ordinaryArray[i]);
             }
             ++ordinaryMax;
             matrix = new int[ordinaryMax][ordinaryMax];
-            for (int i = 0; i < ordinaryMax; ++i)
-            {
-                for (int j = 0; j < ordinaryMax; ++j)
-                {
+            for (int i = 0; i < ordinaryMax; ++i) {
+                for (int j = 0; j < ordinaryMax; ++j) {
                     matrix[i][j] = 0;
                 }
             }
             // 之后就描述了矩阵
-            while ((line = br.readLine()) != null)
-            {
+            while ((line = br.readLine()) != null) {
                 String[] paramArray = line.split(",");
                 int currentOrdinary = ordinal(paramArray[0]);
-                for (int i = 0; i < ordinaryArray.length; ++i)
-                {
+                for (int i = 0; i < ordinaryArray.length; ++i) {
                     matrix[currentOrdinary][ordinaryArray[i]] = Integer.valueOf(paramArray[1 + i]);
                 }
             }
             br.close();
             // 需要统计一下每个标签出现的次数
             total = new int[ordinaryMax];
-            for (int j = 0; j < ordinaryMax; ++j)
-            {
+            for (int j = 0; j < ordinaryMax; ++j) {
                 total[j] = 0;
-                for (int i = 0; i < ordinaryMax; ++i)
-                {
+                for (int i = 0; i < ordinaryMax; ++i) {
                     total[j] += matrix[j][i]; // 按行累加
                 }
             }
-            for (int j = 0; j < ordinaryMax; ++j)
-            {
-                if (total[j] == 0)
-                {
-                    for (int i = 0; i < ordinaryMax; ++i)
-                    {
+            for (int j = 0; j < ordinaryMax; ++j) {
+                if (total[j] == 0) {
+                    for (int i = 0; i < ordinaryMax; ++i) {
                         total[j] += matrix[i][j]; // 按列累加
                     }
                 }
             }
-            for (int j = 0; j < ordinaryMax; ++j)
-            {
+            for (int j = 0; j < ordinaryMax; ++j) {
                 totalFrequency += total[j];
             }
             // 下面计算HMM四元组
             states = ordinaryArray;
             start_probability = new double[ordinaryMax];
-            for (int s : states)
-            {
+            for (int s : states) {
                 double frequency = total[s] + 1e-8;
                 start_probability[s] = -Math.log(frequency / totalFrequency);
             }
             transititon_probability = new double[ordinaryMax][ordinaryMax];
-            for (int from : states)
-            {
-                for (int to : states)
-                {
+            for (int from : states) {
+                for (int to : states) {
                     double frequency = matrix[from][to] + 1e-8;
                     transititon_probability[from][to] = -Math.log(frequency / total[from]);
 //                    System.out.println("from" + NR.values()[from] + " to" + NR.values()[to] + " = " + transititon_probability[from][to]);
                 }
             }
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             logger.warning("读取" + path + "失败" + e);
             return false;
         }
@@ -146,12 +127,10 @@ public abstract class TransformMatrix
     /**
      * 拓展内部矩阵,仅用于通过反射新增了枚举实例之后的兼容措施
      */
-    public void extend(int ordinaryMax)
-    {
+    public void extend(int ordinaryMax) {
         this.ordinaryMax = ordinaryMax;
         double[][] n_transititon_probability = new double[ordinaryMax][ordinaryMax];
-        for (int i = 0; i < transititon_probability.length; i++)
-        {
+        for (int i = 0; i < transititon_probability.length; i++) {
             System.arraycopy(transititon_probability[i], 0, n_transititon_probability[i], 0, transititon_probability.length);
         }
         transititon_probability = n_transititon_probability;
@@ -165,8 +144,7 @@ public abstract class TransformMatrix
         start_probability = n_start_probability;
 
         int[][] n_matrix = new int[ordinaryMax][ordinaryMax];
-        for (int i = 0; i < matrix.length; i++)
-        {
+        for (int i = 0; i < matrix.length; i++) {
             System.arraycopy(matrix[i], 0, n_matrix[i], 0, matrix.length);
         }
         matrix = n_matrix;
@@ -174,8 +152,7 @@ public abstract class TransformMatrix
 
     public abstract int ordinal(String tag);
 
-    public int getTotalFrequency(int ordinal)
-    {
+    public int getTotalFrequency(int ordinal) {
         return total[ordinal];
     }
 }

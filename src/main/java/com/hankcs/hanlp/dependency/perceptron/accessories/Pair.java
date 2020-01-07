@@ -7,32 +7,27 @@ package com.hankcs.hanlp.dependency.perceptron.accessories;
 
 import java.io.Serializable;
 
-public class Pair<T1, T2> implements Comparable, Cloneable, Serializable
-{
+public class Pair<T1, T2> implements Comparable, Cloneable, Serializable {
 
     public T1 first;
     public T2 second;
 
-    public Pair(T1 first, T2 second)
-    {
+    public Pair(T1 first, T2 second) {
         this.first = first;
         this.second = second;
     }
 
-    public void setFirst(T1 first)
-    {
+    public void setFirst(T1 first) {
         this.first = first;
     }
 
     @Override
-    public Pair<T1, T2> clone()
-    {
+    public Pair<T1, T2> clone() {
         return new Pair<T1, T2>(first, second);
     }
 
     @Override
-    public boolean equals(Object o)
-    {
+    public boolean equals(Object o) {
         if (!(o instanceof Pair))
             return false;
         Pair pair = (Pair) o;
@@ -48,8 +43,7 @@ public class Pair<T1, T2> implements Comparable, Cloneable, Serializable
     }
 
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         int firstHash = 0;
         int secondHash = 0;
         if (first != null)
@@ -60,8 +54,7 @@ public class Pair<T1, T2> implements Comparable, Cloneable, Serializable
     }
 
     @Override
-    public int compareTo(Object o)
-    {
+    public int compareTo(Object o) {
         if (equals(o))
             return 0;
         return hashCode() - o.hashCode();

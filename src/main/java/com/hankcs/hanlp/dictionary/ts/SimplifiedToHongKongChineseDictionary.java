@@ -13,31 +13,27 @@ package com.hankcs.hanlp.dictionary.ts;
 
 import com.hankcs.hanlp.HanLP;
 import com.hankcs.hanlp.collection.AhoCorasick.AhoCorasickDoubleArrayTrie;
-import com.hankcs.hanlp.dictionary.other.CharTable;
 
-import java.util.Map;
 import java.util.TreeMap;
 
 import static com.hankcs.hanlp.utility.Predefine.logger;
 
 /**
  * 简体转香港繁体繁体
+ *
  * @author hankcs
  */
-public class SimplifiedToHongKongChineseDictionary extends BaseChineseDictionary
-{
+public class SimplifiedToHongKongChineseDictionary extends BaseChineseDictionary {
     static AhoCorasickDoubleArrayTrie<String> trie = new AhoCorasickDoubleArrayTrie<String>();
-    static
-    {
+
+    static {
         long start = System.currentTimeMillis();
         String datPath = HanLP.Config.tcDictionaryRoot + "s2hk";
-        if (!load(datPath, trie))
-        {
+        if (!load(datPath, trie)) {
             TreeMap<String, String> s2t = new TreeMap<String, String>();
             TreeMap<String, String> t2hk = new TreeMap<String, String>();
             if (!load(s2t, false, HanLP.Config.tcDictionaryRoot + "s2t.txt") ||
-                    !load(t2hk, false, HanLP.Config.tcDictionaryRoot + "t2hk.txt"))
-            {
+                    !load(t2hk, false, HanLP.Config.tcDictionaryRoot + "t2hk.txt")) {
                 throw new IllegalArgumentException("简体转香港繁体词典加载失败");
             }
             combineChain(s2t, t2hk);
@@ -47,13 +43,11 @@ public class SimplifiedToHongKongChineseDictionary extends BaseChineseDictionary
         logger.info("简体转香港繁体词典加载成功，耗时" + (System.currentTimeMillis() - start) + "ms");
     }
 
-    public static String convertToTraditionalHongKongChinese(String simplifiedChineseString)
-    {
+    public static String convertToTraditionalHongKongChinese(String simplifiedChineseString) {
         return segLongest(simplifiedChineseString.toCharArray(), trie);
     }
 
-    public static String convertToTraditionalHongKongChinese(char[] simplifiedChinese)
-    {
+    public static String convertToTraditionalHongKongChinese(char[] simplifiedChinese) {
         return segLongest(simplifiedChinese, trie);
     }
 }

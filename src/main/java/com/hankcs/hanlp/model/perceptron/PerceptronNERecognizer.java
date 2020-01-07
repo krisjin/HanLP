@@ -11,15 +11,15 @@
 package com.hankcs.hanlp.model.perceptron;
 
 import com.hankcs.hanlp.HanLP;
+import com.hankcs.hanlp.corpus.document.sentence.Sentence;
 import com.hankcs.hanlp.corpus.document.sentence.word.CompoundWord;
 import com.hankcs.hanlp.corpus.document.sentence.word.IWord;
+import com.hankcs.hanlp.model.perceptron.common.TaskType;
 import com.hankcs.hanlp.model.perceptron.feature.FeatureMap;
 import com.hankcs.hanlp.model.perceptron.instance.Instance;
+import com.hankcs.hanlp.model.perceptron.instance.NERInstance;
 import com.hankcs.hanlp.model.perceptron.model.LinearModel;
 import com.hankcs.hanlp.model.perceptron.tagset.NERTagSet;
-import com.hankcs.hanlp.model.perceptron.common.TaskType;
-import com.hankcs.hanlp.model.perceptron.instance.NERInstance;
-import com.hankcs.hanlp.corpus.document.sentence.Sentence;
 import com.hankcs.hanlp.tokenizer.lexical.NERecognizer;
 
 import java.io.IOException;
@@ -31,22 +31,18 @@ import static com.hankcs.hanlp.utility.Predefine.logger;
  *
  * @author hankcs
  */
-public class PerceptronNERecognizer extends PerceptronTagger implements NERecognizer
-{
+public class PerceptronNERecognizer extends PerceptronTagger implements NERecognizer {
     final NERTagSet tagSet;
 
-    public PerceptronNERecognizer(LinearModel nerModel)
-    {
+    public PerceptronNERecognizer(LinearModel nerModel) {
         super(nerModel);
-        if (nerModel.tagSet().type != TaskType.NER)
-        {
+        if (nerModel.tagSet().type != TaskType.NER) {
             throw new IllegalArgumentException(String.format("错误的模型类型: 传入的不是命名实体识别模型，而是 %s 模型", nerModel.featureMap.tagSet.type));
         }
         this.tagSet = (NERTagSet) model.tagSet();
     }
 
-    public PerceptronNERecognizer(String nerModelPath) throws IOException
-    {
+    public PerceptronNERecognizer(String nerModelPath) throws IOException {
         this(new LinearModel(nerModelPath));
     }
 
@@ -55,19 +51,16 @@ public class PerceptronNERecognizer extends PerceptronTagger implements NERecogn
      *
      * @throws IOException
      */
-    public PerceptronNERecognizer() throws IOException
-    {
+    public PerceptronNERecognizer() throws IOException {
         this(HanLP.Config.PerceptronNERModelPath);
     }
 
-    public String[] recognize(String[] wordArray, String[] posArray)
-    {
+    public String[] recognize(String[] wordArray, String[] posArray) {
         NERInstance instance = new NERInstance(wordArray, posArray, model.featureMap);
         return recognize(instance);
     }
 
-    public String[] recognize(NERInstance instance)
-    {
+    public String[] recognize(NERInstance instance) {
         instance.tagArray = new int[instance.size()];
         model.viterbiDecode(instance);
 
@@ -75,8 +68,7 @@ public class PerceptronNERecognizer extends PerceptronTagger implements NERecogn
     }
 
     @Override
-    public NERTagSet getNERTagSet()
-    {
+    public NERTagSet getNERTagSet() {
         return tagSet;
     }
 
@@ -86,16 +78,13 @@ public class PerceptronNERecognizer extends PerceptronTagger implements NERecogn
      * @param segmentedTaggedNERSentence 人民日报2014格式的句子
      * @return 是否学习成功（失败的原因是参数错误）
      */
-    public boolean learn(String segmentedTaggedNERSentence)
-    {
+    public boolean learn(String segmentedTaggedNERSentence) {
         return learn(NERInstance.create(segmentedTaggedNERSentence, model.featureMap));
     }
 
     @Override
-    protected Instance createInstance(Sentence sentence, FeatureMap featureMap)
-    {
-        for (IWord word : sentence)
-        {
+    protected Instance createInstance(Sentence sentence, FeatureMap featureMap) {
+        for (IWord word : sentence) {
             if (word instanceof CompoundWord && !tagSet.nerLabels.contains(word.getLabel()))
                 logger.warning("在线学习不可能学习新的标签: " + word + " ；请标注语料库后重新全量训练。");
         }

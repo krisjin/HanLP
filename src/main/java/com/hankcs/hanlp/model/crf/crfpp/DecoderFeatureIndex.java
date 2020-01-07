@@ -1,6 +1,5 @@
 package com.hankcs.hanlp.model.crf.crfpp;
 
-import com.hankcs.hanlp.collection.dartsclone.DoubleArray;
 import com.hankcs.hanlp.collection.trie.datrie.MutableDoubleArrayTrieInteger;
 import com.hankcs.hanlp.corpus.io.IOUtil;
 
@@ -12,24 +11,19 @@ import java.util.List;
 /**
  * @author zhifac
  */
-public class DecoderFeatureIndex extends FeatureIndex
-{
+public class DecoderFeatureIndex extends FeatureIndex {
     private MutableDoubleArrayTrieInteger dat;
 
-    public DecoderFeatureIndex()
-    {
+    public DecoderFeatureIndex() {
         dat = new MutableDoubleArrayTrieInteger();
     }
 
-    public int getID(String key)
-    {
+    public int getID(String key) {
         return dat.get(key);
     }
 
-    public boolean open(InputStream stream)
-    {
-        try
-        {
+    public boolean open(InputStream stream) {
+        try {
             ObjectInputStream ois = new ObjectInputStream(stream);
             int version = (Integer) ois.readObject();
             costFactor_ = (Double) ois.readObject();
@@ -42,20 +36,15 @@ public class DecoderFeatureIndex extends FeatureIndex
             alpha_ = (double[]) ois.readObject();
             ois.close();
             return true;
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
     }
 
-    public boolean convert(String binarymodel, String textmodel)
-    {
-        try
-        {
-            if (!open(IOUtil.newInputStream(binarymodel)))
-            {
+    public boolean convert(String binarymodel, String textmodel) {
+        try {
+            if (!open(IOUtil.newInputStream(binarymodel))) {
                 System.err.println("Fail to read binary model " + binarymodel);
                 return false;
             }
@@ -65,59 +54,46 @@ public class DecoderFeatureIndex extends FeatureIndex
             osw.write("maxid: " + maxid_ + "\n");
             osw.write("xsize: " + xsize_ + "\n");
             osw.write("\n");
-            for (String y : y_)
-            {
+            for (String y : y_) {
                 osw.write(y + "\n");
             }
             osw.write("\n");
-            for (String utempl : unigramTempls_)
-            {
+            for (String utempl : unigramTempls_) {
                 osw.write(utempl + "\n");
             }
-            for (String bitempl : bigramTempls_)
-            {
+            for (String bitempl : bigramTempls_) {
                 osw.write(bitempl + "\n");
             }
             osw.write("\n");
 
-            for (MutableDoubleArrayTrieInteger.KeyValuePair pair : dat)
-            {
+            for (MutableDoubleArrayTrieInteger.KeyValuePair pair : dat) {
                 osw.write(pair.getValue() + " " + pair.getKey() + "\n");
             }
 
             osw.write("\n");
 
-            for (int k = 0; k < maxid_; k++)
-            {
+            for (int k = 0; k < maxid_; k++) {
                 String val = new DecimalFormat("0.0000000000000000").format(alpha_[k]);
                 osw.write(val + "\n");
             }
             osw.close();
             return true;
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             System.err.println(binarymodel + " does not exist");
             return false;
         }
     }
 
-    public boolean openTextModel(String filename1, boolean cacheBinModel)
-    {
+    public boolean openTextModel(String filename1, boolean cacheBinModel) {
         InputStreamReader isr = null;
-        try
-        {
+        try {
             String binFileName = filename1 + ".bin";
-            try
-            {
-                if (open(IOUtil.newInputStream(binFileName)))
-                {
+            try {
+                if (open(IOUtil.newInputStream(binFileName))) {
                     System.out.println("Found binary model " + binFileName);
                     return true;
                 }
-            }
-            catch (IOException e)
-            {
+            } catch (IOException e) {
                 // load text model
             }
 
@@ -132,43 +108,34 @@ public class DecoderFeatureIndex extends FeatureIndex
             System.out.println("Done reading meta-info");
             br.readLine();
 
-            while ((line = br.readLine()) != null && line.length() > 0)
-            {
+            while ((line = br.readLine()) != null && line.length() > 0) {
                 y_.add(line);
             }
             System.out.println("Done reading labels");
-            while ((line = br.readLine()) != null && line.length() > 0)
-            {
-                if (line.startsWith("U"))
-                {
+            while ((line = br.readLine()) != null && line.length() > 0) {
+                if (line.startsWith("U")) {
                     unigramTempls_.add(line);
-                }
-                else if (line.startsWith("B"))
-                {
+                } else if (line.startsWith("B")) {
                     bigramTempls_.add(line);
                 }
             }
             System.out.println("Done reading templates");
-            while ((line = br.readLine()) != null && line.length() > 0)
-            {
+            while ((line = br.readLine()) != null && line.length() > 0) {
                 String[] content = line.trim().split(" ");
                 dat.put(content[1], Integer.valueOf(content[0]));
             }
             List<Double> alpha = new ArrayList<Double>();
-            while ((line = br.readLine()) != null && line.length() > 0)
-            {
+            while ((line = br.readLine()) != null && line.length() > 0) {
                 alpha.add(Double.valueOf(line));
             }
             System.out.println("Done reading weights");
             alpha_ = new double[alpha.size()];
-            for (int i = 0; i < alpha.size(); i++)
-            {
+            for (int i = 0; i < alpha.size(); i++) {
                 alpha_[i] = alpha.get(i);
             }
             br.close();
 
-            if (cacheBinModel)
-            {
+            if (cacheBinModel) {
                 System.out.println("Writing binary model to " + binFileName);
                 ObjectOutputStream oos = new ObjectOutputStream(IOUtil.newOutputStream(binFileName));
                 oos.writeObject(version);
@@ -182,17 +149,11 @@ public class DecoderFeatureIndex extends FeatureIndex
                 oos.writeObject(alpha_);
                 oos.close();
             }
-        }
-        catch (Exception e)
-        {
-            if (isr != null)
-            {
-                try
-                {
+        } catch (Exception e) {
+            if (isr != null) {
+                try {
                     isr.close();
-                }
-                catch (Exception e2)
-                {
+                } catch (Exception e2) {
                 }
             }
             e.printStackTrace();
@@ -202,17 +163,12 @@ public class DecoderFeatureIndex extends FeatureIndex
         return true;
     }
 
-    public static void main(String[] args)
-    {
-        if (args.length < 2)
-        {
+    public static void main(String[] args) {
+        if (args.length < 2) {
             return;
-        }
-        else
-        {
+        } else {
             DecoderFeatureIndex featureIndex = new DecoderFeatureIndex();
-            if (!featureIndex.convert(args[0], args[1]))
-            {
+            if (!featureIndex.convert(args[0], args[1])) {
                 System.err.println("fail to convert binary model to text model");
             }
         }

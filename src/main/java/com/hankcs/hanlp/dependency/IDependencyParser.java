@@ -23,8 +23,7 @@ import java.util.Map;
  *
  * @author hankcs
  */
-public interface IDependencyParser
-{
+public interface IDependencyParser {
     /**
      * 分析句子的依存句法
      *
@@ -71,6 +70,7 @@ public interface IDependencyParser
 
     /**
      * 依存关系自动转换开关
+     *
      * @param enable
      */
     IDependencyParser enableDeprelTranslator(boolean enable);

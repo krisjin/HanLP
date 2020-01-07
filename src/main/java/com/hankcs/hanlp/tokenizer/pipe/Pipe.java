@@ -17,8 +17,7 @@ package com.hankcs.hanlp.tokenizer.pipe;
  * @param <O> 输出类型
  * @author hankcs
  */
-public interface Pipe<I, O>
-{
+public interface Pipe<I, O> {
     /**
      * 流经管道
      *

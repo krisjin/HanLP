@@ -17,24 +17,21 @@ import com.hankcs.hanlp.collection.trie.bintrie.BaseNode;
 /**
  * @author He Han
  */
-public class ArrayTool
-{
+public class ArrayTool {
     /**
      * 二分查找
+     *
      * @param branches 数组
-     * @param node 要查找的node
+     * @param node     要查找的node
      * @return 数组下标，小于0表示没找到
      */
-    public static int binarySearch(BaseNode[] branches, BaseNode node)
-    {
+    public static int binarySearch(BaseNode[] branches, BaseNode node) {
         int high = branches.length - 1;
-        if (branches.length < 1)
-        {
+        if (branches.length < 1) {
             return high;
         }
         int low = 0;
-        while (low <= high)
-        {
+        while (low <= high) {
             int mid = (low + high) >>> 1;
             int cmp = branches[mid].compareTo(node);
 
@@ -48,16 +45,13 @@ public class ArrayTool
         return -(low + 1);
     }
 
-    public static int binarySearch(BaseNode[] branches, char node)
-    {
+    public static int binarySearch(BaseNode[] branches, char node) {
         int high = branches.length - 1;
-        if (branches.length < 1)
-        {
+        if (branches.length < 1) {
             return high;
         }
         int low = 0;
-        while (low <= high)
-        {
+        while (low <= high) {
             int mid = (low + high) >>> 1;
             int cmp = branches[mid].compareTo(node);
 

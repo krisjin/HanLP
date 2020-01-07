@@ -10,10 +10,10 @@
  */
 package com.hankcs.hanlp.model.perceptron;
 
-import com.hankcs.hanlp.model.perceptron.model.LinearModel;
-import com.hankcs.hanlp.model.perceptron.instance.Instance;
-import com.hankcs.hanlp.model.perceptron.model.StructuredPerceptron;
 import com.hankcs.hanlp.corpus.document.sentence.Sentence;
+import com.hankcs.hanlp.model.perceptron.instance.Instance;
+import com.hankcs.hanlp.model.perceptron.model.LinearModel;
+import com.hankcs.hanlp.model.perceptron.model.StructuredPerceptron;
 
 import java.io.IOException;
 
@@ -22,27 +22,23 @@ import java.io.IOException;
  *
  * @author hankcs
  */
-public abstract class PerceptronTagger extends InstanceConsumer
-{
+public abstract class PerceptronTagger extends InstanceConsumer {
     /**
      * 用StructurePerceptron实现在线学习
      */
     protected final StructuredPerceptron model;
 
-    public PerceptronTagger(LinearModel model)
-    {
+    public PerceptronTagger(LinearModel model) {
         assert model != null;
         this.model = model instanceof StructuredPerceptron ? (StructuredPerceptron) model : new StructuredPerceptron(model.featureMap, model.parameter);
     }
 
-    public PerceptronTagger(StructuredPerceptron model)
-    {
+    public PerceptronTagger(StructuredPerceptron model) {
         assert model != null;
         this.model = model;
     }
 
-    public LinearModel getModel()
-    {
+    public LinearModel getModel() {
         return model;
     }
 
@@ -52,8 +48,7 @@ public abstract class PerceptronTagger extends InstanceConsumer
      * @param instance
      * @return
      */
-    public boolean learn(Instance instance)
-    {
+    public boolean learn(Instance instance) {
         if (instance == null) return false;
         model.update(instance);
         return true;
@@ -65,8 +60,7 @@ public abstract class PerceptronTagger extends InstanceConsumer
      * @param sentence
      * @return
      */
-    public boolean learn(Sentence sentence)
-    {
+    public boolean learn(Sentence sentence) {
         return learn(createInstance(sentence, model.featureMap));
     }
 
@@ -77,8 +71,7 @@ public abstract class PerceptronTagger extends InstanceConsumer
      * @return 默认返回accuracy，有些子类可能返回P,R,F1
      * @throws IOException
      */
-    public double[] evaluate(String corpora) throws IOException
-    {
+    public double[] evaluate(String corpora) throws IOException {
         return evaluate(corpora, this.getModel());
     }
 }

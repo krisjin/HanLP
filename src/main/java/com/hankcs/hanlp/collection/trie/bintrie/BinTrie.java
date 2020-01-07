@@ -27,22 +27,18 @@ import static com.hankcs.hanlp.utility.Predefine.logger;
  *
  * @author hankcs
  */
-public class BinTrie<V> extends BaseNode<V> implements ITrie<V>, Externalizable
-{
+public class BinTrie<V> extends BaseNode<V> implements ITrie<V>, Externalizable {
     private int size;
 
-    public BinTrie()
-    {
+    public BinTrie() {
         child = new BaseNode[65535 + 1];    // (int)Character.MAX_VALUE
         size = 0;
         status = Status.NOT_WORD_1;
     }
 
-    public BinTrie(Map<String, V> map)
-    {
+    public BinTrie(Map<String, V> map) {
         this();
-        for (Map.Entry<String, V> entry : map.entrySet())
-        {
+        for (Map.Entry<String, V> entry : map.entrySet()) {
             put(entry.getKey(), entry.getValue());
         }
     }
@@ -53,47 +49,41 @@ public class BinTrie<V> extends BaseNode<V> implements ITrie<V>, Externalizable
      * @param key
      * @param value
      */
-    public void put(String key, V value)
-    {
+    public void put(String key, V value) {
         if (key.length() == 0) return;  // 安全起见
         BaseNode branch = this;
         char[] chars = key.toCharArray();
-        for (int i = 0; i < chars.length - 1; ++i)
-        {
+        for (int i = 0; i < chars.length - 1; ++i) {
             // 除了最后一个字外，都是继续
             branch.addChild(new Node(chars[i], Status.NOT_WORD_1, null));
             branch = branch.getChild(chars[i]);
         }
         // 最后一个字加入时属性为end
-        if (branch.addChild(new Node<V>(chars[chars.length - 1], Status.WORD_END_3, value)))
-        {
+        if (branch.addChild(new Node<V>(chars[chars.length - 1], Status.WORD_END_3, value))) {
             ++size; // 维护size
         }
     }
 
-    public void put(char[] key, V value)
-    {
+    public void put(char[] key, V value) {
         BaseNode branch = this;
-        for (int i = 0; i < key.length - 1; ++i)
-        {
+        for (int i = 0; i < key.length - 1; ++i) {
             // 除了最后一个字外，都是继续
             branch.addChild(new Node(key[i], Status.NOT_WORD_1, null));
             branch = branch.getChild(key[i]);
         }
         // 最后一个字加入时属性为end
-        if (branch.addChild(new Node<V>(key[key.length - 1], Status.WORD_END_3, value)))
-        {
+        if (branch.addChild(new Node<V>(key[key.length - 1], Status.WORD_END_3, value))) {
             ++size; // 维护size
         }
     }
 
     /**
      * 设置键值对，当键不存在的时候会自动插入
+     *
      * @param key
      * @param value
      */
-    public void set(String key, V value)
-    {
+    public void set(String key, V value) {
         put(key.toCharArray(), value);
     }
 
@@ -102,29 +92,24 @@ public class BinTrie<V> extends BaseNode<V> implements ITrie<V>, Externalizable
      *
      * @param key
      */
-    public void remove(String key)
-    {
+    public void remove(String key) {
         BaseNode branch = this;
         char[] chars = key.toCharArray();
-        for (int i = 0; i < chars.length - 1; ++i)
-        {
+        for (int i = 0; i < chars.length - 1; ++i) {
             if (branch == null) return;
             branch = branch.getChild(chars[i]);
         }
         if (branch == null) return;
         // 最后一个字设为undefined
-        if (branch.addChild(new Node(chars[chars.length - 1], Status.UNDEFINED_0, value)))
-        {
+        if (branch.addChild(new Node(chars[chars.length - 1], Status.UNDEFINED_0, value))) {
             --size;
         }
     }
 
-    public boolean containsKey(String key)
-    {
+    public boolean containsKey(String key) {
         BaseNode branch = this;
         char[] chars = key.toCharArray();
-        for (char aChar : chars)
-        {
+        for (char aChar : chars) {
             if (branch == null) return false;
             branch = branch.getChild(aChar);
         }
@@ -132,12 +117,10 @@ public class BinTrie<V> extends BaseNode<V> implements ITrie<V>, Externalizable
         return branch != null && (branch.status == Status.WORD_END_3 || branch.status == Status.WORD_MIDDLE_2);
     }
 
-    public V get(String key)
-    {
+    public V get(String key) {
         BaseNode branch = this;
         char[] chars = key.toCharArray();
-        for (char aChar : chars)
-        {
+        for (char aChar : chars) {
             if (branch == null) return null;
             branch = branch.getChild(aChar);
         }
@@ -148,11 +131,9 @@ public class BinTrie<V> extends BaseNode<V> implements ITrie<V>, Externalizable
         return (V) branch.getValue();
     }
 
-    public V get(char[] key)
-    {
+    public V get(char[] key) {
         BaseNode branch = this;
-        for (char aChar : key)
-        {
+        for (char aChar : key) {
             if (branch == null) return null;
             branch = branch.getChild(aChar);
         }
@@ -164,14 +145,12 @@ public class BinTrie<V> extends BaseNode<V> implements ITrie<V>, Externalizable
     }
 
     @Override
-    public V[] getValueArray(V[] a)
-    {
+    public V[] getValueArray(V[] a) {
         if (a.length < size)
             a = (V[]) java.lang.reflect.Array.newInstance(
                     a.getClass().getComponentType(), size);
         int i = 0;
-        for (Map.Entry<String, V> entry : entrySet())
-        {
+        for (Map.Entry<String, V> entry : entrySet()) {
             a[i++] = entry.getValue();
         }
         return a;
@@ -182,12 +161,10 @@ public class BinTrie<V> extends BaseNode<V> implements ITrie<V>, Externalizable
      *
      * @return
      */
-    public Set<Map.Entry<String, V>> entrySet()
-    {
+    public Set<Map.Entry<String, V>> entrySet() {
         Set<Map.Entry<String, V>> entrySet = new TreeSet<Map.Entry<String, V>>();
         StringBuilder sb = new StringBuilder();
-        for (BaseNode node : child)
-        {
+        for (BaseNode node : child) {
             if (node == null) continue;
             node.walk(new StringBuilder(sb.toString()), entrySet);
         }
@@ -196,13 +173,12 @@ public class BinTrie<V> extends BaseNode<V> implements ITrie<V>, Externalizable
 
     /**
      * 键集合
+     *
      * @return
      */
-    public Set<String> keySet()
-    {
+    public Set<String> keySet() {
         TreeSet<String> keySet = new TreeSet<String>();
-        for (Map.Entry<String, V> entry : entrySet())
-        {
+        for (Map.Entry<String, V> entry : entrySet()) {
             keySet.add(entry.getKey());
         }
 
@@ -215,14 +191,12 @@ public class BinTrie<V> extends BaseNode<V> implements ITrie<V>, Externalizable
      * @param key 查询串
      * @return 键值对
      */
-    public Set<Map.Entry<String, V>> prefixSearch(String key)
-    {
+    public Set<Map.Entry<String, V>> prefixSearch(String key) {
         Set<Map.Entry<String, V>> entrySet = new TreeSet<Map.Entry<String, V>>();
         StringBuilder sb = new StringBuilder(key.substring(0, key.length() - 1));
         BaseNode branch = this;
         char[] chars = key.toCharArray();
-        for (char aChar : chars)
-        {
+        for (char aChar : chars) {
             if (branch == null) return entrySet;
             branch = branch.getChild(aChar);
         }
@@ -238,8 +212,7 @@ public class BinTrie<V> extends BaseNode<V> implements ITrie<V>, Externalizable
      * @param key 键
      * @return 键值对列表
      */
-    public LinkedList<Map.Entry<String, V>> commonPrefixSearchWithValue(String key)
-    {
+    public LinkedList<Map.Entry<String, V>> commonPrefixSearchWithValue(String key) {
         char[] chars = key.toCharArray();
         return commonPrefixSearchWithValue(chars, 0);
     }
@@ -251,19 +224,16 @@ public class BinTrie<V> extends BaseNode<V> implements ITrie<V>, Externalizable
      * @param begin 开始的下标
      * @return
      */
-    public LinkedList<Map.Entry<String, V>> commonPrefixSearchWithValue(char[] chars, int begin)
-    {
+    public LinkedList<Map.Entry<String, V>> commonPrefixSearchWithValue(char[] chars, int begin) {
         LinkedList<Map.Entry<String, V>> result = new LinkedList<Map.Entry<String, V>>();
         StringBuilder sb = new StringBuilder();
         BaseNode branch = this;
-        for (int i = begin; i < chars.length; ++i)
-        {
+        for (int i = begin; i < chars.length; ++i) {
             char aChar = chars[i];
             branch = branch.getChild(aChar);
             if (branch == null || branch.status == Status.UNDEFINED_0) return result;
             sb.append(aChar);
-            if (branch.status == Status.WORD_MIDDLE_2 || branch.status == Status.WORD_END_3)
-            {
+            if (branch.status == Status.WORD_MIDDLE_2 || branch.status == Status.WORD_END_3) {
                 result.add(new AbstractMap.SimpleEntry<String, V>(sb.toString(), (V) branch.value));
             }
         }
@@ -272,40 +242,31 @@ public class BinTrie<V> extends BaseNode<V> implements ITrie<V>, Externalizable
     }
 
     @Override
-    protected boolean addChild(BaseNode node)
-    {
+    protected boolean addChild(BaseNode node) {
         boolean add = false;
         char c = node.getChar();
         BaseNode target = getChild(c);
-        if (target == null)
-        {
+        if (target == null) {
             child[c] = node;
             add = true;
-        }
-        else
-        {
-            switch (node.status)
-            {
+        } else {
+            switch (node.status) {
                 case UNDEFINED_0:
-                    if (target.status != Status.NOT_WORD_1)
-                    {
+                    if (target.status != Status.NOT_WORD_1) {
                         target.status = Status.NOT_WORD_1;
                         add = true;
                     }
                     break;
                 case NOT_WORD_1:
-                    if (target.status == Status.WORD_END_3)
-                    {
+                    if (target.status == Status.WORD_END_3) {
                         target.status = Status.WORD_MIDDLE_2;
                     }
                     break;
                 case WORD_END_3:
-                    if (target.status == Status.NOT_WORD_1)
-                    {
+                    if (target.status == Status.NOT_WORD_1) {
                         target.status = Status.WORD_MIDDLE_2;
                     }
-                    if (target.getValue() == null)
-                    {
+                    if (target.getValue() == null) {
                         add = true;
                     }
                     target.setValue(node.getValue());
@@ -315,44 +276,33 @@ public class BinTrie<V> extends BaseNode<V> implements ITrie<V>, Externalizable
         return add;
     }
 
-    public int size()
-    {
+    public int size() {
         return size;
     }
 
     @Override
-    protected char getChar()
-    {
+    protected char getChar() {
         return 0;   // 根节点没有char
     }
 
     @Override
-    public BaseNode getChild(char c)
-    {
+    public BaseNode getChild(char c) {
         return child[c];
     }
 
-    public boolean save(String path)
-    {
-        try
-        {
+    public boolean save(String path) {
+        try {
             DataOutputStream out = new DataOutputStream(IOUtil.newOutputStream(path));
-            for (BaseNode node : child)
-            {
-                if (node == null)
-                {
+            for (BaseNode node : child) {
+                if (node == null) {
                     out.writeInt(0);
-                }
-                else
-                {
+                } else {
                     out.writeInt(1);
                     node.walkToSave(out);
                 }
             }
             out.close();
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             logger.warning("保存到" + path + "失败" + TextUtility.exceptionToString(e));
             return false;
         }
@@ -361,10 +311,8 @@ public class BinTrie<V> extends BaseNode<V> implements ITrie<V>, Externalizable
     }
 
     @Override
-    public int build(TreeMap<String, V> keyValueMap)
-    {
-        for (Map.Entry<String, V> entry : keyValueMap.entrySet())
-        {
+    public int build(TreeMap<String, V> keyValueMap) {
+        for (Map.Entry<String, V> entry : keyValueMap.entrySet()) {
             put(entry.getKey(), entry.getValue());
         }
         return 0;
@@ -376,25 +324,17 @@ public class BinTrie<V> extends BaseNode<V> implements ITrie<V>, Externalizable
      * @param out
      * @return
      */
-    public boolean save(DataOutputStream out)
-    {
-        try
-        {
-            for (BaseNode node : child)
-            {
-                if (node == null)
-                {
+    public boolean save(DataOutputStream out) {
+        try {
+            for (BaseNode node : child) {
+                if (node == null) {
                     out.writeInt(0);
-                }
-                else
-                {
+                } else {
                     out.writeInt(1);
                     node.walkToSave(out);
                 }
             }
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             logger.warning("保存到" + out + "失败" + TextUtility.exceptionToString(e));
             return false;
         }
@@ -409,17 +349,14 @@ public class BinTrie<V> extends BaseNode<V> implements ITrie<V>, Externalizable
      * @param value 额外提供的值数组，按照值的字典序。（之所以要求提供它，是因为泛型的保存不归树管理）
      * @return 是否成功
      */
-    public boolean load(String path, V[] value)
-    {
+    public boolean load(String path, V[] value) {
         byte[] bytes = IOUtil.readBytes(path);
         if (bytes == null) return false;
         _ValueArray valueArray = new _ValueArray(value);
         ByteArray byteArray = new ByteArray(bytes);
-        for (int i = 0; i < child.length; ++i)
-        {
+        for (int i = 0; i < child.length; ++i) {
             int flag = byteArray.nextInt();
-            if (flag == 1)
-            {
+            if (flag == 1) {
                 child[i] = new Node<V>();
                 child[i].walkToLoad(byteArray, valueArray);
             }
@@ -435,17 +372,14 @@ public class BinTrie<V> extends BaseNode<V> implements ITrie<V>, Externalizable
      * @param path
      * @return
      */
-    public boolean load(String path)
-    {
+    public boolean load(String path) {
         byte[] bytes = IOUtil.readBytes(path);
         if (bytes == null) return false;
         _ValueArray valueArray = new _EmptyValueArray();
         ByteArray byteArray = new ByteArray(bytes);
-        for (int i = 0; i < child.length; ++i)
-        {
+        for (int i = 0; i < child.length; ++i) {
             int flag = byteArray.nextInt();
-            if (flag == 1)
-            {
+            if (flag == 1) {
                 child[i] = new Node<V>();
                 child[i].walkToLoad(byteArray, valueArray);
             }
@@ -455,13 +389,10 @@ public class BinTrie<V> extends BaseNode<V> implements ITrie<V>, Externalizable
         return true;
     }
 
-    public boolean load(ByteArray byteArray, _ValueArray valueArray)
-    {
-        for (int i = 0; i < child.length; ++i)
-        {
+    public boolean load(ByteArray byteArray, _ValueArray valueArray) {
+        for (int i = 0; i < child.length; ++i) {
             int flag = byteArray.nextInt();
-            if (flag == 1)
-            {
+            if (flag == 1) {
                 child[i] = new Node<V>();
                 child[i].walkToLoad(byteArray, valueArray);
             }
@@ -471,28 +402,21 @@ public class BinTrie<V> extends BaseNode<V> implements ITrie<V>, Externalizable
         return true;
     }
 
-    public boolean load(ByteArray byteArray, V[] value)
-    {
+    public boolean load(ByteArray byteArray, V[] value) {
         return load(byteArray, newValueArray().setValue(value));
     }
 
-    public _ValueArray newValueArray()
-    {
+    public _ValueArray newValueArray() {
         return new _ValueArray();
     }
 
     @Override
-    public void writeExternal(ObjectOutput out) throws IOException
-    {
+    public void writeExternal(ObjectOutput out) throws IOException {
         out.writeInt(size);
-        for (BaseNode node : child)
-        {
-            if (node == null)
-            {
+        for (BaseNode node : child) {
+            if (node == null) {
                 out.writeInt(0);
-            }
-            else
-            {
+            } else {
                 out.writeInt(1);
                 node.walkToSave(out);
             }
@@ -500,14 +424,11 @@ public class BinTrie<V> extends BaseNode<V> implements ITrie<V>, Externalizable
     }
 
     @Override
-    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
-    {
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         size = in.readInt();
-        for (int i = 0; i < child.length; ++i)
-        {
+        for (int i = 0; i < child.length; ++i) {
             int flag = in.readInt();
-            if (flag == 1)
-            {
+            if (flag == 1) {
                 child[i] = new Node<V>();
                 child[i].walkToLoad(in);
             }
@@ -520,29 +441,23 @@ public class BinTrie<V> extends BaseNode<V> implements ITrie<V>, Externalizable
      * @param text      文本
      * @param processor 处理器
      */
-    public void parseLongestText(String text, AhoCorasickDoubleArrayTrie.IHit<V> processor)
-    {
+    public void parseLongestText(String text, AhoCorasickDoubleArrayTrie.IHit<V> processor) {
         int length = text.length();
-        for (int i = 0; i < length; ++i)
-        {
+        for (int i = 0; i < length; ++i) {
             BaseNode<V> state = transition(text.charAt(i));
-            if (state != null)
-            {
+            if (state != null) {
                 int to = i + 1;
                 int end = to;
                 V value = state.getValue();
-                for (; to < length; ++to)
-                {
+                for (; to < length; ++to) {
                     state = state.transition(text.charAt(to));
                     if (state == null) break;
-                    if (state.getValue() != null)
-                    {
+                    if (state.getValue() != null) {
                         value = state.getValue();
                         end = to + 1;
                     }
                 }
-                if (value != null)
-                {
+                if (value != null) {
                     processor.hit(i, end, value);
                     i = end - 1;
                 }
@@ -556,29 +471,23 @@ public class BinTrie<V> extends BaseNode<V> implements ITrie<V>, Externalizable
      * @param text      文本
      * @param processor 处理器
      */
-    public void parseLongestText(char[] text, AhoCorasickDoubleArrayTrie.IHit<V> processor)
-    {
+    public void parseLongestText(char[] text, AhoCorasickDoubleArrayTrie.IHit<V> processor) {
         int length = text.length;
-        for (int i = 0; i < length; ++i)
-        {
+        for (int i = 0; i < length; ++i) {
             BaseNode<V> state = transition(text[i]);
-            if (state != null)
-            {
+            if (state != null) {
                 int to = i + 1;
                 int end = to;
                 V value = state.getValue();
-                for (; to < length; ++to)
-                {
+                for (; to < length; ++to) {
                     state = state.transition(text[to]);
                     if (state == null) break;
-                    if (state.getValue() != null)
-                    {
+                    if (state.getValue() != null) {
                         value = state.getValue();
                         end = to + 1;
                     }
                 }
-                if (value != null)
-                {
+                if (value != null) {
                     processor.hit(i, end, value);
                     i = end - 1;
                 }
@@ -592,25 +501,19 @@ public class BinTrie<V> extends BaseNode<V> implements ITrie<V>, Externalizable
      * @param text      文本
      * @param processor 处理器
      */
-    public void parseText(String text, AhoCorasickDoubleArrayTrie.IHit<V> processor)
-    {
+    public void parseText(String text, AhoCorasickDoubleArrayTrie.IHit<V> processor) {
         int length = text.length();
         int begin = 0;
         BaseNode<V> state = this;
 
-        for (int i = begin; i < length; ++i)
-        {
+        for (int i = begin; i < length; ++i) {
             state = state.transition(text.charAt(i));
-            if (state != null)
-            {
+            if (state != null) {
                 V value = state.getValue();
-                if (value != null)
-                {
+                if (value != null) {
                     processor.hit(begin, i + 1, value);
                 }
-            }
-            else
-            {
+            } else {
                 i = begin;
                 ++begin;
                 state = this;
@@ -624,25 +527,19 @@ public class BinTrie<V> extends BaseNode<V> implements ITrie<V>, Externalizable
      * @param text      文本
      * @param processor 处理器
      */
-    public void parseText(char[] text, AhoCorasickDoubleArrayTrie.IHit<V> processor)
-    {
+    public void parseText(char[] text, AhoCorasickDoubleArrayTrie.IHit<V> processor) {
         int length = text.length;
         int begin = 0;
         BaseNode<V> state = this;
 
-        for (int i = begin; i < length; ++i)
-        {
+        for (int i = begin; i < length; ++i) {
             state = state.transition(text[i]);
-            if (state != null)
-            {
+            if (state != null) {
                 V value = state.getValue();
-                if (value != null)
-                {
+                if (value != null) {
                     processor.hit(begin, i + 1, value);
                 }
-            }
-            else
-            {
+            } else {
                 i = begin;
                 ++begin;
                 state = this;

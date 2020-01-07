@@ -27,11 +27,9 @@ import static com.hankcs.hanlp.classification.utilities.io.ConsoleLogger.logger;
 /**
  * @author hankcs
  */
-public abstract class AbstractClassifier implements IClassifier
-{
+public abstract class AbstractClassifier implements IClassifier {
     @Override
-    public IClassifier enableProbability(boolean enable)
-    {
+    public IClassifier enableProbability(boolean enable) {
         return this;
     }
 
@@ -49,42 +47,36 @@ public abstract class AbstractClassifier implements IClassifier
      * @throws IllegalStateException
      */
     @Override
-    public String classify(String text) throws IllegalArgumentException, IllegalStateException
-    {
+    public String classify(String text) throws IllegalArgumentException, IllegalStateException {
         Map<String, Double> scoreMap = predict(text);
 
         return CollectionUtility.max(scoreMap);
     }
 
     @Override
-    public String classify(Document document) throws IllegalArgumentException, IllegalStateException
-    {
+    public String classify(Document document) throws IllegalArgumentException, IllegalStateException {
         Map<String, Double> scoreMap = predict(document);
 
         return CollectionUtility.max(scoreMap);
     }
 
     @Override
-    public void train(String folderPath, String charsetName) throws IOException
-    {
+    public void train(String folderPath, String charsetName) throws IOException {
         IDataSet dataSet = new MemoryDataSet();
         dataSet.load(folderPath, charsetName);
         train(dataSet);
     }
 
     @Override
-    public void train(Map<String, String[]> trainingDataSet) throws IllegalArgumentException
-    {
+    public void train(Map<String, String[]> trainingDataSet) throws IllegalArgumentException {
         IDataSet dataSet = new MemoryDataSet();
         logger.start("正在构造训练数据集...");
         int total = trainingDataSet.size();
         int cur = 0;
-        for (Map.Entry<String, String[]> entry : trainingDataSet.entrySet())
-        {
+        for (Map.Entry<String, String[]> entry : trainingDataSet.entrySet()) {
             String category = entry.getKey();
             logger.out("[%s]...", category);
-            for (String doc : entry.getValue())
-            {
+            for (String doc : entry.getValue()) {
                 dataSet.add(category, doc);
             }
             ++cur;
@@ -95,53 +87,43 @@ public abstract class AbstractClassifier implements IClassifier
     }
 
     @Override
-    public void train(String folderPath) throws IOException
-    {
+    public void train(String folderPath) throws IOException {
         train(folderPath, "UTF-8");
     }
 
     @Override
-    public Map<String, Double> predict(Document document)
-    {
+    public Map<String, Double> predict(Document document) {
         AbstractModel model = getModel();
-        if (model == null)
-        {
+        if (model == null) {
             throw new IllegalStateException("未训练模型！无法执行预测！");
         }
-        if (document == null)
-        {
+        if (document == null) {
             throw new IllegalArgumentException("参数 text == null");
         }
 
         double[] probs = categorize(document);
         Map<String, Double> scoreMap = new TreeMap<String, Double>();
-        for (int i = 0; i < probs.length; i++)
-        {
+        for (int i = 0; i < probs.length; i++) {
             scoreMap.put(model.catalog[i], probs[i]);
         }
         return scoreMap;
     }
 
     @Override
-    public int label(Document document) throws IllegalArgumentException, IllegalStateException
-    {
+    public int label(Document document) throws IllegalArgumentException, IllegalStateException {
         AbstractModel model = getModel();
-        if (model == null)
-        {
+        if (model == null) {
             throw new IllegalStateException("未训练模型！无法执行预测！");
         }
-        if (document == null)
-        {
+        if (document == null) {
             throw new IllegalArgumentException("参数 text == null");
         }
 
         double[] probs = categorize(document);
         double max = Double.NEGATIVE_INFINITY;
         int best = -1;
-        for (int i = 0; i < probs.length; i++)
-        {
-            if (probs[i] > max)
-            {
+        for (int i = 0; i < probs.length; i++) {
+            if (probs[i] > max) {
                 max = probs[i];
                 best = i;
             }

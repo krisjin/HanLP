@@ -13,11 +13,9 @@ package com.hankcs.hanlp.model.crf;
 import com.hankcs.hanlp.HanLP;
 import com.hankcs.hanlp.corpus.document.sentence.Sentence;
 import com.hankcs.hanlp.model.crf.crfpp.FeatureIndex;
-import com.hankcs.hanlp.model.crf.crfpp.TaggerImpl;
 import com.hankcs.hanlp.model.perceptron.PerceptronNERecognizer;
 import com.hankcs.hanlp.model.perceptron.feature.FeatureMap;
 import com.hankcs.hanlp.model.perceptron.instance.NERInstance;
-import com.hankcs.hanlp.model.perceptron.instance.POSInstance;
 import com.hankcs.hanlp.model.perceptron.tagset.NERTagSet;
 import com.hankcs.hanlp.model.perceptron.utility.Utility;
 import com.hankcs.hanlp.tokenizer.lexical.NERecognizer;
@@ -31,29 +29,24 @@ import java.util.List;
 /**
  * @author hankcs
  */
-public class CRFNERecognizer extends CRFTagger implements NERecognizer
-{
+public class CRFNERecognizer extends CRFTagger implements NERecognizer {
     private NERTagSet tagSet;
     /**
      * 复用感知机的解码模块
      */
     private PerceptronNERecognizer perceptronNERecognizer;
 
-    public CRFNERecognizer() throws IOException
-    {
+    public CRFNERecognizer() throws IOException {
         this(HanLP.Config.CRFNERModelPath);
     }
 
-    public CRFNERecognizer(String modelPath) throws IOException
-    {
-        this(modelPath,null);
+    public CRFNERecognizer(String modelPath) throws IOException {
+        this(modelPath, null);
     }
 
-    public CRFNERecognizer(String modelPath,String[] customNERTags) throws IOException
-    {
+    public CRFNERecognizer(String modelPath, String[] customNERTags) throws IOException {
         super(modelPath);
-        if (model == null)
-        {
+        if (model == null) {
             tagSet = new NERTagSet();
             addDefaultNERLabels();
             if (customNERTags != null) {
@@ -61,32 +54,26 @@ public class CRFNERecognizer extends CRFTagger implements NERecognizer
                     addNERLabels(nerTags);
                 }
             }
-        }
-        else
-        {
+        } else {
             perceptronNERecognizer = new PerceptronNERecognizer(this.model);
             tagSet = perceptronNERecognizer.getNERTagSet();
         }
     }
 
-    protected void addDefaultNERLabels()
-    {
+    protected void addDefaultNERLabels() {
         tagSet.nerLabels.add("nr");
         tagSet.nerLabels.add("ns");
         tagSet.nerLabels.add("nt");
     }
 
-    public void addNERLabels(String newNerTag)
-    {
+    public void addNERLabels(String newNerTag) {
         tagSet.nerLabels.add(newNerTag);
     }
 
     @Override
-    protected void convertCorpus(Sentence sentence, BufferedWriter bw) throws IOException
-    {
+    protected void convertCorpus(Sentence sentence, BufferedWriter bw) throws IOException {
         List<String[]> collector = Utility.convertSentenceToNER(sentence, tagSet);
-        for (String[] tuple : collector)
-        {
+        for (String[] tuple : collector) {
             bw.write(tuple[0]);
             bw.write('\t');
             bw.write(tuple[1]);
@@ -97,34 +84,27 @@ public class CRFNERecognizer extends CRFTagger implements NERecognizer
     }
 
     @Override
-    public String[] recognize(String[] wordArray, String[] posArray)
-    {
+    public String[] recognize(String[] wordArray, String[] posArray) {
         return perceptronNERecognizer.recognize(createInstance(wordArray, posArray));
     }
 
     @Override
-    public NERTagSet getNERTagSet()
-    {
+    public NERTagSet getNERTagSet() {
         return tagSet;
     }
 
-    private NERInstance createInstance(String[] wordArray, String[] posArray)
-    {
+    private NERInstance createInstance(String[] wordArray, String[] posArray) {
         final FeatureTemplate[] featureTemplateArray = model.getFeatureTemplateArray();
-        return new NERInstance(wordArray, posArray, model.featureMap)
-        {
+        return new NERInstance(wordArray, posArray, model.featureMap) {
             @Override
-            protected int[] extractFeature(String[] wordArray, String[] posArray, FeatureMap featureMap, int position)
-            {
+            protected int[] extractFeature(String[] wordArray, String[] posArray, FeatureMap featureMap, int position) {
                 StringBuilder sbFeature = new StringBuilder();
                 List<Integer> featureVec = new LinkedList<Integer>();
-                for (int i = 0; i < featureTemplateArray.length; i++)
-                {
+                for (int i = 0; i < featureTemplateArray.length; i++) {
                     Iterator<int[]> offsetIterator = featureTemplateArray[i].offsetList.iterator();
                     Iterator<String> delimiterIterator = featureTemplateArray[i].delimiterList.iterator();
                     delimiterIterator.next(); // ignore U0 之类的id
-                    while (offsetIterator.hasNext())
-                    {
+                    while (offsetIterator.hasNext()) {
                         int[] offset = offsetIterator.next();
                         int t = offset[0] + position;
                         boolean first = offset[1] == 0;
@@ -147,30 +127,29 @@ public class CRFNERecognizer extends CRFTagger implements NERecognizer
     }
 
     @Override
-    protected String getDefaultFeatureTemplate()
-    {
+    protected String getDefaultFeatureTemplate() {
         return "# Unigram\n" +
-            // form
-            "U0:%x[-2,0]\n" +
-            "U1:%x[-1,0]\n" +
-            "U2:%x[0,0]\n" +
-            "U3:%x[1,0]\n" +
-            "U4:%x[2,0]\n" +
-            // pos
-            "U5:%x[-2,1]\n" +
-            "U6:%x[-1,1]\n" +
-            "U7:%x[0,1]\n" +
-            "U8:%x[1,1]\n" +
-            "U9:%x[2,1]\n" +
-            // pos 2-gram
-            "UA:%x[-2,1]%x[-1,1]\n" +
-            "UB:%x[-1,1]%x[0,1]\n" +
-            "UC:%x[0,1]%x[1,1]\n" +
-            "UD:%x[1,1]%x[2,1]\n" +
-            "UE:%x[2,1]%x[3,1]\n" +
-            "\n" +
-            "# Bigram\n" +
-            "B";
+                // form
+                "U0:%x[-2,0]\n" +
+                "U1:%x[-1,0]\n" +
+                "U2:%x[0,0]\n" +
+                "U3:%x[1,0]\n" +
+                "U4:%x[2,0]\n" +
+                // pos
+                "U5:%x[-2,1]\n" +
+                "U6:%x[-1,1]\n" +
+                "U7:%x[0,1]\n" +
+                "U8:%x[1,1]\n" +
+                "U9:%x[2,1]\n" +
+                // pos 2-gram
+                "UA:%x[-2,1]%x[-1,1]\n" +
+                "UB:%x[-1,1]%x[0,1]\n" +
+                "UC:%x[0,1]%x[1,1]\n" +
+                "UD:%x[1,1]%x[2,1]\n" +
+                "UE:%x[2,1]%x[3,1]\n" +
+                "\n" +
+                "# Bigram\n" +
+                "B";
     }
 
 }

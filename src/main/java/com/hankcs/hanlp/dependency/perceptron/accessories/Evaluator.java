@@ -8,15 +8,12 @@ package com.hankcs.hanlp.dependency.perceptron.accessories;
 import com.hankcs.hanlp.dependency.perceptron.transition.configuration.CompactTree;
 
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
-public class Evaluator
-{
-    public static double[] evaluate(String testPath, String predictedPath, HashSet<String> puncTags) throws IOException
-    {
+public class Evaluator {
+    public static double[] evaluate(String testPath, String predictedPath, HashSet<String> puncTags) throws IOException {
         CoNLLReader goldReader = new CoNLLReader(testPath);
         CoNLLReader predictedReader = new CoNLLReader(predictedPath);
 
@@ -31,8 +28,7 @@ public class Evaluator
         float fullLabMatch = 0f;
         int numTree = 0;
 
-        for (int i = 0; i < predConfiguration.size(); i++)
-        {
+        for (int i = 0; i < predConfiguration.size(); i++) {
             HashMap<Integer, Pair<Integer, String>> goldDeps = goldConfiguration.get(i).goldDependencies;
             HashMap<Integer, Pair<Integer, String>> predDeps = predConfiguration.get(i).goldDependencies;
 
@@ -41,29 +37,23 @@ public class Evaluator
             numTree++;
             boolean fullMatch = true;
             boolean fullUnlabMatch = true;
-            for (int dep : goldDeps.keySet())
-            {
-                if (!puncTags.contains(goldTags.get(dep - 1).trim()))
-                {
+            for (int dep : goldDeps.keySet()) {
+                if (!puncTags.contains(goldTags.get(dep - 1).trim())) {
                     all++;
                     int gh = goldDeps.get(dep).first;
                     int ph = predDeps.get(dep).first;
                     String gl = goldDeps.get(dep).second.trim();
                     String pl = predDeps.get(dep).second.trim();
 
-                    if (ph == gh)
-                    {
+                    if (ph == gh) {
                         unlabMatch++;
 
                         if (pl.equals(gl))
                             labMatch++;
-                        else
-                        {
+                        else {
                             fullMatch = false;
                         }
-                    }
-                    else
-                    {
+                    } else {
                         fullMatch = false;
                         fullUnlabMatch = false;
                     }

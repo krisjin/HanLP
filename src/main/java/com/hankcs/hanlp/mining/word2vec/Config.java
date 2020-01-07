@@ -1,7 +1,6 @@
 package com.hankcs.hanlp.mining.word2vec;
 
-public class Config
-{
+public class Config {
 
     static final int DEF_ITER = 5;
     static final int DEF_WINDOW = 5;
@@ -19,145 +18,119 @@ public class Config
     private String inputFile;
     private TrainingCallback callback;
 
-    public Config setOutputFile(String outputFile)
-    {
+    public Config setOutputFile(String outputFile) {
         this.outputFile = outputFile;
         return this;
     }
 
-    public String getOutputFile()
-    {
+    public String getOutputFile() {
         return outputFile;
     }
 
-    public Config setIter(int iter)
-    {
+    public Config setIter(int iter) {
         this.iter = iter;
         return this;
     }
 
-    public int getIter()
-    {
+    public int getIter() {
         return iter;
     }
 
-    public Config setWindow(int window)
-    {
+    public Config setWindow(int window) {
         this.window = window;
         return this;
     }
 
-    public int getWindow()
-    {
+    public int getWindow() {
         return window;
     }
 
-    public Config setMinCount(int minCount)
-    {
+    public Config setMinCount(int minCount) {
         this.minCount = minCount;
         return this;
     }
 
-    public int getMinCount()
-    {
+    public int getMinCount() {
         return minCount;
     }
 
-    public Config setNegative(int negative)
-    {
+    public Config setNegative(int negative) {
         this.negative = negative;
         return this;
     }
 
-    public int getNegative()
-    {
+    public int getNegative() {
         return negative;
     }
 
-    public Config setLayer1Size(int layer1Size)
-    {
+    public Config setLayer1Size(int layer1Size) {
         this.layer1Size = layer1Size;
         return this;
     }
 
-    public int getLayer1Size()
-    {
+    public int getLayer1Size() {
         return layer1Size;
     }
 
-    public Config setNumThreads(int numThreads)
-    {
+    public Config setNumThreads(int numThreads) {
         this.numThreads = numThreads;
         return this;
     }
 
-    public int getNumThreads()
-    {
+    public int getNumThreads() {
         return numThreads;
     }
 
-    public Config setUseHierarchicalSoftmax(boolean hs)
-    {
+    public Config setUseHierarchicalSoftmax(boolean hs) {
         this.hs = hs;
         return this;
     }
 
-    public boolean useHierarchicalSoftmax()
-    {
+    public boolean useHierarchicalSoftmax() {
         return hs;
     }
 
-    public Config setUseContinuousBagOfWords(boolean cbow)
-    {
+    public Config setUseContinuousBagOfWords(boolean cbow) {
         this.cbow = cbow;
         return this;
     }
 
-    public boolean useContinuousBagOfWords()
-    {
+    public boolean useContinuousBagOfWords() {
         return cbow;
     }
 
-    public Config setSample(float sample)
-    {
+    public Config setSample(float sample) {
         this.sample = sample;
         return this;
     }
 
-    public float getSample()
-    {
+    public float getSample() {
         return sample;
     }
 
-    public Config setAlpha(float alpha)
-    {
+    public Config setAlpha(float alpha) {
         this.alpha = alpha;
         return this;
     }
 
-    public float getAlpha()
-    {
+    public float getAlpha() {
         return alpha;
     }
 
-    public Config setInputFile(String inputFile)
-    {
+    public Config setInputFile(String inputFile) {
         this.inputFile = inputFile;
         return this;
     }
 
-    public String getInputFile()
-    {
+    public String getInputFile() {
         return inputFile;
     }
 
-    public TrainingCallback getCallback()
-    {
+    public TrainingCallback getCallback() {
         return callback;
     }
 
-    public void setCallback(TrainingCallback callback)
-    {
+    public void setCallback(TrainingCallback callback) {
         this.callback = callback;
     }
 }

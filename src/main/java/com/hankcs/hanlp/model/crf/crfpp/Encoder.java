@@ -18,35 +18,26 @@ import java.util.concurrent.TimeUnit;
  *
  * @author zhifac
  */
-public class Encoder
-{
+public class Encoder {
     public static int MODEL_VERSION = 100;
 
-    public enum Algorithm
-    {
+    public enum Algorithm {
         CRF_L2, CRF_L1, MIRA;
 
-        public static Algorithm fromString(String algorithm)
-        {
+        public static Algorithm fromString(String algorithm) {
             algorithm = algorithm.toLowerCase();
-            if (algorithm.equals("crf") || algorithm.equals("crf-l2"))
-            {
+            if (algorithm.equals("crf") || algorithm.equals("crf-l2")) {
                 return Encoder.Algorithm.CRF_L2;
-            }
-            else if (algorithm.equals("crf-l1"))
-            {
+            } else if (algorithm.equals("crf-l1")) {
                 return Encoder.Algorithm.CRF_L1;
-            }
-            else if (algorithm.equals("mira"))
-            {
+            } else if (algorithm.equals("mira")) {
                 return Encoder.Algorithm.MIRA;
             }
             throw new IllegalArgumentException("invalid algorithm: " + algorithm);
         }
     }
 
-    public Encoder()
-    {
+    public Encoder() {
     }
 
     /**
@@ -67,32 +58,26 @@ public class Encoder
      */
     public boolean learn(String templFile, String trainFile, String modelFile, boolean textModelFile,
                          int maxitr, int freq, double eta, double C, int threadNum, int shrinkingSize,
-                         Algorithm algorithm)
-    {
-        if (eta <= 0)
-        {
+                         Algorithm algorithm) {
+        if (eta <= 0) {
             System.err.println("eta must be > 0.0");
             return false;
         }
-        if (C < 0.0)
-        {
+        if (C < 0.0) {
             System.err.println("C must be >= 0.0");
             return false;
         }
-        if (shrinkingSize < 1)
-        {
+        if (shrinkingSize < 1) {
             System.err.println("shrinkingSize must be >= 1");
             return false;
         }
-        if (threadNum <= 0)
-        {
+        if (threadNum <= 0) {
             System.err.println("thread must be  > 0");
             return false;
         }
         EncoderFeatureIndex featureIndex = new EncoderFeatureIndex(threadNum);
         List<TaggerImpl> x = new ArrayList<TaggerImpl>();
-        if (!featureIndex.open(templFile, trainFile))
-        {
+        if (!featureIndex.open(templFile, trainFile)) {
             System.err.println("Fail to open " + templFile + " " + trainFile);
         }
 //        File file = new File(trainFile);
@@ -102,48 +87,36 @@ public class Encoder
 //            return false;
 //        }
         BufferedReader br = null;
-        try
-        {
+        try {
             InputStreamReader isr = new InputStreamReader(IOUtil.newInputStream(trainFile), "UTF-8");
             br = new BufferedReader(isr);
             int lineNo = 0;
-            while (true)
-            {
+            while (true) {
                 TaggerImpl tagger = new TaggerImpl(TaggerImpl.Mode.LEARN);
                 tagger.open(featureIndex);
                 TaggerImpl.ReadStatus status = tagger.read(br);
-                if (status == TaggerImpl.ReadStatus.ERROR)
-                {
+                if (status == TaggerImpl.ReadStatus.ERROR) {
                     System.err.println("error when reading " + trainFile);
                     return false;
                 }
-                if (!tagger.empty())
-                {
-                    if (!tagger.shrink())
-                    {
+                if (!tagger.empty()) {
+                    if (!tagger.shrink()) {
                         System.err.println("fail to build feature index ");
                         return false;
                     }
                     tagger.setThread_id_(lineNo % threadNum);
                     x.add(tagger);
-                }
-                else if (status == TaggerImpl.ReadStatus.EOF)
-                {
+                } else if (status == TaggerImpl.ReadStatus.EOF) {
                     break;
-                }
-                else
-                {
+                } else {
                     continue;
                 }
-                if (++lineNo % 100 == 0)
-                {
+                if (++lineNo % 100 == 0) {
                     System.out.print(lineNo + ".. ");
                 }
             }
             br.close();
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             System.err.println("train file " + trainFile + " does not exist.");
             return false;
         }
@@ -161,25 +134,21 @@ public class Encoder
         System.out.println("C:                   " + C);
         System.out.println("shrinking size:      " + shrinkingSize);
 
-        switch (algorithm)
-        {
+        switch (algorithm) {
             case CRF_L1:
-                if (!runCRF(x, featureIndex, alpha, maxitr, C, eta, shrinkingSize, threadNum, true))
-                {
+                if (!runCRF(x, featureIndex, alpha, maxitr, C, eta, shrinkingSize, threadNum, true)) {
                     System.err.println("CRF_L1 execute error");
                     return false;
                 }
                 break;
             case CRF_L2:
-                if (!runCRF(x, featureIndex, alpha, maxitr, C, eta, shrinkingSize, threadNum, false))
-                {
+                if (!runCRF(x, featureIndex, alpha, maxitr, C, eta, shrinkingSize, threadNum, false)) {
                     System.err.println("CRF_L2 execute error");
                     return false;
                 }
                 break;
             case MIRA:
-                if (!runMIRA(x, featureIndex, alpha, maxitr, C, eta, shrinkingSize, threadNum))
-                {
+                if (!runMIRA(x, featureIndex, alpha, maxitr, C, eta, shrinkingSize, threadNum)) {
                     System.err.println("MIRA execute error");
                     return false;
                 }
@@ -188,8 +157,7 @@ public class Encoder
                 break;
         }
 
-        if (!featureIndex.save(modelFile, textModelFile))
-        {
+        if (!featureIndex.save(modelFile, textModelFile)) {
             System.err.println("Failed to save model");
         }
         System.out.println("Done!");
@@ -218,15 +186,13 @@ public class Encoder
                            double eta,
                            int shrinkingSize,
                            int threadNum,
-                           boolean orthant)
-    {
+                           boolean orthant) {
         double oldObj = 1e+37;
         int converge = 0;
         LbfgsOptimizer lbfgs = new LbfgsOptimizer();
         List<CRFEncoderThread> threads = new ArrayList<CRFEncoderThread>();
 
-        for (int i = 0; i < threadNum; i++)
-        {
+        for (int i = 0; i < threadNum; i++) {
             CRFEncoderThread thread = new CRFEncoderThread(alpha.length);
             thread.start_i = i;
             thread.size = x.size();
@@ -236,62 +202,47 @@ public class Encoder
         }
 
         int all = 0;
-        for (int i = 0; i < x.size(); i++)
-        {
+        for (int i = 0; i < x.size(); i++) {
             all += x.get(i).size();
         }
 
         ExecutorService executor = Executors.newFixedThreadPool(threadNum);
-        for (int itr = 0; itr < maxItr; itr++)
-        {
+        for (int itr = 0; itr < maxItr; itr++) {
             featureIndex.clear();
 
-            try
-            {
+            try {
                 executor.invokeAll(threads);
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 e.printStackTrace();
                 return false;
             }
 
-            for (int i = 1; i < threadNum; i++)
-            {
+            for (int i = 1; i < threadNum; i++) {
                 threads.get(0).obj += threads.get(i).obj;
                 threads.get(0).err += threads.get(i).err;
                 threads.get(0).zeroone += threads.get(i).zeroone;
             }
-            for (int i = 1; i < threadNum; i++)
-            {
-                for (int k = 0; k < featureIndex.size(); k++)
-                {
+            for (int i = 1; i < threadNum; i++) {
+                for (int k = 0; k < featureIndex.size(); k++) {
                     threads.get(0).expected[k] += threads.get(i).expected[k];
                 }
             }
             int numNonZero = 0;
-            if (orthant)
-            {
-                for (int k = 0; k < featureIndex.size(); k++)
-                {
+            if (orthant) {
+                for (int k = 0; k < featureIndex.size(); k++) {
                     threads.get(0).obj += Math.abs(alpha[k] / C);
-                    if (alpha[k] != 0.0)
-                    {
+                    if (alpha[k] != 0.0) {
                         numNonZero++;
                     }
                 }
-            }
-            else
-            {
+            } else {
                 numNonZero = featureIndex.size();
-                for (int k = 0; k < featureIndex.size(); k++)
-                {
+                for (int k = 0; k < featureIndex.size(); k++) {
                     threads.get(0).obj += (alpha[k] * alpha[k] / (2.0 * C));
                     threads.get(0).expected[k] += alpha[k] / C;
                 }
             }
-            for (int i = 1; i < threadNum; i++)
-            {
+            for (int i = 1; i < threadNum; i++) {
                 // try to free some memory
                 threads.get(i).expected = null;
             }
@@ -308,33 +259,25 @@ public class Encoder
 
             oldObj = threads.get(0).obj;
 
-            if (diff < eta)
-            {
+            if (diff < eta) {
                 converge++;
-            }
-            else
-            {
+            } else {
                 converge = 0;
             }
 
-            if (itr > maxItr || converge == 3)
-            {
+            if (itr > maxItr || converge == 3) {
                 break;
             }
 
             int ret = lbfgs.optimize(featureIndex.size(), alpha, threads.get(0).obj, threads.get(0).expected, orthant, C);
-            if (ret <= 0)
-            {
+            if (ret <= 0) {
                 return false;
             }
         }
         executor.shutdown();
-        try
-        {
+        try {
             executor.awaitTermination(-1, TimeUnit.SECONDS);
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
             System.err.println("fail waiting executor to shutdown");
         }
@@ -348,8 +291,7 @@ public class Encoder
                            double C,
                            double eta,
                            int shrinkingSize,
-                           int threadNum)
-    {
+                           int threadNum) {
         Integer[] shrinkArr = new Integer[x.size()];
         Arrays.fill(shrinkArr, 0);
         List<Integer> shrink = Arrays.asList(shrinkArr);
@@ -359,81 +301,64 @@ public class Encoder
         Double[] expectArr = new Double[featureIndex.size()];
         List<Double> expected = Arrays.asList(expectArr);
 
-        if (threadNum > 1)
-        {
+        if (threadNum > 1) {
             System.err.println("WARN: MIRA does not support multi-threading");
         }
         int converge = 0;
         int all = 0;
-        for (int i = 0; i < x.size(); i++)
-        {
+        for (int i = 0; i < x.size(); i++) {
             all += x.get(i).size();
         }
 
-        for (int itr = 0; itr < maxItr; itr++)
-        {
+        for (int itr = 0; itr < maxItr; itr++) {
             int zeroone = 0;
             int err = 0;
             int activeSet = 0;
             int upperActiveSet = 0;
             double maxKktViolation = 0.0;
 
-            for (int i = 0; i < x.size(); i++)
-            {
-                if (shrink.get(i) >= shrinkingSize)
-                {
+            for (int i = 0; i < x.size(); i++) {
+                if (shrink.get(i) >= shrinkingSize) {
                     continue;
                 }
                 ++activeSet;
-                for (int t = 0; t < expected.size(); t++)
-                {
+                for (int t = 0; t < expected.size(); t++) {
                     expected.set(t, 0.0);
                 }
                 double costDiff = x.get(i).collins(expected);
                 int errorNum = x.get(i).eval();
                 err += errorNum;
-                if (errorNum != 0)
-                {
+                if (errorNum != 0) {
                     ++zeroone;
                 }
-                if (errorNum == 0)
-                {
+                if (errorNum == 0) {
                     shrink.set(i, shrink.get(i) + 1);
-                }
-                else
-                {
+                } else {
                     shrink.set(i, 0);
                     double s = 0.0;
-                    for (int k = 0; k < expected.size(); k++)
-                    {
+                    for (int k = 0; k < expected.size(); k++) {
                         s += expected.get(k) * expected.get(k);
                     }
                     double mu = Math.max(0.0, (errorNum - costDiff) / s);
 
-                    if (upperBound.get(i) + mu > C)
-                    {
+                    if (upperBound.get(i) + mu > C) {
                         mu = C - upperBound.get(i);
                         upperActiveSet++;
-                    }
-                    else
-                    {
+                    } else {
                         maxKktViolation = Math.max(errorNum - costDiff, maxKktViolation);
                     }
 
-                    if (mu > 1e-10)
-                    {
+                    if (mu > 1e-10) {
                         upperBound.set(i, upperBound.get(i) + mu);
                         upperBound.set(i, Math.min(C, upperBound.get(i)));
-                        for (int k = 0; k < expected.size(); k++)
-                        {
+                        for (int k = 0; k < expected.size(); k++) {
                             alpha[k] += mu * expected.get(k);
                         }
                     }
                 }
             }
             double obj = 0.0;
-            for (int i = 0; i < featureIndex.size(); i++)
-            {
+            for (int i = 0; i < featureIndex.size(); i++) {
                 obj += alpha[i] * alpha[i];
             }
 
@@ -447,30 +372,23 @@ public class Encoder
             b.append(" kkt=").append(maxKktViolation);
             System.out.println(b.toString());
 
-            if (maxKktViolation <= 0.0)
-            {
-                for (int i = 0; i < shrink.size(); i++)
-                {
+            if (maxKktViolation <= 0.0) {
+                for (int i = 0; i < shrink.size(); i++) {
                     shrink.set(i, 0);
                 }
                 converge++;
-            }
-            else
-            {
+            } else {
                 converge = 0;
             }
-            if (itr > maxItr || converge == 2)
-            {
+            if (itr > maxItr || converge == 2) {
                 break;
             }
         }
         return true;
     }
 
-    public static void main(String[] args)
-    {
-        if (args.length < 3)
-        {
+    public static void main(String[] args) {
+        if (args.length < 3) {
             System.err.println("incorrect No. of args");
             return;
         }
@@ -479,8 +397,7 @@ public class Encoder
         String modelFile = args[2];
         Encoder enc = new Encoder();
         long time1 = new Date().getTime();
-        if (!enc.learn(templFile, trainFile, modelFile, false, 100000, 1, 0.0001, 1.0, 1, 20, Algorithm.CRF_L2))
-        {
+        if (!enc.learn(templFile, trainFile, modelFile, false, 100000, 1, 0.0001, 1.0, 1, 20, Algorithm.CRF_L2)) {
             System.err.println("error training model");
             return;
         }

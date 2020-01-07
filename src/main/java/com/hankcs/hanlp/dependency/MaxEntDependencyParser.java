@@ -26,40 +26,34 @@ import com.hankcs.hanlp.utility.Predefine;
 
 import java.util.LinkedList;
 import java.util.List;
+
 import static com.hankcs.hanlp.utility.Predefine.logger;
 
 /**
  * 最大熵句法分析器
  *
- * @deprecated 已废弃，请使用{@link KBeamArcEagerDependencyParser}。未来版本将不再发布该模型，并删除配置项
  * @author hankcs
+ * @deprecated 已废弃，请使用{@link KBeamArcEagerDependencyParser}。未来版本将不再发布该模型，并删除配置项
  */
-public class MaxEntDependencyParser extends MinimumSpanningTreeParser
-{
+public class MaxEntDependencyParser extends MinimumSpanningTreeParser {
     private MaxEntModel model;
 
-    public MaxEntDependencyParser(MaxEntModel model)
-    {
+    public MaxEntDependencyParser(MaxEntModel model) {
         this.model = model;
     }
 
-    public MaxEntDependencyParser()
-    {
+    public MaxEntDependencyParser() {
         String path = HanLP.Config.MaxEntModelPath + Predefine.BIN_EXT;
         model = GlobalObjectPool.get(path);
         if (model != null) return;
         long start = System.currentTimeMillis();
         ByteArray byteArray = ByteArrayFileStream.createByteArrayFileStream(path);
-        if (byteArray != null)
-        {
+        if (byteArray != null) {
             model = MaxEntModel.create(byteArray);
-        }
-        else
-        {
+        } else {
             model = MaxEntModel.create(HanLP.Config.MaxEntModelPath);
         }
-        if (model != null)
-        {
+        if (model != null) {
             GlobalObjectPool.put(path, model);
         }
         String result = model == null ? "失败" : "成功";
@@ -72,8 +66,7 @@ public class MaxEntDependencyParser extends MinimumSpanningTreeParser
      * @param termList 句子，可以是任何具有词性标注功能的分词器的分词结果
      * @return CoNLL格式的依存句法树
      */
-    public static CoNLLSentence compute(List<Term> termList)
-    {
+    public static CoNLLSentence compute(List<Term> termList) {
         return new MaxEntDependencyParser().parse(termList);
     }
 
@@ -83,25 +76,21 @@ public class MaxEntDependencyParser extends MinimumSpanningTreeParser
      * @param sentence 句子
      * @return CoNLL格式的依存句法树
      */
-    public static CoNLLSentence compute(String sentence)
-    {
+    public static CoNLLSentence compute(String sentence) {
         return new MaxEntDependencyParser().parse(sentence);
     }
 
     @Override
-    protected Edge makeEdge(Node[] nodeArray, int from, int to)
-    {
+    protected Edge makeEdge(Node[] nodeArray, int from, int to) {
         LinkedList<String> context = new LinkedList<String>();
         int index = from;
-        for (int i = index - 2; i < index + 2 + 1; ++i)
-        {
+        for (int i = index - 2; i < index + 2 + 1; ++i) {
             Node w = i >= 0 && i < nodeArray.length ? nodeArray[i] : Node.NULL;
             context.add(w.compiledWord + "i" + (i - index));      // 在尾巴上做个标记，不然特征冲突了
             context.add(w.label + "i" + (i - index));
         }
         index = to;
-        for (int i = index - 2; i < index + 2 + 1; ++i)
-        {
+        for (int i = index - 2; i < index + 2 + 1; ++i) {
             Node w = i >= 0 && i < nodeArray.length ? nodeArray[i] : Node.NULL;
             context.add(w.compiledWord + "j" + (i - index));      // 在尾巴上做个标记，不然特征冲突了
             context.add(w.label + "j" + (i - index));
@@ -120,15 +109,13 @@ public class MaxEntDependencyParser extends MinimumSpanningTreeParser
         Pair<String, Double> maxPair = new Pair<String, Double>("null", -1.0);
 //        System.out.println(context);
 //        System.out.println(pairList);
-        for (Pair<String, Double> pair : pairList)
-        {
-            if (pair.getValue() > maxPair.getValue() && !"null".equals(pair.getKey()))
-            {
+        for (Pair<String, Double> pair : pairList) {
+            if (pair.getValue() > maxPair.getValue() && !"null".equals(pair.getKey())) {
                 maxPair = pair;
             }
         }
 //        System.out.println(nodeArray[from].word + "→" + nodeArray[to].word + " : " + maxPair);
 
-        return new Edge(from, to, maxPair.getKey(), (float) - Math.log(maxPair.getValue()));
+        return new Edge(from, to, maxPair.getKey(), (float) -Math.log(maxPair.getValue()));
     }
 }

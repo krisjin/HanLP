@@ -25,40 +25,34 @@ import static com.hankcs.hanlp.utility.Predefine.logger;
 
 /**
  * 翻译人名词典，储存和识别翻译人名
+ *
  * @author hankcs
  */
-public class TranslatedPersonDictionary
-{
+public class TranslatedPersonDictionary {
     static String path = HanLP.Config.TranslatedPersonDictionaryPath;
     static DoubleArrayTrie<Boolean> trie;
 
-    static
-    {
+    static {
         long start = System.currentTimeMillis();
-        if (!load())
-        {
+        if (!load()) {
             throw new IllegalArgumentException("音译人名词典" + path + "加载失败");
         }
 
         logger.info("音译人名词典" + path + "加载成功，耗时" + (System.currentTimeMillis() - start) + "ms");
     }
 
-    static boolean load()
-    {
+    static boolean load() {
         trie = new DoubleArrayTrie<Boolean>();
         if (loadDat()) return true;
-        try
-        {
+        try {
             BufferedReader br = new BufferedReader(new InputStreamReader(IOUtil.newInputStream(path), "UTF-8"));
             String line;
             TreeMap<String, Boolean> map = new TreeMap<String, Boolean>();
             TreeMap<Character, Integer> charFrequencyMap = new TreeMap<Character, Integer>();
-            while ((line = br.readLine()) != null)
-            {
+            while ((line = br.readLine()) != null) {
                 map.put(line, true);
                 // 音译人名常用字词典自动生成
-                for (char c : line.toCharArray())
-                {
+                for (char c : line.toCharArray()) {
                     // 排除一些过于常用的字
                     if ("不赞".indexOf(c) >= 0) continue;
                     Integer f = charFrequencyMap.get(c);
@@ -71,8 +65,7 @@ public class TranslatedPersonDictionary
 //            map.put(String.valueOf('-'), true);
 //            map.put(String.valueOf('—'), true);
             // 将常用字也加进去
-            for (Map.Entry<Character, Integer> entry : charFrequencyMap.entrySet())
-            {
+            for (Map.Entry<Character, Integer> entry : charFrequencyMap.entrySet()) {
                 if (entry.getValue() < 10) continue;
                 map.put(String.valueOf(entry.getKey()), true);
             }
@@ -80,9 +73,7 @@ public class TranslatedPersonDictionary
             trie.build(map);
             logger.info("音译人名词典" + path + "开始编译DAT文件……");
             logger.info("音译人名词典" + path + "编译结果：" + saveDat());
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             logger.severe("自定义词典" + path + "读取错误！" + e);
             return false;
         }
@@ -92,36 +83,35 @@ public class TranslatedPersonDictionary
 
     /**
      * 保存dat到磁盘
+     *
      * @return
      */
-    static boolean saveDat()
-    {
+    static boolean saveDat() {
         return trie.save(path + Predefine.TRIE_EXT);
     }
 
-    static boolean loadDat()
-    {
+    static boolean loadDat() {
         return trie.load(path + Predefine.TRIE_EXT);
     }
 
     /**
      * 是否包含key
+     *
      * @param key
      * @return
      */
-    public static boolean containsKey(String key)
-    {
+    public static boolean containsKey(String key) {
         return trie.containsKey(key);
     }
 
     /**
      * 时报包含key，且key至少长length
+     *
      * @param key
      * @param length
      * @return
      */
-    public static boolean containsKey(String key, int length)
-    {
+    public static boolean containsKey(String key, int length) {
         if (!trie.containsKey(key)) return false;
         return key.length() >= length;
     }

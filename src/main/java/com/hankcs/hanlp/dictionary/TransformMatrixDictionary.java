@@ -19,17 +19,14 @@ import java.util.Arrays;
  * @param <E> 标签的枚举类型
  * @author hankcs
  */
-public class TransformMatrixDictionary<E extends Enum<E>> extends TransformMatrix
-{
+public class TransformMatrixDictionary<E extends Enum<E>> extends TransformMatrix {
     Class<E> enumType;
 
-    public TransformMatrixDictionary(Class<E> enumType)
-    {
+    public TransformMatrixDictionary(Class<E> enumType) {
         this.enumType = enumType;
     }
 
-    public TransformMatrixDictionary()
-    {
+    public TransformMatrixDictionary() {
 
     }
 
@@ -40,8 +37,7 @@ public class TransformMatrixDictionary<E extends Enum<E>> extends TransformMatri
      * @param to
      * @return
      */
-    public int getFrequency(String from, String to)
-    {
+    public int getFrequency(String from, String to) {
         return getFrequency(convert(from), convert(to));
     }
 
@@ -52,8 +48,7 @@ public class TransformMatrixDictionary<E extends Enum<E>> extends TransformMatri
      * @param to
      * @return
      */
-    public int getFrequency(E from, E to)
-    {
+    public int getFrequency(E from, E to) {
         return matrix[from.ordinal()][to.ordinal()];
     }
 
@@ -63,8 +58,7 @@ public class TransformMatrixDictionary<E extends Enum<E>> extends TransformMatri
      * @param e
      * @return
      */
-    public int getTotalFrequency(E e)
-    {
+    public int getTotalFrequency(E e) {
         return total[e.ordinal()];
     }
 
@@ -73,19 +67,16 @@ public class TransformMatrixDictionary<E extends Enum<E>> extends TransformMatri
      *
      * @return
      */
-    public int getTotalFrequency()
-    {
+    public int getTotalFrequency() {
         return totalFrequency;
     }
 
-    protected E convert(String label)
-    {
+    protected E convert(String label) {
         return Enum.valueOf(enumType, label);
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         final StringBuilder sb = new StringBuilder("TransformMatrixDictionary{");
         sb.append("enumType=").append(enumType);
         sb.append(", ordinaryMax=").append(ordinaryMax);
@@ -97,8 +88,7 @@ public class TransformMatrixDictionary<E extends Enum<E>> extends TransformMatri
     }
 
     @Override
-    public int ordinal(String tag)
-    {
+    public int ordinal(String tag) {
         return Enum.valueOf(enumType, tag).ordinal();
     }
 }

@@ -11,15 +11,15 @@
  */
 package com.hankcs.hanlp.model.perceptron;
 
-import com.hankcs.hanlp.model.perceptron.feature.FeatureMap;
-import com.hankcs.hanlp.model.perceptron.instance.CWSInstance;
-import com.hankcs.hanlp.model.perceptron.model.LinearModel;
-import com.hankcs.hanlp.model.perceptron.tagset.TagSet;
-import com.hankcs.hanlp.model.perceptron.utility.Utility;
-import com.hankcs.hanlp.model.perceptron.tagset.CWSTagSet;
-import com.hankcs.hanlp.model.perceptron.instance.Instance;
 import com.hankcs.hanlp.corpus.document.sentence.Sentence;
 import com.hankcs.hanlp.corpus.document.sentence.word.Word;
+import com.hankcs.hanlp.model.perceptron.feature.FeatureMap;
+import com.hankcs.hanlp.model.perceptron.instance.CWSInstance;
+import com.hankcs.hanlp.model.perceptron.instance.Instance;
+import com.hankcs.hanlp.model.perceptron.model.LinearModel;
+import com.hankcs.hanlp.model.perceptron.tagset.CWSTagSet;
+import com.hankcs.hanlp.model.perceptron.tagset.TagSet;
+import com.hankcs.hanlp.model.perceptron.utility.Utility;
 
 import java.io.IOException;
 import java.util.List;
@@ -29,17 +29,14 @@ import java.util.List;
  *
  * @author hankcs
  */
-public class CWSTrainer extends PerceptronTrainer
-{
+public class CWSTrainer extends PerceptronTrainer {
     @Override
-    protected TagSet createTagSet()
-    {
+    protected TagSet createTagSet() {
         return new CWSTagSet();
     }
 
     @Override
-    protected Instance createInstance(Sentence sentence, FeatureMap mutableFeatureMap)
-    {
+    protected Instance createInstance(Sentence sentence, FeatureMap mutableFeatureMap) {
         List<Word> wordList = sentence.toSimpleWordList();
         String[] termArray = Utility.toWordArray(wordList);
         Instance instance = new CWSInstance(termArray, mutableFeatureMap);
@@ -47,8 +44,7 @@ public class CWSTrainer extends PerceptronTrainer
     }
 
     @Override
-    public double[] evaluate(String developFile, LinearModel model) throws IOException
-    {
+    public double[] evaluate(String developFile, LinearModel model) throws IOException {
         PerceptronSegmenter segmenter = new PerceptronSegmenter(model);
         double[] prf = Utility.prf(Utility.evaluateCWS(developFile, segmenter));
         return prf;

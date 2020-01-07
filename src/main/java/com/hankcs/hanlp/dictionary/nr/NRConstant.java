@@ -16,10 +16,10 @@ import com.hankcs.hanlp.utility.Predefine;
 
 /**
  * 人名识别中常用的一些常量
+ *
  * @author hankcs
  */
-public class NRConstant
-{
+public class NRConstant {
     /**
      * 本词典专注的词的ID
      */

@@ -15,7 +15,6 @@ import com.hankcs.hanlp.corpus.document.sentence.Sentence;
 /**
  * @author hankcs
  */
-public interface InstanceHandler
-{
+public interface InstanceHandler {
     boolean process(Sentence instance);
 }

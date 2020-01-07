@@ -20,20 +20,18 @@ import static com.hankcs.hanlp.utility.Predefine.logger;
 
 /**
  * 香港繁体转繁体
+ *
  * @author hankcs
  */
-public class HongKongToTraditionalChineseDictionary extends BaseChineseDictionary
-{
+public class HongKongToTraditionalChineseDictionary extends BaseChineseDictionary {
     static AhoCorasickDoubleArrayTrie<String> trie = new AhoCorasickDoubleArrayTrie<String>();
-    static
-    {
+
+    static {
         long start = System.currentTimeMillis();
         String datPath = HanLP.Config.tcDictionaryRoot + "hk2t";
-        if (!load(datPath, trie))
-        {
+        if (!load(datPath, trie)) {
             TreeMap<String, String> hk2t = new TreeMap<String, String>();
-            if (!load(hk2t, true, HanLP.Config.tcDictionaryRoot + "t2hk.txt"))
-            {
+            if (!load(hk2t, true, HanLP.Config.tcDictionaryRoot + "t2hk.txt")) {
                 throw new IllegalArgumentException("香港繁体转繁体加载失败");
             }
             trie.build(hk2t);
@@ -42,13 +40,11 @@ public class HongKongToTraditionalChineseDictionary extends BaseChineseDictionar
         logger.info("香港繁体转繁体加载成功，耗时" + (System.currentTimeMillis() - start) + "ms");
     }
 
-    public static String convertToTraditionalChinese(String traditionalHongKongChineseString)
-    {
+    public static String convertToTraditionalChinese(String traditionalHongKongChineseString) {
         return segLongest(traditionalHongKongChineseString.toCharArray(), trie);
     }
 
-    public static String convertToTraditionalChinese(char[] traditionalHongKongChineseString)
-    {
+    public static String convertToTraditionalChinese(char[] traditionalHongKongChineseString) {
         return segLongest(traditionalHongKongChineseString, trie);
     }
 }

@@ -16,7 +16,6 @@ import com.hankcs.hanlp.seg.Segment;
 import com.hankcs.hanlp.seg.common.Term;
 import com.hankcs.hanlp.tokenizer.StandardTokenizer;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -25,20 +24,17 @@ import java.util.ListIterator;
  *
  * @author hankcs
  */
-public abstract class KeywordExtractor
-{
+public abstract class KeywordExtractor {
     /**
      * 默认分词器
      */
     protected Segment defaultSegment;
 
-    public KeywordExtractor(Segment defaultSegment)
-    {
+    public KeywordExtractor(Segment defaultSegment) {
         this.defaultSegment = defaultSegment;
     }
 
-    public KeywordExtractor()
-    {
+    public KeywordExtractor() {
         this(StandardTokenizer.SEGMENT);
     }
 
@@ -48,8 +44,7 @@ public abstract class KeywordExtractor
      * @param term
      * @return 是否应当
      */
-    protected boolean shouldInclude(Term term)
-    {
+    protected boolean shouldInclude(Term term) {
         // 除掉停用词
         return CoreStopWordDictionary.shouldInclude(term);
     }
@@ -60,14 +55,12 @@ public abstract class KeywordExtractor
      * @param segment 任何开启了词性标注的分词器
      * @return 自己
      */
-    public KeywordExtractor setSegment(Segment segment)
-    {
+    public KeywordExtractor setSegment(Segment segment) {
         defaultSegment = segment;
         return this;
     }
 
-    public Segment getSegment()
-    {
+    public Segment getSegment() {
         return defaultSegment;
     }
 
@@ -78,8 +71,7 @@ public abstract class KeywordExtractor
      * @param size     需要几个关键词
      * @return
      */
-    public List<String> getKeywords(String document, int size)
-    {
+    public List<String> getKeywords(String document, int size) {
         return getKeywords(defaultSegment.seg(document), size);
     }
 
@@ -89,16 +81,13 @@ public abstract class KeywordExtractor
      * @param document 文章
      * @return
      */
-    public List<String> getKeywords(String document)
-    {
+    public List<String> getKeywords(String document) {
         return getKeywords(defaultSegment.seg(document), 10);
     }
 
-    protected void filter(List<Term> termList)
-    {
+    protected void filter(List<Term> termList) {
         ListIterator<Term> listIterator = termList.listIterator();
-        while (listIterator.hasNext())
-        {
+        while (listIterator.hasNext()) {
             if (!shouldInclude(listIterator.next()))
                 listIterator.remove();
         }

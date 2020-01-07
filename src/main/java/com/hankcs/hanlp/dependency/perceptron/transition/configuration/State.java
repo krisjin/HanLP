@@ -12,8 +12,7 @@ import java.util.ArrayDeque;
 /**
  * 由buffer、stack和arc组成的状态
  */
-public class State implements Cloneable
-{
+public class State implements Cloneable {
     public int rootIndex;
     public int maxSentenceSize;
 
@@ -41,8 +40,7 @@ public class State implements Cloneable
     protected ArrayDeque<Integer> stack;
     int bufferHead;
 
-    public State(int size)
-    {
+    public State(int size) {
         emptyFlag = false;
         stack = new ArrayDeque<Integer>();
         arcs = new Edge[size + 1];
@@ -63,54 +61,43 @@ public class State implements Cloneable
      * @param sentenceSize 句子长度（不包含ROOT）
      * @param rootFirst    是否将ROOT作为index=0的词语，否则作为最后一个词语
      */
-    public State(int sentenceSize, boolean rootFirst)
-    {
+    public State(int sentenceSize, boolean rootFirst) {
         this(sentenceSize);
-        if (rootFirst)
-        {
+        if (rootFirst) {
             stack.push(0);
             rootIndex = 0;
             maxSentenceSize = sentenceSize;
-        }
-        else
-        {
+        } else {
             rootIndex = sentenceSize;
             maxSentenceSize = sentenceSize;
         }
     }
 
-    public ArrayDeque<Integer> getStack()
-    {
+    public ArrayDeque<Integer> getStack() {
         return stack;
     }
 
-    public int pop() 
-    {
+    public int pop() {
         return stack.pop();
     }
 
-    public void push(int index)
-    {
+    public void push(int index) {
         stack.push(index);
     }
 
-    public void addArc(int dependent, int head, int dependency)
-    {
+    public void addArc(int dependent, int head, int dependency) {
         arcs[dependent] = new Edge(head, dependency);
         long value = 1L << (dependency);
 
         assert dependency < 64;
 
-        if (dependent > head)
-        { //right dep
+        if (dependent > head) { //right dep
             if (rightMostArcs[head] == 0 || dependent > rightMostArcs[head])
                 rightMostArcs[head] = dependent;
             rightValency[head] += 1;
             rightDepLabels[head] = rightDepLabels[head] | value;
 
-        }
-        else
-        { //left dependency
+        } else { //left dependency
             if (leftMostArcs[head] == 0 || dependent < leftMostArcs[head])
                 leftMostArcs[head] = dependent;
             leftDepLabels[head] = leftDepLabels[head] | value;
@@ -118,93 +105,77 @@ public class State implements Cloneable
         }
     }
 
-    public long rightDependentLabels(int position)
-    {
+    public long rightDependentLabels(int position) {
         return rightDepLabels[position];
     }
 
-    public long leftDependentLabels(int position)
-    {
+    public long leftDependentLabels(int position) {
         return leftDepLabels[position];
     }
 
-    public boolean isEmptyFlag()
-    {
+    public boolean isEmptyFlag() {
         return emptyFlag;
     }
 
-    public void setEmptyFlag(boolean emptyFlag)
-    {
+    public void setEmptyFlag(boolean emptyFlag) {
         this.emptyFlag = emptyFlag;
     }
 
-    public int bufferHead()
-    {
+    public int bufferHead() {
         return bufferHead;
     }
 
     /**
      * View top element of stack
+     *
      * @return
      */
-    public int stackTop()
-    {
+    public int stackTop() {
         if (stack.size() > 0)
             return stack.peek();
         return -1;
     }
 
-    public int getBufferItem(int position)
-    {
+    public int getBufferItem(int position) {
         return bufferHead + position;
     }
 
-    public boolean isTerminalState()
-    {
-        if (stackEmpty())
-        {
-            if (bufferEmpty() || bufferHead == rootIndex)
-            {
+    public boolean isTerminalState() {
+        if (stackEmpty()) {
+            if (bufferEmpty() || bufferHead == rootIndex) {
                 return true;
             }
         }
         return false;
     }
 
-    public boolean hasHead(int dependent)
-    {
+    public boolean hasHead(int dependent) {
         return arcs[dependent] != null;
     }
 
-    public boolean bufferEmpty()
-    {
+    public boolean bufferEmpty() {
         return bufferHead == -1;
     }
 
-    public boolean stackEmpty()
-    {
+    public boolean stackEmpty() {
         return stack.size() == 0;
     }
 
-    public int bufferSize()
-    {
+    public int bufferSize() {
         if (bufferHead < 0)
             return 0;
         return (maxSentenceSize - bufferHead + 1);
     }
 
-    public int stackSize()
-    {
+    public int stackSize() {
         return stack.size();
     }
 
-    public int rightMostModifier(int index)
-    {
+    public int rightMostModifier(int index) {
         return (rightMostArcs[index] == 0 ? -1 : rightMostArcs[index]);
     }
 
-    public int leftMostModifier(int index)
-    {
+    public int leftMostModifier(int index) {
         return (leftMostArcs[index] == 0 ? -1 : leftMostArcs[index]);
     }
 
@@ -212,8 +183,7 @@ public class State implements Cloneable
      * @param head
      * @return the current index of dependents
      */
-    public int valence(int head)
-    {
+    public int valence(int head) {
         return rightValency(head) + leftValency(head);
     }
 
@@ -221,8 +191,7 @@ public class State implements Cloneable
      * @param head
      * @return the current index of right modifiers
      */
-    public int rightValency(int head)
-    {
+    public int rightValency(int head) {
         return rightValency[head];
     }
 
@@ -230,66 +199,55 @@ public class State implements Cloneable
      * @param head
      * @return the current index of left modifiers
      */
-    public int leftValency(int head)
-    {
+    public int leftValency(int head) {
         return leftValency[head];
     }
 
-    public int getHead(int index)
-    {
+    public int getHead(int index) {
         if (arcs[index] != null)
             return arcs[index].headIndex;
         return -1;
     }
 
-    public int getDependent(int index)
-    {
+    public int getDependent(int index) {
         if (arcs[index] != null)
             return arcs[index].relationId;
         return -1;
     }
 
-    public void setMaxSentenceSize(int maxSentenceSize)
-    {
+    public void setMaxSentenceSize(int maxSentenceSize) {
         this.maxSentenceSize = maxSentenceSize;
     }
 
-    public void incrementBufferHead()
-    {
+    public void incrementBufferHead() {
         if (bufferHead == maxSentenceSize)
             bufferHead = -1;
         else
             bufferHead++;
     }
 
-    public void setBufferHead(int bufferHead)
-    {
+    public void setBufferHead(int bufferHead) {
         this.bufferHead = bufferHead;
     }
 
     @Override
-    public State clone()
-    {
+    public State clone() {
         State state = new State(arcs.length - 1);
         state.stack = new ArrayDeque<Integer>(stack);
 
-        for (int dependent = 0; dependent < arcs.length; dependent++)
-        {
-            if (arcs[dependent] != null)
-            {
+        for (int dependent = 0; dependent < arcs.length; dependent++) {
+            if (arcs[dependent] != null) {
                 Edge head = arcs[dependent];
                 state.arcs[dependent] = head;
                 int h = head.headIndex;
 
-                if (rightMostArcs[h] != 0)
-                {
+                if (rightMostArcs[h] != 0) {
                     state.rightMostArcs[h] = rightMostArcs[h];
                     state.rightValency[h] = rightValency[h];
                     state.rightDepLabels[h] = rightDepLabels[h];
                 }
 
-                if (leftMostArcs[h] != 0)
-                {
+                if (leftMostArcs[h] != 0) {
                     state.leftMostArcs[h] = leftMostArcs[h];
                     state.leftValency[h] = leftValency[h];
                     state.leftDepLabels[h] = leftDepLabels[h];

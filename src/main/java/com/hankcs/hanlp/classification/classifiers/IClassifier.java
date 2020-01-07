@@ -23,8 +23,7 @@ import java.util.Map;
  *
  * @author hankcs
  */
-public interface IClassifier
-{
+public interface IClassifier {
     /**
      * 是否归一化分值为概率
      *
@@ -45,6 +44,7 @@ public interface IClassifier
 
     /**
      * 预测分类
+     *
      * @param document
      * @return
      */
@@ -52,6 +52,7 @@ public interface IClassifier
 
     /**
      * 预测分类
+     *
      * @param document
      * @return
      * @throws IllegalArgumentException
@@ -61,6 +62,7 @@ public interface IClassifier
 
     /**
      * 预测最可能的分类
+     *
      * @param document
      * @return
      * @throws IllegalArgumentException
@@ -70,6 +72,7 @@ public interface IClassifier
 
     /**
      * 预测最可能的分类
+     *
      * @param text 文本
      * @return 最可能的分类
      * @throws IllegalArgumentException
@@ -79,6 +82,7 @@ public interface IClassifier
 
     /**
      * 预测最可能的分类
+     *
      * @param document 一个结构化的文档(注意!这是一个底层数据结构,请谨慎操作)
      * @return 最可能的分类
      * @throws IllegalArgumentException
@@ -115,23 +119,24 @@ public interface IClassifier
     /**
      * 用UTF-8编码的语料训练模型
      *
-     * @param folderPath  用UTF-8编码的分类语料的根目录.目录必须满足如下结构:<br>
-     *                    根目录<br>
-     *                    ├── 分类A<br>
-     *                    │   └── 1.txt<br>
-     *                    │   └── 2.txt<br>
-     *                    │   └── 3.txt<br>
-     *                    ├── 分类B<br>
-     *                    │   └── 1.txt<br>
-     *                    │   └── ...<br>
-     *                    └── ...<br>
-     *                    文件不一定需要用数字命名,也不需要以txt作为后缀名,但一定需要是文本文件.
+     * @param folderPath 用UTF-8编码的分类语料的根目录.目录必须满足如下结构:<br>
+     *                   根目录<br>
+     *                   ├── 分类A<br>
+     *                   │   └── 1.txt<br>
+     *                   │   └── 2.txt<br>
+     *                   │   └── 3.txt<br>
+     *                   ├── 分类B<br>
+     *                   │   └── 1.txt<br>
+     *                   │   └── ...<br>
+     *                   └── ...<br>
+     *                   文件不一定需要用数字命名,也不需要以txt作为后缀名,但一定需要是文本文件.
      * @throws IOException 任何可能的IO异常
      */
     void train(String folderPath) throws IOException;
 
     /**
      * 训练模型
+     *
      * @param dataSet 训练数据集
      * @throws IllegalArgumentException 当数据集为空时,将抛出此异常
      */
@@ -139,7 +144,8 @@ public interface IClassifier
 
     /**
      * 获取训练后的模型,可用于序列化保存或预测.
-     * @return 模型,null表示未训练
+     *
+     * @return 模型, null表示未训练
      */
     AbstractModel getModel();
 }

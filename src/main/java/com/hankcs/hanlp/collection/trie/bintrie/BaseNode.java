@@ -27,8 +27,7 @@ import java.util.Set;
  * @param <V> 值
  * @author He Han
  */
-public abstract class BaseNode<V> implements Comparable<BaseNode>
-{
+public abstract class BaseNode<V> implements Comparable<BaseNode> {
     /**
      * 状态数组，方便读取的时候用
      */
@@ -50,22 +49,18 @@ public abstract class BaseNode<V> implements Comparable<BaseNode>
      */
     protected V value;
 
-    public BaseNode<V> transition(String path, int begin)
-    {
+    public BaseNode<V> transition(String path, int begin) {
         BaseNode<V> cur = this;
-        for (int i = begin; i < path.length(); ++i)
-        {
+        for (int i = begin; i < path.length(); ++i) {
             cur = cur.getChild(path.charAt(i));
             if (cur == null || cur.status == Status.UNDEFINED_0) return null;
         }
         return cur;
     }
 
-    public BaseNode<V> transition(char[] path, int begin)
-    {
+    public BaseNode<V> transition(char[] path, int begin) {
         BaseNode<V> cur = this;
-        for (int i = begin; i < path.length; ++i)
-        {
+        for (int i = begin; i < path.length; ++i) {
             cur = cur.getChild(path[i]);
             if (cur == null || cur.status == Status.UNDEFINED_0) return null;
         }
@@ -74,11 +69,11 @@ public abstract class BaseNode<V> implements Comparable<BaseNode>
 
     /**
      * 转移状态
+     *
      * @param path
      * @return
      */
-    public BaseNode<V> transition(char path)
-    {
+    public BaseNode<V> transition(char path) {
         BaseNode<V> cur = this;
         cur = cur.getChild(path);
         if (cur == null || cur.status == Status.UNDEFINED_0) return null;
@@ -98,13 +93,11 @@ public abstract class BaseNode<V> implements Comparable<BaseNode>
      * @param c 子节点的char
      * @return 是否含有
      */
-    protected boolean hasChild(char c)
-    {
+    protected boolean hasChild(char c) {
         return getChild(c) != null;
     }
 
-    protected char getChar()
-    {
+    protected char getChar() {
         return c;
     }
 
@@ -121,8 +114,7 @@ public abstract class BaseNode<V> implements Comparable<BaseNode>
      *
      * @return 值
      */
-    public final V getValue()
-    {
+    public final V getValue() {
         return value;
     }
 
@@ -131,30 +123,26 @@ public abstract class BaseNode<V> implements Comparable<BaseNode>
      *
      * @param value 值
      */
-    public final void setValue(V value)
-    {
+    public final void setValue(V value) {
         this.value = value;
     }
 
     @Override
-    public int compareTo(BaseNode other)
-    {
+    public int compareTo(BaseNode other) {
         return compareTo(other.getChar());
     }
 
     /**
      * 重载，与字符的比较
+     *
      * @param other
      * @return
      */
-    public int compareTo(char other)
-    {
-        if (this.c > other)
-        {
+    public int compareTo(char other) {
+        if (this.c > other) {
             return 1;
         }
-        if (this.c < other)
-        {
+        if (this.c < other) {
             return -1;
         }
         return 0;
@@ -162,96 +150,81 @@ public abstract class BaseNode<V> implements Comparable<BaseNode>
 
     /**
      * 获取节点的成词状态
+     *
      * @return
      */
-    public Status getStatus()
-    {
+    public Status getStatus() {
         return status;
     }
 
-    protected void walk(StringBuilder sb, Set<Map.Entry<String, V>> entrySet)
-    {
+    protected void walk(StringBuilder sb, Set<Map.Entry<String, V>> entrySet) {
         sb.append(c);
-        if (status == Status.WORD_MIDDLE_2 || status == Status.WORD_END_3)
-        {
+        if (status == Status.WORD_MIDDLE_2 || status == Status.WORD_END_3) {
             entrySet.add(new TrieEntry(sb.toString(), value));
         }
         if (child == null) return;
-        for (BaseNode node : child)
-        {
+        for (BaseNode node : child) {
             if (node == null) continue;
             node.walk(new StringBuilder(sb.toString()), entrySet);
         }
     }
 
-    protected void walkToSave(DataOutputStream out) throws IOException
-    {
+    protected void walkToSave(DataOutputStream out) throws IOException {
         out.writeChar(c);
         out.writeInt(status.ordinal());
         int childSize = 0;
         if (child != null) childSize = child.length;
         out.writeInt(childSize);
         if (child == null) return;
-        for (BaseNode node : child)
-        {
+        for (BaseNode node : child) {
             node.walkToSave(out);
         }
     }
 
-    protected void walkToSave(ObjectOutput out) throws IOException
-    {
+    protected void walkToSave(ObjectOutput out) throws IOException {
         out.writeChar(c);
         out.writeInt(status.ordinal());
-        if (status == Status.WORD_END_3 || status == Status.WORD_MIDDLE_2)
-        {
+        if (status == Status.WORD_END_3 || status == Status.WORD_MIDDLE_2) {
             out.writeObject(value);
         }
         int childSize = 0;
         if (child != null) childSize = child.length;
         out.writeInt(childSize);
         if (child == null) return;
-        for (BaseNode node : child)
-        {
+        for (BaseNode node : child) {
             node.walkToSave(out);
         }
     }
 
-    protected void walkToLoad(ByteArray byteArray, _ValueArray<V> valueArray)
-    {
+    protected void walkToLoad(ByteArray byteArray, _ValueArray<V> valueArray) {
         c = byteArray.nextChar();
         status = ARRAY_STATUS[byteArray.nextInt()];
-        if (status == Status.WORD_END_3 || status == Status.WORD_MIDDLE_2)
-        {
+        if (status == Status.WORD_END_3 || status == Status.WORD_MIDDLE_2) {
             value = valueArray.nextValue();
         }
         int childSize = byteArray.nextInt();
         child = new BaseNode[childSize];
-        for (int i = 0; i < childSize; ++i)
-        {
+        for (int i = 0; i < childSize; ++i) {
             child[i] = new Node<V>();
             child[i].walkToLoad(byteArray, valueArray);
         }
     }
 
-    protected void walkToLoad(ObjectInput byteArray) throws IOException, ClassNotFoundException
-    {
+    protected void walkToLoad(ObjectInput byteArray) throws IOException, ClassNotFoundException {
         c = byteArray.readChar();
         status = ARRAY_STATUS[byteArray.readInt()];
-        if (status == Status.WORD_END_3 || status == Status.WORD_MIDDLE_2)
-        {
+        if (status == Status.WORD_END_3 || status == Status.WORD_MIDDLE_2) {
             value = (V) byteArray.readObject();
         }
         int childSize = byteArray.readInt();
         child = new BaseNode[childSize];
-        for (int i = 0; i < childSize; ++i)
-        {
+        for (int i = 0; i < childSize; ++i) {
             child[i] = new Node<V>();
             child[i].walkToLoad(byteArray);
         }
     }
 
-    public enum Status
-    {
+    public enum Status {
         /**
          * 未指定，用于删除词条
          */
@@ -270,28 +243,24 @@ public abstract class BaseNode<V> implements Comparable<BaseNode>
         WORD_END_3,
     }
 
-    public class TrieEntry extends AbstractMap.SimpleEntry<String, V> implements Comparable<TrieEntry>
-    {
-        public TrieEntry(String key, V value)
-        {
+    public class TrieEntry extends AbstractMap.SimpleEntry<String, V> implements Comparable<TrieEntry> {
+        public TrieEntry(String key, V value) {
             super(key, value);
         }
+
         @Override
-        public int compareTo(TrieEntry o)
-        {
+        public int compareTo(TrieEntry o) {
             return getKey().compareTo(o.getKey());
         }
     }
 
     @Override
-    public String toString()
-    {
-        if (child == null)
-        {
-            return "BaseNode{" + 
-                     "status=" + status +
-                     ", c=" + c +
-                     ", value=" + value +
+    public String toString() {
+        if (child == null) {
+            return "BaseNode{" +
+                    "status=" + status +
+                    ", c=" + c +
+                    ", value=" + value +
                     '}';
         }
         return "BaseNode{" +

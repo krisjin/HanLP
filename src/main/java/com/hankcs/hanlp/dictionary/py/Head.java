@@ -13,10 +13,10 @@ package com.hankcs.hanlp.dictionary.py;
 
 /**
  * 拼音输入法头
+ *
  * @author hankcs
  */
-public enum Head
-{
+public enum Head {
     a,
     b,
     c,

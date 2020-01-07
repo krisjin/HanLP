@@ -8,8 +8,7 @@ import java.util.List;
  *
  * @author zhifac
  */
-public class Node
-{
+public class Node {
     public int x;
     public int y;
     public double alpha;
@@ -23,8 +22,7 @@ public class Node
     public static double LOG2 = 0.69314718055;
     public static int MINUS_LOG_EPSILON = 50;
 
-    public Node()
-    {
+    public Node() {
         lpath = new ArrayList<Path>();
         rpath = new ArrayList<Path>();
         clear();
@@ -32,39 +30,30 @@ public class Node
         prev = null;
     }
 
-    public static double logsumexp(double x, double y, boolean flg)
-    {
-        if (flg)
-        {
+    public static double logsumexp(double x, double y, boolean flg) {
+        if (flg) {
             return y;
         }
         double vmin = Math.min(x, y);
         double vmax = Math.max(x, y);
-        if (vmax > vmin + MINUS_LOG_EPSILON)
-        {
+        if (vmax > vmin + MINUS_LOG_EPSILON) {
             return vmax;
-        }
-        else
-        {
+        } else {
             return vmax + Math.log(Math.exp(vmin - vmax) + 1.0);
         }
     }
 
-    public void calcAlpha()
-    {
+    public void calcAlpha() {
         alpha = 0.0;
-        for (Path p : lpath)
-        {
+        for (Path p : lpath) {
             alpha = logsumexp(alpha, p.cost + p.lnode.alpha, p == lpath.get(0));
         }
         alpha += cost;
     }
 
-    public void calcBeta()
-    {
+    public void calcBeta() {
         beta = 0.0;
-        for (Path p : rpath)
-        {
+        for (Path p : rpath) {
             beta = logsumexp(beta, p.cost + p.rnode.beta, p == rpath.get(0));
         }
         beta += cost;
@@ -77,22 +66,18 @@ public class Node
      * @param Z        规范化因子
      * @param size     标签个数
      */
-    public void calcExpectation(double[] expected, double Z, int size)
-    {
+    public void calcExpectation(double[] expected, double Z, int size) {
         double c = Math.exp(alpha + beta - cost - Z);
-        for (int i = 0; fVector.get(i) != -1; i++)
-        {
+        for (int i = 0; fVector.get(i) != -1; i++) {
             int idx = fVector.get(i) + y;
             expected[idx] += c;
         }
-        for (Path p : lpath)
-        {
+        for (Path p : lpath) {
             p.calcExpectation(expected, Z, size);
         }
     }
 
-    public void clear()
-    {
+    public void clear() {
         x = y = 0;
         alpha = beta = cost = 0;
         prev = null;

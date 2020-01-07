@@ -21,23 +21,19 @@ import com.hankcs.hanlp.dictionary.common.EnumItemDictionary;
  *
  * @author hankcs
  */
-public class NTDictionary extends EnumItemDictionary<NT>
-{
+public class NTDictionary extends EnumItemDictionary<NT> {
     @Override
-    protected NT valueOf(String name)
-    {
+    protected NT valueOf(String name) {
         return NT.valueOf(name);
     }
 
     @Override
-    protected NT[] values()
-    {
+    protected NT[] values() {
         return NT.values();
     }
 
     @Override
-    protected EnumItem<NT> newItem()
-    {
+    protected EnumItem<NT> newItem() {
         return new EnumItem<NT>();
     }
 }

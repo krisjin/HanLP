@@ -10,12 +10,10 @@
  */
 package com.hankcs.hanlp.model.perceptron.instance;
 
-import com.hankcs.hanlp.model.perceptron.feature.FeatureMap;
-import com.hankcs.hanlp.model.perceptron.feature.MutableFeatureMap;
-import com.hankcs.hanlp.model.perceptron.tagset.POSTagSet;
-import com.hankcs.hanlp.model.perceptron.utility.Utility;
 import com.hankcs.hanlp.corpus.document.sentence.Sentence;
 import com.hankcs.hanlp.corpus.document.sentence.word.Word;
+import com.hankcs.hanlp.model.perceptron.feature.FeatureMap;
+import com.hankcs.hanlp.model.perceptron.tagset.POSTagSet;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,34 +21,29 @@ import java.util.List;
 /**
  * @author hankcs
  */
-public class POSInstance extends Instance
-{
+public class POSInstance extends Instance {
     /**
      * 构建词性标注实例
      *
      * @param termArray 词语
      * @param posArray  词性
      */
-    public POSInstance(String[] termArray, String[] posArray, FeatureMap featureMap)
-    {
+    public POSInstance(String[] termArray, String[] posArray, FeatureMap featureMap) {
 //        String sentence = TextUtility.combine(termArray);
         this(termArray, featureMap);
 
         POSTagSet tagSet = (POSTagSet) featureMap.tagSet;
         tagArray = new int[termArray.length];
-        for (int i = 0; i < termArray.length; i++)
-        {
+        for (int i = 0; i < termArray.length; i++) {
             tagArray[i] = tagSet.add(posArray[i]);
         }
     }
 
-    public POSInstance(String[] termArray, FeatureMap featureMap)
-    {
+    public POSInstance(String[] termArray, FeatureMap featureMap) {
         initFeatureMatrix(termArray, featureMap);
     }
 
-    protected int[] extractFeature(String[] words, FeatureMap featureMap, int position)
-    {
+    protected int[] extractFeature(String[] words, FeatureMap featureMap, int position) {
         List<Integer> featVec = new ArrayList<Integer>();
 
 //        String pre2Word = position >= 2 ? words[position - 2] : "_B_";
@@ -115,14 +108,12 @@ public class POSInstance extends Instance
         sbFeature.append(curWord.substring(0, 1)).append('4');
         addFeatureThenClear(sbFeature, featVec, featureMap);
 
-        if (length > 1)
-        {
+        if (length > 1) {
             sbFeature.append(curWord.substring(0, 2)).append('4');
             addFeatureThenClear(sbFeature, featVec, featureMap);
         }
 
-        if (length > 2)
-        {
+        if (length > 2) {
             sbFeature.append(curWord.substring(0, 3)).append('4');
             addFeatureThenClear(sbFeature, featVec, featureMap);
         }
@@ -131,14 +122,12 @@ public class POSInstance extends Instance
         sbFeature.append(curWord.charAt(length - 1)).append('5');
         addFeatureThenClear(sbFeature, featVec, featureMap);
 
-        if (length > 1)
-        {
+        if (length > 1) {
             sbFeature.append(curWord.substring(length - 2)).append('5');
             addFeatureThenClear(sbFeature, featVec, featureMap);
         }
 
-        if (length > 2)
-        {
+        if (length > 2) {
             sbFeature.append(curWord.substring(length - 3)).append('5');
             addFeatureThenClear(sbFeature, featVec, featureMap);
         }
@@ -229,32 +218,26 @@ public class POSInstance extends Instance
         return toFeatureArray(featVec);
     }
 
-    private void initFeatureMatrix(String[] termArray, FeatureMap featureMap)
-    {
+    private void initFeatureMatrix(String[] termArray, FeatureMap featureMap) {
         featureMatrix = new int[termArray.length][];
-        for (int i = 0; i < featureMatrix.length; i++)
-        {
+        for (int i = 0; i < featureMatrix.length; i++) {
             featureMatrix[i] = extractFeature(termArray, featureMap, i);
         }
     }
 
-    public static POSInstance create(String segmentedTaggedSentence, FeatureMap featureMap)
-    {
+    public static POSInstance create(String segmentedTaggedSentence, FeatureMap featureMap) {
         return create(Sentence.create(segmentedTaggedSentence), featureMap);
     }
 
-    public static POSInstance create(Sentence sentence, FeatureMap featureMap)
-    {
-        if (sentence == null || featureMap == null)
-        {
+    public static POSInstance create(Sentence sentence, FeatureMap featureMap) {
+        if (sentence == null || featureMap == null) {
             return null;
         }
         List<Word> wordList = sentence.toSimpleWordList();
         String[] termArray = new String[wordList.size()];
         String[] posArray = new String[wordList.size()];
         int i = 0;
-        for (Word word : wordList)
-        {
+        for (Word word : wordList) {
             termArray[i] = word.getValue();
             posArray[i] = word.getLabel();
             ++i;

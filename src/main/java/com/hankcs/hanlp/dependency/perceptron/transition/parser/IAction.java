@@ -15,7 +15,6 @@ import com.hankcs.hanlp.dependency.perceptron.transition.configuration.Configura
 /**
  * @author hankcs
  */
-public interface IAction
-{
+public interface IAction {
     void commit(int relation, float score, int relationSize, Configuration config);
 }

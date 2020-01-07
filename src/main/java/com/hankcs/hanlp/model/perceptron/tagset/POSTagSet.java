@@ -14,12 +14,11 @@ import com.hankcs.hanlp.model.perceptron.common.TaskType;
 
 /**
  * 词性标注集
+ *
  * @author hankcs
  */
-public class POSTagSet extends TagSet
-{
-    public POSTagSet()
-    {
+public class POSTagSet extends TagSet {
+    public POSTagSet() {
         super(TaskType.POS);
     }
 }

@@ -10,7 +10,6 @@
  */
 package com.hankcs.hanlp.model.crf;
 
-import com.hankcs.hanlp.HanLP;
 import com.hankcs.hanlp.corpus.document.sentence.Sentence;
 import com.hankcs.hanlp.corpus.io.IOUtil;
 import com.hankcs.hanlp.model.crf.crfpp.Encoder;
@@ -27,16 +26,13 @@ import java.util.Date;
 /**
  * @author hankcs
  */
-public abstract class CRFTagger
-{
+public abstract class CRFTagger {
     protected LogLinearModel model;
 
-    public CRFTagger()
-    {
+    public CRFTagger() {
     }
 
-    public CRFTagger(String modelPath) throws IOException
-    {
+    public CRFTagger(String modelPath) throws IOException {
         if (modelPath == null) return; // 训练模式
         model = new LogLinearModel(modelPath);
     }
@@ -58,12 +54,10 @@ public abstract class CRFTagger
      */
     public void train(String templFile, String trainFile, String modelFile,
                       int maxitr, int freq, double eta, double C, int threadNum, int shrinkingSize,
-                      Encoder.Algorithm algorithm) throws IOException
-    {
+                      Encoder.Algorithm algorithm) throws IOException {
         Encoder encoder = new Encoder();
         if (!encoder.learn(templFile, trainFile, modelFile,
-                           true, maxitr, freq, eta, C, threadNum, shrinkingSize, algorithm))
-        {
+                true, maxitr, freq, eta, C, threadNum, shrinkingSize, algorithm)) {
             throw new IOException("fail to learn model");
         }
         convert(modelFile);
@@ -75,22 +69,19 @@ public abstract class CRFTagger
      * @param modelFile
      * @throws IOException
      */
-    private void convert(String modelFile) throws IOException
-    {
+    private void convert(String modelFile) throws IOException {
         this.model = new LogLinearModel(modelFile + ".txt", modelFile);
     }
 
-    public void train(String trainCorpusPath, String modelPath) throws IOException
-    {
+    public void train(String trainCorpusPath, String modelPath) throws IOException {
         crf_learn.Option option = new crf_learn.Option();
         train(trainCorpusPath, modelPath, option.maxiter, option.freq, option.eta, option.cost,
-              option.thread, option.shrinking_size, Encoder.Algorithm.fromString(option.algorithm));
+                option.thread, option.shrinking_size, Encoder.Algorithm.fromString(option.algorithm));
     }
 
     public void train(String trainFile, String modelFile,
                       int maxitr, int freq, double eta, double C, int threadNum, int shrinkingSize,
-                      Encoder.Algorithm algorithm) throws IOException
-    {
+                      Encoder.Algorithm algorithm) throws IOException {
         String templFile = null;
         File tmpTemplate = File.createTempFile("crfpp-template-" + new Date().getTime(), ".txt");
         tmpTemplate.deleteOnExit();
@@ -103,13 +94,12 @@ public abstract class CRFTagger
         convertCorpus(trainFile, tmpTrain.getAbsolutePath());
         trainFile = tmpTrain.getAbsolutePath();
         System.out.printf("Java效率低，建议安装CRF++，执行下列等价训练命令（不要终止本进程，否则临时语料库和特征模板将被清除）：\n" +
-                              "crf_learn -m %d -f %d -e %f -c %f -p %d -H %d -a %s -t %s %s %s\n", maxitr, freq, eta,
-                          C, threadNum, shrinkingSize, algorithm.toString().replace('_', '-'),
-                          templFile, trainFile, modelFile);
+                        "crf_learn -m %d -f %d -e %f -c %f -p %d -H %d -a %s -t %s %s %s\n", maxitr, freq, eta,
+                C, threadNum, shrinkingSize, algorithm.toString().replace('_', '-'),
+                templFile, trainFile, modelFile);
         Encoder encoder = new Encoder();
         if (!encoder.learn(templFile, trainFile, modelFile,
-                           true, maxitr, freq, eta, C, threadNum, shrinkingSize, algorithm))
-        {
+                true, maxitr, freq, eta, C, threadNum, shrinkingSize, algorithm)) {
             throw new IOException("fail to learn model");
         }
         convert(modelFile);
@@ -119,22 +109,16 @@ public abstract class CRFTagger
 
     protected abstract String getDefaultFeatureTemplate();
 
-    public void convertCorpus(String pkuPath, String tsvPath) throws IOException
-    {
+    public void convertCorpus(String pkuPath, String tsvPath) throws IOException {
         final BufferedWriter bw = IOUtil.newBufferedWriter(tsvPath);
-        IOUtility.loadInstance(pkuPath, new InstanceHandler()
-        {
+        IOUtility.loadInstance(pkuPath, new InstanceHandler() {
             @Override
-            public boolean process(Sentence sentence)
-            {
+            public boolean process(Sentence sentence) {
                 Utility.normalize(sentence);
-                try
-                {
+                try {
                     convertCorpus(sentence, bw);
                     bw.newLine();
-                }
-                catch (IOException e)
-                {
+                } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
                 return false;
@@ -149,8 +133,7 @@ public abstract class CRFTagger
      * @param templatePath
      * @throws IOException
      */
-    public void dumpTemplate(String templatePath) throws IOException
-    {
+    public void dumpTemplate(String templatePath) throws IOException {
         BufferedWriter bw = IOUtil.newBufferedWriter(templatePath);
         String template = getTemplate();
         bw.write(template);
@@ -162,14 +145,11 @@ public abstract class CRFTagger
      *
      * @return
      */
-    public String getTemplate()
-    {
+    public String getTemplate() {
         String template = getDefaultFeatureTemplate();
-        if (model != null && model.getFeatureTemplateArray() != null)
-        {
+        if (model != null && model.getFeatureTemplateArray() != null) {
             StringBuilder sbTemplate = new StringBuilder();
-            for (FeatureTemplate featureTemplate : model.getFeatureTemplateArray())
-            {
+            for (FeatureTemplate featureTemplate : model.getFeatureTemplateArray()) {
                 sbTemplate.append(featureTemplate.getTemplate()).append('\n');
             }
         }

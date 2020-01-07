@@ -15,12 +15,13 @@ import java.util.List;
 
 /**
  * 从一篇文章中自动识别出最可能的短语
+ *
  * @author hankcs
  */
-public interface IPhraseExtractor
-{
+public interface IPhraseExtractor {
     /**
      * 提取短语
+     *
      * @param text 文本
      * @param size 希望提取前几个短语
      * @return 短语列表

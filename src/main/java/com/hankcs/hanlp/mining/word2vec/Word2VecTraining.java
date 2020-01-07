@@ -4,10 +4,10 @@ package com.hankcs.hanlp.mining.word2vec;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.util.Comparator;
+
 import static com.hankcs.hanlp.utility.Predefine.logger;
 
-class Word2VecTraining
-{
+class Word2VecTraining {
     static final int EXP_TABLE_SIZE = 1000;
     static final int MAX_EXP = 6;
     static final int TABLE_SIZE = 100000000;
@@ -22,28 +22,23 @@ class Word2VecTraining
 
     static final double[] expTable = new double[EXP_TABLE_SIZE + 1];
 
-    static
-    {
-        for (int i = 0; i < EXP_TABLE_SIZE; i++)
-        {
+    static {
+        for (int i = 0; i < EXP_TABLE_SIZE; i++) {
             expTable[i] = Math.exp((i / (double) EXP_TABLE_SIZE * 2 - 1) * MAX_EXP); // Precompute the exp() table
             expTable[i] = expTable[i] / (expTable[i] + 1);                          // Precompute f(x) = x / (x + 1)
         }
     }
 
 
-    public Word2VecTraining(Config config)
-    {
+    public Word2VecTraining(Config config) {
         this.config = config;
     }
 
-    public Config getConfig()
-    {
+    public Config getConfig() {
         return config;
     }
 
-    static class TrainModelThread extends Thread
-    {
+    static class TrainModelThread extends Thread {
         final Word2VecTraining vec;
         final Corpus corpus;
         final Config config;
@@ -56,8 +51,7 @@ class Word2VecTraining
         final VocabWord[] vocab;
         static int wordCountActual = 0;
 
-        public TrainModelThread(Word2VecTraining vec, Corpus corpus, Config config, int id)
-        {
+        public TrainModelThread(Word2VecTraining vec, Corpus corpus, Config config, int id) {
             this.vec = vec;
             this.corpus = corpus;
             this.config = config;
@@ -71,8 +65,7 @@ class Word2VecTraining
             this.vocab = corpus.getVocab();
         }
 
-        public void run()
-        {
+        public void run() {
             final float iter = config.getIter();     // #19
             final int layer1Size = config.getLayer1Size();
             final int numThreads = config.getNumThreads();
@@ -82,8 +75,7 @@ class Word2VecTraining
             final boolean hs = config.useHierarchicalSoftmax();
             final float sample = config.getSample();
 
-            try
-            {
+            try {
                 int word = 0, sentence_length = 0, sentence_position = 0, a, b, c, d, last_word, l1, l2, target;
                 int[] sen = new int[MAX_SENTENCE_LENGTH + 1];
                 long cw;
@@ -96,44 +88,36 @@ class Word2VecTraining
                 double[] neu1e = new double[layer1Size];
 
                 corpus.rewind(numThreads, id);
-                while (true)
-                {
-                    if (word_count - last_word_count > 10000)
-                    {
+                while (true) {
+                    if (word_count - last_word_count > 10000) {
                         wordCountActual += word_count - last_word_count;
                         last_word_count = word_count;
                         timeNow = System.currentTimeMillis();
                         float percent = wordCountActual / (float) (iter * trainWords + 1);
                         long cost_time = timeNow - timeStart + 1;
-                        if (config.getCallback() == null)
-                        {
+                        if (config.getCallback() == null) {
                             System.err.printf("%cAlpha: %f  iter: %d  Progress: %.2f%%  Words/thread/sec: %.2fk", 13, alpha, local_iter,
-                                              percent * 100,
-                                              wordCountActual / (float) (cost_time));
+                                    percent * 100,
+                                    wordCountActual / (float) (cost_time));
                             String etd = Utility.humanTime((long) (cost_time / percent * (1.f - percent)));
                             if (etd.length() > 0) System.err.printf("  ETD: %s", etd);
                             System.err.flush();
-                        }
-                        else
-                        {
+                        } else {
                             config.getCallback().training(alpha, percent * 100);
                         }
 
                         alpha = startingAlpha * (1 - wordCountActual / (float) (iter * trainWords + 1));
                         if (alpha < startingAlpha * 0.0001) alpha = startingAlpha * 0.0001F;
                     }
-                    if (sentence_length == 0)
-                    {
-                        while (true)
-                        {
+                    if (sentence_length == 0) {
+                        while (true) {
                             word = corpus.readWordIndex();
                             if (word == -2) break;                // EOF
                             if (word == -1) continue;             // Filtered out
                             word_count++;
                             if (word == -3) break;                // End of sentence
                             // The subsampling randomly discards frequent words while keeping the ranking same
-                            if (sample > 0)
-                            {
+                            if (sample > 0) {
                                 double ran = (Math.sqrt(vocab[word].cn / (sample * trainWords)) + 1) * (sample * trainWords) / vocab[word].cn;
                                 next_random = nextRandom(next_random);
                                 if (ran < (next_random & 0xFFFF) / (double) 65536) continue;
@@ -144,8 +128,7 @@ class Word2VecTraining
                         }
                         sentence_position = 0;
                     }
-                    if (word == -2 /* eof? */ || (word_count > trainWords / numThreads))
-                    {
+                    if (word == -2 /* eof? */ || (word_count > trainWords / numThreads)) {
                         wordCountActual += word_count - last_word_count;
                         local_iter--;
                         if (local_iter == 0) break;
@@ -161,13 +144,11 @@ class Word2VecTraining
                     for (c = 0; c < layer1Size; c++) neu1e[c] = 0;
                     next_random = nextRandom(next_random);
                     b = (int) next_random % window;
-                    if (cbow)
-                    {  //train the cbow architecture
+                    if (cbow) {  //train the cbow architecture
                         // in -> hidden
                         cw = 0;
                         for (a = b; a < window * 2 + 1 - b; a++)
-                            if (a != window)
-                            {
+                            if (a != window) {
                                 c = sentence_position - window + a;
                                 if (c < 0) continue;
                                 if (c >= sentence_length) continue;
@@ -176,11 +157,9 @@ class Word2VecTraining
                                 for (c = 0; c < layer1Size; c++) neu1[c] += syn0[c + last_word * layer1Size];
                                 cw++;
                             }
-                        if (cw != 0)
-                        {
+                        if (cw != 0) {
                             for (c = 0; c < layer1Size; c++) neu1[c] /= cw;
-                            if (hs) for (d = 0; d < vocab[word].codelen; d++)
-                            {
+                            if (hs) for (d = 0; d < vocab[word].codelen; d++) {
                                 f = 0;
                                 l2 = vocab[word].point[d] * layer1Size;
                                 // Propagate hidden -> output
@@ -196,15 +175,11 @@ class Word2VecTraining
                                 for (c = 0; c < layer1Size; c++) syn1[c + l2] += g * neu1[c];
                             }
                             // NEGATIVE SAMPLING
-                            if (negative > 0) for (d = 0; d < negative + 1; d++)
-                            {
-                                if (d == 0)
-                                {
+                            if (negative > 0) for (d = 0; d < negative + 1; d++) {
+                                if (d == 0) {
                                     target = word;
                                     label = 1;
-                                }
-                                else
-                                {
+                                } else {
                                     next_random = nextRandom(next_random);
                                     target = table[Math.abs((int) ((next_random >> 16) % TABLE_SIZE))];
                                     if (target == 0) target = Math.abs((int) (next_random % (vocabSize - 1) + 1));
@@ -223,8 +198,7 @@ class Word2VecTraining
                             }
                             // hidden -> in
                             for (a = b; a < window * 2 + 1 - b; a++)
-                                if (a != window)
-                                {
+                                if (a != window) {
                                     c = sentence_position - window + a;
                                     if (c < 0) continue;
                                     if (c >= sentence_length) continue;
@@ -233,12 +207,9 @@ class Word2VecTraining
                                     for (c = 0; c < layer1Size; c++) syn0[c + last_word * layer1Size] += neu1e[c];
                                 }
                         }
-                    }
-                    else
-                    {  //train skip-gram
+                    } else {  //train skip-gram
                         for (a = b; a < window * 2 + 1 - b; a++)
-                            if (a != window)
-                            {
+                            if (a != window) {
                                 c = sentence_position - window + a;
                                 if (c < 0) continue;
                                 if (c >= sentence_length) continue;
@@ -247,8 +218,7 @@ class Word2VecTraining
                                 l1 = last_word * layer1Size;
                                 for (c = 0; c < layer1Size; c++) neu1e[c] = 0;
                                 // HIERARCHICAL SOFTMAX
-                                if (hs) for (d = 0; d < vocab[word].codelen; d++)
-                                {
+                                if (hs) for (d = 0; d < vocab[word].codelen; d++) {
                                     f = 0;
                                     l2 = vocab[word].point[d] * layer1Size;
                                     // Propagate hidden -> output
@@ -264,15 +234,11 @@ class Word2VecTraining
                                     for (c = 0; c < layer1Size; c++) syn1[c + l2] += g * syn0[c + l1];
                                 }
                                 // NEGATIVE SAMPLING
-                                if (negative > 0) for (d = 0; d < negative + 1; d++)
-                                {
-                                    if (d == 0)
-                                    {
+                                if (negative > 0) for (d = 0; d < negative + 1; d++) {
+                                    if (d == 0) {
                                         target = word;
                                         label = 1;
-                                    }
-                                    else
-                                    {
+                                    } else {
                                         next_random = nextRandom(next_random);
                                         target = table[Math.abs((int) ((next_random >> 16) % TABLE_SIZE))];
                                         if (target == 0) target = Math.abs((int) (next_random % (vocabSize - 1) + 1));
@@ -294,21 +260,17 @@ class Word2VecTraining
                             }
                     }
                     sentence_position++;
-                    if (sentence_position >= sentence_length)
-                    {
+                    if (sentence_position >= sentence_length) {
                         sentence_length = 0;
                         continue;
                     }
                 }
                 corpus.shutdown();
-            }
-            catch (IOException e)
-            {
+            } catch (IOException e) {
                 throw new RuntimeException(e);
             }
             // exit from thread
-            synchronized (vec)
-            {
+            synchronized (vec) {
                 vec.threadCount--;
                 vec.notify();
             }
@@ -317,8 +279,7 @@ class Word2VecTraining
 
     int threadCount;
 
-    public void trainModel() throws IOException
-    {
+    public void trainModel() throws IOException {
         final int layer1Size = config.getLayer1Size();
         TextFileCorpus corpus = new TextFileCorpus(config);
 
@@ -340,21 +301,15 @@ class Word2VecTraining
         timeStart = System.currentTimeMillis();
 
         threadCount = config.getNumThreads();
-        for (int i = 0; i < config.getNumThreads(); i++)
-        {
+        for (int i = 0; i < config.getNumThreads(); i++) {
             new TrainModelThread(this, new CacheCorpus(corpus), config, i).start();
         }
         corpus.shutdown();
-        synchronized (this)
-        {
-            while (threadCount > 0)
-            {
-                try
-                {
+        synchronized (this) {
+            while (threadCount > 0) {
+                try {
                     wait();
-                }
-                catch (InterruptedException ignored)
-                {
+                } catch (InterruptedException ignored) {
                 }
             }
         }
@@ -369,8 +324,7 @@ class Word2VecTraining
         Writer w = null;
         PrintWriter pw = null;
 
-        try
-        {
+        try {
             os = new FileOutputStream(config.getOutputFile());
             w = new OutputStreamWriter(os, ENCODING);
             pw = new PrintWriter(w);
@@ -378,18 +332,14 @@ class Word2VecTraining
             // Save the word vectors
             logger.info("now saving the word vectors to the file " + config.getOutputFile());
             pw.printf("%d %d\n", vocabSize, layer1Size);
-            for (int i = 0; i < vocabSize; i++)
-            {
+            for (int i = 0; i < vocabSize; i++) {
                 pw.print(vocab[i].word);
-                for (int j = 0; j < layer1Size; j++)
-                {
+                for (int j = 0; j < layer1Size; j++) {
                     pw.printf(" %f", syn0[i * layer1Size + j]);
                 }
                 pw.println();
             }
-        }
-        finally
-        {
+        } finally {
             corpus.close();
             Utility.closeQuietly(pw);
             Utility.closeQuietly(w);
@@ -400,33 +350,27 @@ class Word2VecTraining
     /**
      * Used later for sorting by word counts
      */
-    static class VocabWordComparator implements Comparator<VocabWord>
-    {
+    static class VocabWordComparator implements Comparator<VocabWord> {
         @Override
-        public int compare(VocabWord o1, VocabWord o2)
-        {
+        public int compare(VocabWord o1, VocabWord o2) {
             return o2.cn - o1.cn;
         }
     }
 
-    void initUnigramTable(Corpus corpus)
-    {
+    void initUnigramTable(Corpus corpus) {
         final int vocabSize = corpus.getVocabSize();
         final VocabWord[] vocab = corpus.getVocab();
         long trainWordsPow = 0;
         double d1, power = 0.75;
         table = new int[TABLE_SIZE];
-        for (int i = 0; i < vocabSize; i++)
-        {
+        for (int i = 0; i < vocabSize; i++) {
             trainWordsPow += Math.pow(vocab[i].cn, power);
         }
         int i = 0;
         d1 = Math.pow(vocab[i].cn, power) / (double) trainWordsPow;
-        for (int j = 0; j < TABLE_SIZE; j++)
-        {
+        for (int j = 0; j < TABLE_SIZE; j++) {
             table[j] = i;
-            if ((double) j / (double) TABLE_SIZE > d1)
-            {
+            if ((double) j / (double) TABLE_SIZE > d1) {
                 i++;
                 d1 += Math.pow(vocab[i].cn, power) / (double) trainWordsPow;
             }
@@ -435,42 +379,33 @@ class Word2VecTraining
         }
     }
 
-    void initNet(Corpus corpus)
-    {
+    void initNet(Corpus corpus) {
         final int layer1Size = config.getLayer1Size();
         final int vocabSize = corpus.getVocabSize();
 
         syn0 = posixMemAlign128(vocabSize * layer1Size);
 
-        if (config.useHierarchicalSoftmax())
-        {
+        if (config.useHierarchicalSoftmax()) {
             syn1 = posixMemAlign128(vocabSize * layer1Size);
-            for (int i = 0; i < vocabSize; i++)
-            {
-                for (int j = 0; j < layer1Size; j++)
-                {
+            for (int i = 0; i < vocabSize; i++) {
+                for (int j = 0; j < layer1Size; j++) {
                     syn1[i * layer1Size + j] = 0;
                 }
             }
         }
 
-        if (config.getNegative() > 0)
-        {
+        if (config.getNegative() > 0) {
             syn1neg = posixMemAlign128(vocabSize * layer1Size);
-            for (int i = 0; i < vocabSize; i++)
-            {
-                for (int j = 0; j < layer1Size; j++)
-                {
+            for (int i = 0; i < vocabSize; i++) {
+                for (int j = 0; j < layer1Size; j++) {
                     syn1neg[i * layer1Size + j] = 0;
                 }
             }
         }
 
         long nextRandom = 1;
-        for (int i = 0; i < vocabSize; i++)
-        {
-            for (int j = 0; j < layer1Size; j++)
-            {
+        for (int i = 0; i < vocabSize; i++) {
+            for (int j = 0; j < layer1Size; j++) {
                 nextRandom = nextRandom(nextRandom);
                 syn0[i * layer1Size + j] = (((nextRandom & 0xFFFF) / (double) 65536) - 0.5) / layer1Size;
             }
@@ -478,19 +413,16 @@ class Word2VecTraining
         corpus.createBinaryTree();
     }
 
-    static double[] posixMemAlign128(int size)
-    {
+    static double[] posixMemAlign128(int size) {
         final int surplus = size % 128;
-        if (surplus > 0)
-        {
+        if (surplus > 0) {
             int div = size / 128;
             return new double[(div + 1) * 128];
         }
         return new double[size];
     }
 
-    static long nextRandom(long nextRandom)
-    {
+    static long nextRandom(long nextRandom) {
         return nextRandom * 25214903917L + 11;
     }
 }

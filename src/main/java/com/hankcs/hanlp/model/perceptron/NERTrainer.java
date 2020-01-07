@@ -10,18 +10,17 @@
  */
 package com.hankcs.hanlp.model.perceptron;
 
+import com.hankcs.hanlp.corpus.document.sentence.Sentence;
 import com.hankcs.hanlp.model.perceptron.feature.FeatureMap;
 import com.hankcs.hanlp.model.perceptron.instance.Instance;
 import com.hankcs.hanlp.model.perceptron.instance.NERInstance;
 import com.hankcs.hanlp.model.perceptron.tagset.NERTagSet;
 import com.hankcs.hanlp.model.perceptron.tagset.TagSet;
-import com.hankcs.hanlp.corpus.document.sentence.Sentence;
 
 /**
  * @author hankcs
  */
-public class NERTrainer extends PerceptronTrainer
-{
+public class NERTrainer extends PerceptronTrainer {
     /**
      * 支持任意自定义NER类型，例如：<br>
      * tagSet.nerLabels.clear();<br>
@@ -31,13 +30,11 @@ public class NERTrainer extends PerceptronTrainer
      */
     public NERTagSet tagSet;
 
-    public NERTrainer(NERTagSet tagSet)
-    {
+    public NERTrainer(NERTagSet tagSet) {
         this.tagSet = tagSet;
     }
 
-    public NERTrainer()
-    {
+    public NERTrainer() {
         tagSet = new NERTagSet();
         tagSet.nerLabels.add("nr");
         tagSet.nerLabels.add("ns");
@@ -51,17 +48,16 @@ public class NERTrainer extends PerceptronTrainer
      * tagSet.nerLabels.add("ns");<br>
      * tagSet.nerLabels.add("nt");<br>
      * return tagSet;<br>
+     *
      * @return
      */
     @Override
-    protected TagSet createTagSet()
-    {
+    protected TagSet createTagSet() {
         return tagSet;
     }
 
     @Override
-    protected Instance createInstance(Sentence sentence, FeatureMap featureMap)
-    {
+    protected Instance createInstance(Sentence sentence, FeatureMap featureMap) {
         return NERInstance.create(sentence, featureMap);
     }
 }

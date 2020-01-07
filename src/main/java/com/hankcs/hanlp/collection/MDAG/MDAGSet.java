@@ -13,96 +13,81 @@ package com.hankcs.hanlp.collection.MDAG;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Set;
 
 /**
  * 基于MDAG（又称DAWG，Minimal Acyclic Finite-State Automata）的String Set
  *
  * @author hankcs
  */
-public class MDAGSet extends MDAG implements Set<String>
-{
+public class MDAGSet extends MDAG implements Set<String> {
 
-    public MDAGSet(File dataFile) throws IOException
-    {
+    public MDAGSet(File dataFile) throws IOException {
         super(dataFile);
     }
 
-    public MDAGSet(Collection<String> strCollection)
-    {
+    public MDAGSet(Collection<String> strCollection) {
         super(strCollection);
     }
 
-    public MDAGSet()
-    {
+    public MDAGSet() {
     }
 
-    public MDAGSet(String dictionaryPath) throws IOException
-    {
+    public MDAGSet(String dictionaryPath) throws IOException {
         super(dictionaryPath);
     }
 
     @Override
-    public int size()
-    {
+    public int size() {
         return getAllStrings().size();
     }
 
     @Override
-    public boolean isEmpty()
-    {
+    public boolean isEmpty() {
         return this.equivalenceClassMDAGNodeHashMap.size() != 0;
     }
 
     @Override
-    public boolean contains(Object o)
-    {
+    public boolean contains(Object o) {
         if (o.getClass() != String.class) return false;
         return contains((String) o);
     }
 
     @Override
-    public Iterator<String> iterator()
-    {
+    public Iterator<String> iterator() {
         return getAllStrings().iterator();
     }
 
     @Override
-    public Object[] toArray()
-    {
+    public Object[] toArray() {
         return getAllStrings().toArray();
     }
 
     @Override
-    public <T> T[] toArray(T[] a)
-    {
+    public <T> T[] toArray(T[] a) {
         return getAllStrings().toArray(a);
     }
 
     @Override
-    public boolean add(String s)
-    {
+    public boolean add(String s) {
         addString(s);
         return true;
     }
 
     @Override
-    public boolean remove(Object o)
-    {
-        if (o.getClass() == String.class)
-        {
+    public boolean remove(Object o) {
+        if (o.getClass() == String.class) {
             removeString((String) o);
-        }
-        else
-        {
+        } else {
             removeString(o.toString());
         }
         return true;
     }
 
     @Override
-    public boolean containsAll(Collection<?> c)
-    {
+    public boolean containsAll(Collection<?> c) {
         for (Object e : c)
             if (!contains(e))
                 return false;
@@ -110,8 +95,7 @@ public class MDAGSet extends MDAG implements Set<String>
     }
 
     @Override
-    public boolean addAll(Collection<? extends String> c)
-    {
+    public boolean addAll(Collection<? extends String> c) {
         boolean modified = false;
         for (String e : c)
             if (add(e))
@@ -120,14 +104,11 @@ public class MDAGSet extends MDAG implements Set<String>
     }
 
     @Override
-    public boolean retainAll(Collection<?> c)
-    {
+    public boolean retainAll(Collection<?> c) {
         boolean modified = false;
         Iterator<String> it = iterator();
-        while (it.hasNext())
-        {
-            if (!c.contains(it.next()))
-            {
+        while (it.hasNext()) {
+            if (!c.contains(it.next())) {
                 it.remove();
                 modified = true;
             }
@@ -136,14 +117,11 @@ public class MDAGSet extends MDAG implements Set<String>
     }
 
     @Override
-    public boolean removeAll(Collection<?> c)
-    {
+    public boolean removeAll(Collection<?> c) {
         boolean modified = false;
         Iterator<?> it = iterator();
-        while (it.hasNext())
-        {
-            if (c.contains(it.next()))
-            {
+        while (it.hasNext()) {
+            if (c.contains(it.next())) {
                 it.remove();
                 modified = true;
             }
@@ -152,8 +130,7 @@ public class MDAGSet extends MDAG implements Set<String>
     }
 
     @Override
-    public void clear()
-    {
+    public void clear() {
         sourceNode = new MDAGNode(false);
         simplifiedSourceNode = null;
         equivalenceClassMDAGNodeHashMap.clear();

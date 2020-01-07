@@ -15,13 +15,15 @@ package com.hankcs.hanlp.corpus.document.sentence.word;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+
 import static com.hankcs.hanlp.utility.Predefine.logger;
+
 /**
  * 复合词，由两个或以上的word构成
+ *
  * @author hankcs
  */
-public class CompoundWord implements IWord, Iterable<Word>
-{
+public class CompoundWord implements IWord, Iterable<Word> {
     /**
      * 由这些词复合而来
      */
@@ -33,57 +35,47 @@ public class CompoundWord implements IWord, Iterable<Word>
     public String label;
 
     @Override
-    public String getValue()
-    {
+    public String getValue() {
         StringBuilder sb = new StringBuilder();
-        for (Word word : innerList)
-        {
+        for (Word word : innerList) {
             sb.append(word.value);
         }
         return sb.toString();
     }
 
     @Override
-    public String getLabel()
-    {
+    public String getLabel() {
         return label;
     }
 
     @Override
-    public void setLabel(String label)
-    {
+    public void setLabel(String label) {
         this.label = label;
     }
 
     @Override
-    public void setValue(String value)
-    {
+    public void setValue(String value) {
         innerList.clear();
         innerList.add(new Word(value, label));
     }
 
     @Override
-    public int length()
-    {
+    public int length() {
         return getValue().length();
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append('[');
         int i = 1;
-        for (Word word : innerList)
-        {
+        for (Word word : innerList) {
             sb.append(word.getValue());
             String label = word.getLabel();
-            if (label != null)
-            {
+            if (label != null) {
                 sb.append('/').append(label);
             }
-            if (i != innerList.size())
-            {
+            if (i != innerList.size()) {
                 sb.append(' ');
             }
             ++i;
@@ -95,48 +87,42 @@ public class CompoundWord implements IWord, Iterable<Word>
 
     /**
      * 转换为一个简单词
+     *
      * @return
      */
-    public Word toWord()
-    {
+    public Word toWord() {
         return new Word(getValue(), getLabel());
     }
 
-    public CompoundWord(List<Word> innerList, String label)
-    {
+    public CompoundWord(List<Word> innerList, String label) {
         this.innerList = innerList;
         this.label = label;
     }
 
-    public static CompoundWord create(String param)
-    {
+    public static CompoundWord create(String param) {
         if (param == null) return null;
         int cutIndex = param.lastIndexOf(']');
         if (cutIndex <= 2 || cutIndex == param.length() - 1) return null;
-        String wordParam  = param.substring(1, cutIndex);
+        String wordParam = param.substring(1, cutIndex);
         List<Word> wordList = new LinkedList<Word>();
-        for (String single : wordParam.split("\\s+"))
-        {
+        for (String single : wordParam.split("\\s+")) {
             if (single.length() == 0) continue;
             Word word = Word.create(single);
-            if (word == null)
-            {
+            if (word == null) {
                 logger.warning("使用参数" + single + "构造单词时发生错误");
                 return null;
             }
             wordList.add(word);
         }
         String labelParam = param.substring(cutIndex + 1);
-        if (labelParam.startsWith("/"))
-        {
+        if (labelParam.startsWith("/")) {
             labelParam = labelParam.substring(1);
         }
         return new CompoundWord(wordList, labelParam);
     }
 
     @Override
-    public Iterator<Word> iterator()
-    {
+    public Iterator<Word> iterator() {
         return innerList.iterator();
     }
 }

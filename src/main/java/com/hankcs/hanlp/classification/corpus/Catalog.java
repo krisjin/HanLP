@@ -19,34 +19,29 @@ import java.util.TreeMap;
 
 /**
  * 类目名称和id的对应关系
+ *
  * @author hankcs
  */
-public class Catalog implements Serializable
-{
+public class Catalog implements Serializable {
     Map<String, Integer> categoryId;
     List<String> idCategory;
 
-    public Catalog()
-    {
+    public Catalog() {
         categoryId = new TreeMap<String, Integer>();
         idCategory = new ArrayList<String>();
     }
 
-    public Catalog(String[] catalog)
-    {
+    public Catalog(String[] catalog) {
         this();
-        for (int i = 0; i < catalog.length; i++)
-        {
+        for (int i = 0; i < catalog.length; i++) {
             categoryId.put(catalog[i], i);
             idCategory.add(catalog[i]);
         }
     }
 
-    public int addCategory(String category)
-    {
+    public int addCategory(String category) {
         Integer id = categoryId.get(category);
-        if (id == null)
-        {
+        if (id == null) {
             id = categoryId.size();
             categoryId.put(category, id);
             assert idCategory.size() == id;
@@ -56,31 +51,26 @@ public class Catalog implements Serializable
         return id;
     }
 
-    public Integer getId(String category)
-    {
+    public Integer getId(String category) {
         return categoryId.get(category);
     }
 
-    public String getCategory(int id)
-    {
+    public String getCategory(int id) {
         assert 0 <= id;
         assert id < idCategory.size();
 
         return idCategory.get(id);
     }
 
-    public List<String> getCategories()
-    {
+    public List<String> getCategories() {
         return idCategory;
     }
 
-    public int size()
-    {
+    public int size() {
         return idCategory.size();
     }
 
-    public String[] toArray()
-    {
+    public String[] toArray() {
         String[] catalog = new String[idCategory.size()];
         idCategory.toArray(catalog);
 
@@ -88,8 +78,7 @@ public class Catalog implements Serializable
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return idCategory.toString();
     }
 }

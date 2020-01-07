@@ -15,9 +15,11 @@ import com.hankcs.hanlp.algorithm.Viterbi;
 import com.hankcs.hanlp.collection.AhoCorasick.AhoCorasickDoubleArrayTrie;
 import com.hankcs.hanlp.collection.trie.DoubleArrayTrie;
 import com.hankcs.hanlp.corpus.tag.Nature;
-import com.hankcs.hanlp.dictionary.*;
+import com.hankcs.hanlp.dictionary.CoreDictionary;
+import com.hankcs.hanlp.dictionary.CoreDictionaryTransformMatrixDictionary;
+import com.hankcs.hanlp.dictionary.CustomDictionary;
 import com.hankcs.hanlp.dictionary.other.CharType;
-import com.hankcs.hanlp.seg.NShort.Path.*;
+import com.hankcs.hanlp.seg.NShort.Path.AtomNode;
 import com.hankcs.hanlp.seg.common.Graph;
 import com.hankcs.hanlp.seg.common.Term;
 import com.hankcs.hanlp.seg.common.Vertex;
@@ -31,11 +33,9 @@ import java.util.*;
  *
  * @author hankcs
  */
-public abstract class WordBasedSegment extends Segment
-{
+public abstract class WordBasedSegment extends Segment {
 
-    public WordBasedSegment()
-    {
+    public WordBasedSegment() {
         super();
     }
 
@@ -45,8 +45,7 @@ public abstract class WordBasedSegment extends Segment
      * @param linkedArray    粗分结果
      * @param wordNetOptimum 合并了所有粗分结果的词网
      */
-    protected static void generateWord(List<Vertex> linkedArray, WordNet wordNetOptimum)
-    {
+    protected static void generateWord(List<Vertex> linkedArray, WordNet wordNetOptimum) {
         fixResultByRule(linkedArray);
 
         //--------------------------------------------------------------------
@@ -59,8 +58,7 @@ public abstract class WordBasedSegment extends Segment
      *
      * @param linkedArray
      */
-    protected static void fixResultByRule(List<Vertex> linkedArray)
-    {
+    protected static void fixResultByRule(List<Vertex> linkedArray) {
 
         //--------------------------------------------------------------------
         //Merge all seperate continue num into one number
@@ -85,12 +83,9 @@ public abstract class WordBasedSegment extends Segment
         checkDateElements(linkedArray);
     }
 
-    static void changeDelimiterPOS(List<Vertex> linkedArray)
-    {
-        for (Vertex vertex : linkedArray)
-        {
-            if (vertex.realWord.equals("－－") || vertex.realWord.equals("—") || vertex.realWord.equals("-"))
-            {
+    static void changeDelimiterPOS(List<Vertex> linkedArray) {
+        for (Vertex vertex : linkedArray) {
+            if (vertex.realWord.equals("－－") || vertex.realWord.equals("—") || vertex.realWord.equals("-")) {
                 vertex.confirmNature(Nature.w);
             }
         }
@@ -101,26 +96,21 @@ public abstract class WordBasedSegment extends Segment
     //那么将此“－”符号从当前词中分离出来。
     //例如 “3-4 / 月”需要拆分成“3 / - / 4 / 月”
     //====================================================================
-    private static void splitMiddleSlashFromDigitalWords(List<Vertex> linkedArray)
-    {
+    private static void splitMiddleSlashFromDigitalWords(List<Vertex> linkedArray) {
         if (linkedArray.size() < 2)
             return;
 
         ListIterator<Vertex> listIterator = linkedArray.listIterator();
         Vertex next = listIterator.next();
         Vertex current = next;
-        while (listIterator.hasNext())
-        {
+        while (listIterator.hasNext()) {
             next = listIterator.next();
 //            System.out.println("current:" + current + " next:" + next);
             Nature currentNature = current.getNature();
-            if (currentNature == Nature.nx && (next.hasNature(Nature.q) || next.hasNature(Nature.n)))
-            {
+            if (currentNature == Nature.nx && (next.hasNature(Nature.q) || next.hasNature(Nature.n))) {
                 String[] param = current.realWord.split("-", 1);
-                if (param.length == 2)
-                {
-                    if (TextUtility.isAllNum(param[0]) && TextUtility.isAllNum(param[1]))
-                    {
+                if (param.length == 2) {
+                    if (TextUtility.isAllNum(param[0]) && TextUtility.isAllNum(param[1])) {
                         current = current.copy();
                         current.realWord = param[0];
                         current.confirmNature(Nature.m);
@@ -146,56 +136,42 @@ public abstract class WordBasedSegment extends Segment
     //4、如果当前串最后一个汉字不是"∶·．／"和半角的'.''/'，那么是数
     //5、当前串最后一个汉字是"∶·．／"和半角的'.''/'，且长度大于1，那么去掉最后一个字符。例如"1."
     //====================================================================
-    private static void checkDateElements(List<Vertex> linkedArray)
-    {
+    private static void checkDateElements(List<Vertex> linkedArray) {
         if (linkedArray.size() < 2)
             return;
         ListIterator<Vertex> listIterator = linkedArray.listIterator();
         Vertex next = listIterator.next();
         Vertex current = next;
-        while (listIterator.hasNext())
-        {
+        while (listIterator.hasNext()) {
             next = listIterator.next();
-            if (TextUtility.isAllNum(current.realWord) || TextUtility.isAllChineseNum(current.realWord))
-            {
+            if (TextUtility.isAllNum(current.realWord) || TextUtility.isAllChineseNum(current.realWord)) {
                 //===== 1、如果当前词是数字，下一个词是“月、日、时、分、秒、月份”中的一个，则合并且当前词词性是时间
                 String nextWord = next.realWord;
-                if ((nextWord.length() == 1 && "月日时分秒".contains(nextWord)) || (nextWord.length() == 2 && nextWord.equals("月份")))
-                {
+                if ((nextWord.length() == 1 && "月日时分秒".contains(nextWord)) || (nextWord.length() == 2 && nextWord.equals("月份"))) {
                     mergeDate(listIterator, next, current);
                 }
                 //===== 2、如果当前词是可以作为年份的数字，下一个词是“年”，则合并，词性为时间，否则为数字。
-                else if (nextWord.equals("年"))
-                {
-                    if (TextUtility.isYearTime(current.realWord))
-                    {
+                else if (nextWord.equals("年")) {
+                    if (TextUtility.isYearTime(current.realWord)) {
                         mergeDate(listIterator, next, current);
                     }
                     //===== 否则当前词就是数字了 =====
-                    else
-                    {
+                    else {
                         current.confirmNature(Nature.m);
                     }
-                }
-                else
-                {
+                } else {
                     //===== 3、如果最后一个汉字是"点" ，则认为当前数字是时间
-                    if (current.realWord.endsWith("点"))
-                    {
+                    if (current.realWord.endsWith("点")) {
                         current.confirmNature(Nature.t, true);
-                    }
-                    else
-                    {
+                    } else {
                         char[] tmpCharArray = current.realWord.toCharArray();
                         String lastChar = String.valueOf(tmpCharArray[tmpCharArray.length - 1]);
                         //===== 4、如果当前串最后一个汉字不是"∶·．／"和半角的'.''/'，那么是数
-                        if (!"∶·．／./".contains(lastChar))
-                        {
+                        if (!"∶·．／./".contains(lastChar)) {
                             current.confirmNature(Nature.m, true);
                         }
                         //===== 5、当前串最后一个汉字是"∶·．／"和半角的'.''/'，且长度大于1，那么去掉最后一个字符。例如"1."
-                        else if (current.realWord.length() > 1)
-                        {
+                        else if (current.realWord.length() > 1) {
                             char last = current.realWord.charAt(current.realWord.length() - 1);
                             current = Vertex.newNumberInstance(current.realWord.substring(0, current.realWord.length() - 1));
                             listIterator.previous();
@@ -212,8 +188,7 @@ public abstract class WordBasedSegment extends Segment
 //        logger.trace("日期识别后：" + Graph.parseResult(linkedArray));
     }
 
-    private static void mergeDate(ListIterator<Vertex> listIterator, Vertex next, Vertex current)
-    {
+    private static void mergeDate(ListIterator<Vertex> listIterator, Vertex next, Vertex current) {
         current = Vertex.newTimeInstance(current.realWord + next.realWord);
         listIterator.previous();
         listIterator.previous();
@@ -229,8 +204,7 @@ public abstract class WordBasedSegment extends Segment
      * @param vertexList
      * @return
      */
-    protected static List<Term> convert(List<Vertex> vertexList)
-    {
+    protected static List<Term> convert(List<Vertex> vertexList) {
         return convert(vertexList, false);
     }
 
@@ -240,8 +214,7 @@ public abstract class WordBasedSegment extends Segment
      * @param wordNet
      * @return
      */
-    protected static Graph generateBiGraph(WordNet wordNet)
-    {
+    protected static Graph generateBiGraph(WordNet wordNet) {
         return wordNet.toGraph();
     }
 
@@ -254,10 +227,8 @@ public abstract class WordBasedSegment extends Segment
      * @return
      * @deprecated 应该使用字符数组的版本
      */
-    private static List<AtomNode> atomSegment(String sSentence, int start, int end)
-    {
-        if (end < start)
-        {
+    private static List<AtomNode> atomSegment(String sSentence, int start, int end) {
+        if (end < start) {
             throw new RuntimeException("start=" + start + " < end=" + end);
         }
         List<AtomNode> atomSegment = new ArrayList<AtomNode>();
@@ -276,8 +247,7 @@ public abstract class WordBasedSegment extends Segment
         int[] charTypeArray = new int[charArray.length];
 
         // 生成对应单个汉字的字符类型数组
-        for (int i = 0; i < charArray.length; ++i)
-        {
+        for (int i = 0; i < charArray.length; ++i) {
             c = charArray[i];
             charTypeArray[i] = CharType.get(c);
 
@@ -290,33 +260,28 @@ public abstract class WordBasedSegment extends Segment
         }
 
         // 根据字符类型数组中的内容完成原子切割
-        while (pCur < charArray.length)
-        {
+        while (pCur < charArray.length) {
             nCurType = charTypeArray[pCur];
 
             if (nCurType == CharType.CT_CHINESE || nCurType == CharType.CT_INDEX ||
-                nCurType == CharType.CT_DELIMITER || nCurType == CharType.CT_OTHER)
-            {
+                    nCurType == CharType.CT_DELIMITER || nCurType == CharType.CT_OTHER) {
                 String single = String.valueOf(charArray[pCur]);
                 if (single.length() != 0)
                     atomSegment.add(new AtomNode(single, nCurType));
                 pCur++;
             }
             //如果是字符、数字或者后面跟随了数字的小数点“.”则一直取下去。
-            else if (pCur < charArray.length - 1 && ((nCurType == CharType.CT_SINGLE) || nCurType == CharType.CT_NUM))
-            {
+            else if (pCur < charArray.length - 1 && ((nCurType == CharType.CT_SINGLE) || nCurType == CharType.CT_NUM)) {
                 sb.delete(0, sb.length());
                 sb.append(charArray[pCur]);
 
                 boolean reachEnd = true;
-                while (pCur < charArray.length - 1)
-                {
+                while (pCur < charArray.length - 1) {
                     nNextType = charTypeArray[++pCur];
 
                     if (nNextType == nCurType)
                         sb.append(charArray[pCur]);
-                    else
-                    {
+                    else {
                         reachEnd = false;
                         break;
                     }
@@ -326,8 +291,7 @@ public abstract class WordBasedSegment extends Segment
                     pCur++;
             }
             // 对于所有其它情况
-            else
-            {
+            else {
                 atomSegment.add(new AtomNode(charArray[pCur], nCurType));
                 pCur++;
             }
@@ -342,20 +306,17 @@ public abstract class WordBasedSegment extends Segment
      *
      * @param linkedArray
      */
-    private static void mergeContinueNumIntoOne(List<Vertex> linkedArray)
-    {
+    private static void mergeContinueNumIntoOne(List<Vertex> linkedArray) {
         if (linkedArray.size() < 2)
             return;
 
         ListIterator<Vertex> listIterator = linkedArray.listIterator();
         Vertex next = listIterator.next();
         Vertex current = next;
-        while (listIterator.hasNext())
-        {
+        while (listIterator.hasNext()) {
             next = listIterator.next();
 //            System.out.println("current:" + current + " next:" + next);
-            if ((TextUtility.isAllNum(current.realWord) || TextUtility.isAllChineseNum(current.realWord)) && (TextUtility.isAllNum(next.realWord) || TextUtility.isAllChineseNum(next.realWord)))
-            {
+            if ((TextUtility.isAllNum(current.realWord) || TextUtility.isAllChineseNum(current.realWord)) && (TextUtility.isAllNum(next.realWord) || TextUtility.isAllChineseNum(next.realWord))) {
                 /////////// 这部分从逻辑上等同于current.realWord = current.realWord + next.realWord;
                 // 但是current指针被几个路径共享，需要备份，不然修改了一处就修改了全局
                 current = Vertex.newNumberInstance(current.realWord + next.realWord);
@@ -368,9 +329,7 @@ public abstract class WordBasedSegment extends Segment
 //                System.out.println("before:" + linkedArray);
                 listIterator.remove();
 //                System.out.println("after:" + linkedArray);
-            }
-            else
-            {
+            } else {
                 current = next;
             }
         }
@@ -383,43 +342,34 @@ public abstract class WordBasedSegment extends Segment
      *
      * @param wordNetStorage
      */
-    protected void generateWordNet(final WordNet wordNetStorage)
-    {
+    protected void generateWordNet(final WordNet wordNetStorage) {
         final char[] charArray = wordNetStorage.charArray;
 
         // 核心词典查询
         DoubleArrayTrie<CoreDictionary.Attribute>.Searcher searcher = CoreDictionary.trie.getSearcher(charArray, 0);
-        while (searcher.next())
-        {
+        while (searcher.next()) {
             wordNetStorage.add(searcher.begin + 1, new Vertex(new String(charArray, searcher.begin, searcher.length), searcher.value, searcher.index));
         }
         // 强制用户词典查询
-        if (config.forceCustomDictionary)
-        {
-            CustomDictionary.parseText(charArray, new AhoCorasickDoubleArrayTrie.IHit<CoreDictionary.Attribute>()
-            {
+        if (config.forceCustomDictionary) {
+            CustomDictionary.parseText(charArray, new AhoCorasickDoubleArrayTrie.IHit<CoreDictionary.Attribute>() {
                 @Override
-                public void hit(int begin, int end, CoreDictionary.Attribute value)
-                {
+                public void hit(int begin, int end, CoreDictionary.Attribute value) {
                     wordNetStorage.add(begin + 1, new Vertex(new String(charArray, begin, end - begin), value));
                 }
             });
         }
         // 原子分词，保证图连通
         LinkedList<Vertex>[] vertexes = wordNetStorage.getVertexes();
-        for (int i = 1; i < vertexes.length; )
-        {
-            if (vertexes[i].isEmpty())
-            {
+        for (int i = 1; i < vertexes.length; ) {
+            if (vertexes[i].isEmpty()) {
                 int j = i + 1;
-                for (; j < vertexes.length - 1; ++j)
-                {
+                for (; j < vertexes.length - 1; ++j) {
                     if (!vertexes[j].isEmpty()) break;
                 }
                 wordNetStorage.add(i, quickAtomSegment(charArray, i - 1, j - 1));
                 i = j;
-            }
-            else i += vertexes[i].getLast().realWord.length();
+            } else i += vertexes[i].getLast().realWord.length();
         }
     }
 
@@ -429,36 +379,31 @@ public abstract class WordBasedSegment extends Segment
      * @param vertexList
      * @param wordNetAll
      */
-    protected List<Term> decorateResultForIndexMode(List<Vertex> vertexList, WordNet wordNetAll)
-    {
+    protected List<Term> decorateResultForIndexMode(List<Vertex> vertexList, WordNet wordNetAll) {
         List<Term> termList = new LinkedList<Term>();
         int line = 1;
         ListIterator<Vertex> listIterator = vertexList.listIterator();
         listIterator.next();
         int length = vertexList.size() - 2;
-        for (int i = 0; i < length; ++i)
-        {
+        for (int i = 0; i < length; ++i) {
             Vertex vertex = listIterator.next();
             Term termMain = convert(vertex);
             termList.add(termMain);
             termMain.offset = line - 1;
-            if (vertex.realWord.length() > 2)
-            {
+            if (vertex.realWord.length() > 2) {
                 // 过长词所在的行
                 int currentLine = line;
-                while (currentLine < line + vertex.realWord.length())
-                {
+                while (currentLine < line + vertex.realWord.length()) {
                     Iterator<Vertex> iterator = wordNetAll.descendingIterator(currentLine);// 这一行的词，逆序遍历保证字典序稳定地由大到小
                     while (iterator.hasNext())// 这一行的短词
                     {
                         Vertex smallVertex = iterator.next();
                         if (
-                            ((termMain.nature == Nature.mq && smallVertex.hasNature(Nature.q)) ||
-                                smallVertex.realWord.length() >= config.indexMode)
-                                && smallVertex != vertex // 防止重复添加
-                                && currentLine + smallVertex.realWord.length() <= line + vertex.realWord.length() // 防止超出边界
-                            )
-                        {
+                                ((termMain.nature == Nature.mq && smallVertex.hasNature(Nature.q)) ||
+                                        smallVertex.realWord.length() >= config.indexMode)
+                                        && smallVertex != vertex // 防止重复添加
+                                        && currentLine + smallVertex.realWord.length() <= line + vertex.realWord.length() // 防止超出边界
+                        ) {
                             listIterator.add(smallVertex);
                             Term termSub = convert(smallVertex);
                             termSub.offset = currentLine - 1;
@@ -479,8 +424,7 @@ public abstract class WordBasedSegment extends Segment
      *
      * @param vertexList
      */
-    protected static void speechTagging(List<Vertex> vertexList)
-    {
+    protected static void speechTagging(List<Vertex> vertexList) {
         Viterbi.compute(vertexList, CoreDictionaryTransformMatrixDictionary.transformMatrixDictionary);
     }
 }

@@ -21,74 +21,63 @@ import java.util.Set;
 
 /**
  * 用MutableDoubleArrayTrie实现的ImmutableFeatureMap
+ *
  * @author hankcs
  */
-public class ImmutableFeatureMDatMap extends FeatureMap
-{
+public class ImmutableFeatureMDatMap extends FeatureMap {
     MutableDoubleArrayTrieInteger dat;
 
-    public ImmutableFeatureMDatMap()
-    {
+    public ImmutableFeatureMDatMap() {
         super();
         dat = new MutableDoubleArrayTrieInteger();
     }
 
-    public ImmutableFeatureMDatMap(TagSet tagSet)
-    {
+    public ImmutableFeatureMDatMap(TagSet tagSet) {
         super(tagSet);
         dat = new MutableDoubleArrayTrieInteger();
     }
 
-    public ImmutableFeatureMDatMap(MutableDoubleArrayTrieInteger dat, TagSet tagSet)
-    {
+    public ImmutableFeatureMDatMap(MutableDoubleArrayTrieInteger dat, TagSet tagSet) {
         super(tagSet);
         this.dat = dat;
     }
 
-    public ImmutableFeatureMDatMap(Map<String, Integer> featureIdMap, TagSet tagSet)
-    {
+    public ImmutableFeatureMDatMap(Map<String, Integer> featureIdMap, TagSet tagSet) {
         super(tagSet);
         dat = new MutableDoubleArrayTrieInteger(featureIdMap);
     }
 
-    public ImmutableFeatureMDatMap(Set<Map.Entry<String, Integer>> featureIdSet, TagSet tagSet)
-    {
+    public ImmutableFeatureMDatMap(Set<Map.Entry<String, Integer>> featureIdSet, TagSet tagSet) {
         super(tagSet);
         dat = new MutableDoubleArrayTrieInteger();
-        for (Map.Entry<String, Integer> entry : featureIdSet)
-        {
+        for (Map.Entry<String, Integer> entry : featureIdSet) {
             dat.put(entry.getKey(), entry.getValue());
         }
     }
 
     @Override
-    public int idOf(String string)
-    {
+    public int idOf(String string) {
         return dat.get(string);
     }
 
     @Override
-    public int size()
-    {
+    public int size() {
         return dat.size();
     }
 
     @Override
-    public Set<Map.Entry<String, Integer>> entrySet()
-    {
+    public Set<Map.Entry<String, Integer>> entrySet() {
         return dat.entrySet();
     }
 
     @Override
-    public void save(DataOutputStream out) throws IOException
-    {
+    public void save(DataOutputStream out) throws IOException {
         tagSet.save(out);
         dat.save(out);
     }
 
     @Override
-    public boolean load(ByteArray byteArray)
-    {
+    public boolean load(ByteArray byteArray) {
         loadTagSet(byteArray);
         return dat.load(byteArray);
     }

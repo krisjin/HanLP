@@ -1,11 +1,12 @@
 package com.hankcs.hanlp.mining.word2vec;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Map;
 
-public abstract class Corpus
-{
+public abstract class Corpus {
 
     protected File cacheFile;
     protected Config config;
@@ -18,13 +19,11 @@ public abstract class Corpus
     protected Charset encoding = Charset.forName("UTF-8");
     protected int[] table;
 
-    public Corpus(Config config) throws IOException
-    {
+    public Corpus(Config config) throws IOException {
         this.config = config;
     }
 
-    public Corpus(Corpus cloneSrc) throws IOException
-    {
+    public Corpus(Corpus cloneSrc) throws IOException {
         trainWords = cloneSrc.trainWords;
         vocabSize = cloneSrc.vocabSize;
         vocab = cloneSrc.vocab;
@@ -32,8 +31,7 @@ public abstract class Corpus
         table = cloneSrc.table;
     }
 
-    public boolean endOfCorpus()
-    {
+    public boolean endOfCorpus() {
         return eoc;
     }
 
@@ -43,14 +41,12 @@ public abstract class Corpus
      * @param word
      * @return
      */
-    protected int addWordToVocab(String word)
-    {
+    protected int addWordToVocab(String word) {
         vocab[vocabSize] = new VocabWord(word);
         vocabSize++;
 
         // Reallocate memory if needed
-        if (vocabSize + 2 >= vocabMaxSize)
-        {
+        if (vocabSize + 2 >= vocabMaxSize) {
             vocabMaxSize += 1000;
             VocabWord[] temp = new VocabWord[vocabMaxSize];
             System.arraycopy(vocab, 0, temp, 0, vocabSize);
@@ -60,31 +56,26 @@ public abstract class Corpus
         return vocabSize - 1;
     }
 
-    public int getTrainWords()
-    {
+    public int getTrainWords() {
         return trainWords;
     }
 
-    public int getVocabSize()
-    {
+    public int getVocabSize() {
         return vocabSize;
     }
 
-    public VocabWord[] getVocab()
-    {
+    public VocabWord[] getVocab() {
         return vocab;
     }
 
-    public Map<String, Integer> getVocabIndexMap()
-    {
+    public Map<String, Integer> getVocabIndexMap() {
         return vocabIndexMap;
     }
 
     /**
      * reset current corpus to initial status
      */
-    public void rewind(int numThreads, int id) throws IOException
-    {
+    public void rewind(int numThreads, int id) throws IOException {
         eoc = false;
     }
 
@@ -92,16 +83,12 @@ public abstract class Corpus
      * @return -4 if is dropped, -3 if end of sentence, -2 if end of corpus, -1 if word not found or index value of the word
      * @throws IOException
      */
-    public int readWordIndex() throws IOException
-    {
+    public int readWordIndex() throws IOException {
         String word = nextWord();
-        if (word == null)
-        {
+        if (word == null) {
             if (eoc) return -2;    // end of corpus
             else return -3;       // end of sentence
-        }
-        else
-        {
+        } else {
             return searchVocab(word);     // index value of the word
         }
     }
@@ -117,14 +104,12 @@ public abstract class Corpus
     /**
      * Close the corpus and it cannot be read any more.
      */
-    public void close() throws IOException
-    {
+    public void close() throws IOException {
         shutdown();
         cacheFile.delete(); // remove rubbish
     }
 
-    public void shutdown() throws IOException
-    {
+    public void shutdown() throws IOException {
         table = null;
     }
 
@@ -134,8 +119,7 @@ public abstract class Corpus
      * @param word
      * @return
      */
-    int searchVocab(String word)
-    {
+    int searchVocab(String word) {
         if (word == null) return -1;
         Integer pos = vocabIndexMap.get(word);
         return pos == null ? -1 : pos.intValue();
@@ -144,25 +128,20 @@ public abstract class Corpus
     /**
      * Sorts the vocabulary by frequency using word counts
      */
-    void sortVocab()
-    {
+    void sortVocab() {
         Arrays.sort(vocab, 0, vocabSize);
 
         // re-build vocabIndexMap
         final int size = vocabSize;
         trainWords = 0;
         table = new int[size];
-        for (int i = 0; i < size; i++)
-        {
+        for (int i = 0; i < size; i++) {
             VocabWord word = vocab[i];
             // Words occuring less than min_count times will be discarded from the vocab
-            if (word.cn < config.getMinCount())
-            {
+            if (word.cn < config.getMinCount()) {
                 table[vocabIndexMap.get(word.word)] = -4;
                 vocabSize--;
-            }
-            else
-            {
+            } else {
                 // Hash will be re-computed, as after the sorting it is not actual
                 table[vocabIndexMap.get(word.word)] = i;
                 setVocabIndexMap(word, i);
@@ -176,8 +155,7 @@ public abstract class Corpus
 
     }
 
-    void setVocabIndexMap(VocabWord src, int pos)
-    {
+    void setVocabIndexMap(VocabWord src, int pos) {
 //        vocabIndexMap.put(src.word, pos);
         trainWords += src.cn;
     }
@@ -186,8 +164,7 @@ public abstract class Corpus
      * Create binary Huffman tree using the word counts.
      * Frequent words will have short uniqe binary codes
      */
-    void createBinaryTree()
-    {
+    void createBinaryTree() {
         int[] point = new int[VocabWord.MAX_CODE_LENGTH];
         char[] code = new char[VocabWord.MAX_CODE_LENGTH];
         int[] count = new int[vocabSize * 2 + 1];
@@ -202,42 +179,29 @@ public abstract class Corpus
         int pos2 = vocabSize;
         // Following algorithm constructs the Huffman tree by adding one node at a time
         int min1i, min2i;
-        for (int i = 0; i < vocabSize - 1; i++)
-        {
+        for (int i = 0; i < vocabSize - 1; i++) {
             // First, find two smallest nodes 'min1, min2'
-            if (pos1 >= 0)
-            {
-                if (count[pos1] < count[pos2])
-                {
+            if (pos1 >= 0) {
+                if (count[pos1] < count[pos2]) {
                     min1i = pos1;
                     pos1--;
-                }
-                else
-                {
+                } else {
                     min1i = pos2;
                     pos2++;
                 }
-            }
-            else
-            {
+            } else {
                 min1i = pos2;
                 pos2++;
             }
-            if (pos1 >= 0)
-            {
-                if (count[pos1] < count[pos2])
-                {
+            if (pos1 >= 0) {
+                if (count[pos1] < count[pos2]) {
                     min2i = pos1;
                     pos1--;
-                }
-                else
-                {
+                } else {
                     min2i = pos2;
                     pos2++;
                 }
-            }
-            else
-            {
+            } else {
                 min2i = pos2;
                 pos2++;
             }
@@ -247,12 +211,10 @@ public abstract class Corpus
             binary[min2i] = 1;
         }
         // Now assign binary code to each vocabulary word
-        for (int j = 0; j < vocabSize; j++)
-        {
+        for (int j = 0; j < vocabSize; j++) {
             int k = j;
             int i = 0;
-            while (true)
-            {
+            while (true) {
                 code[i] = binary[k];
                 point[i] = k;
                 i++;
@@ -261,8 +223,7 @@ public abstract class Corpus
             }
             vocab[j].codelen = i;
             vocab[j].point[0] = vocabSize - 2;
-            for (k = 0; k < i; k++)
-            {
+            for (k = 0; k < i; k++) {
                 vocab[j].code[i - k - 1] = code[k];
                 vocab[j].point[i - k] = point[k] - vocabSize;
             }

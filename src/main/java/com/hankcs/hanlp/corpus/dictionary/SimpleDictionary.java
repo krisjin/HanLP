@@ -28,26 +28,20 @@ import static com.hankcs.hanlp.utility.Predefine.logger;
  *
  * @author hankcs
  */
-public abstract class SimpleDictionary<V>
-{
+public abstract class SimpleDictionary<V> {
     BinTrie<V> trie = new BinTrie<V>();
 
-    public boolean load(String path)
-    {
-        try
-        {
+    public boolean load(String path) {
+        try {
             BufferedReader br = new BufferedReader(new InputStreamReader(IOAdapter == null ? new FileInputStream(path) : IOAdapter.open(path), "UTF-8"));
             String line;
-            while ((line = br.readLine()) != null)
-            {
+            while ((line = br.readLine()) != null) {
                 Map.Entry<String, V> entry = onGenerateEntry(line);
                 if (entry == null) continue;
                 trie.put(entry.getKey(), entry.getValue());
             }
             br.close();
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             logger.warning("读取" + path + "失败" + e);
             return false;
         }
@@ -60,8 +54,7 @@ public abstract class SimpleDictionary<V>
      * @param key
      * @return 单词对应的条目
      */
-    public V get(String key)
-    {
+    public V get(String key) {
         return trie.get(key);
     }
 
@@ -75,40 +68,38 @@ public abstract class SimpleDictionary<V>
 
     /**
      * 以我为主词典，合并一个副词典，我有的词条不会被副词典覆盖
+     *
      * @param other 副词典
      */
-    public void combine(SimpleDictionary<V> other)
-    {
-        if (other.trie == null)
-        {
+    public void combine(SimpleDictionary<V> other) {
+        if (other.trie == null) {
             logger.warning("有个词典还没加载");
             return;
         }
-        for (Map.Entry<String, V> entry : other.trie.entrySet())
-        {
+        for (Map.Entry<String, V> entry : other.trie.entrySet()) {
             if (trie.containsKey(entry.getKey())) continue;
             trie.put(entry.getKey(), entry.getValue());
         }
     }
+
     /**
      * 获取键值对集合
+     *
      * @return
      */
-    public Set<Map.Entry<String, V>> entrySet()
-    {
+    public Set<Map.Entry<String, V>> entrySet() {
         return trie.entrySet();
     }
 
     /**
      * 键集合
+     *
      * @return
      */
-    public Set<String> keySet()
-    {
+    public Set<String> keySet() {
         TreeSet<String> keySet = new TreeSet<String>();
 
-        for (Map.Entry<String, V> entry : entrySet())
-        {
+        for (Map.Entry<String, V> entry : entrySet()) {
             keySet.add(entry.getKey());
         }
 
@@ -117,16 +108,14 @@ public abstract class SimpleDictionary<V>
 
     /**
      * 过滤部分词条
+     *
      * @param filter 过滤器
      * @return 删除了多少条
      */
-    public int remove(Filter filter)
-    {
+    public int remove(Filter filter) {
         int size = trie.size();
-        for (Map.Entry<String, V> entry : entrySet())
-        {
-            if (filter.remove(entry))
-            {
+        for (Map.Entry<String, V> entry : entrySet()) {
+            if (filter.remove(entry)) {
                 trie.remove(entry.getKey());
             }
         }
@@ -134,22 +123,21 @@ public abstract class SimpleDictionary<V>
         return size - trie.size();
     }
 
-    public interface Filter<V>
-    {
+    public interface Filter<V> {
         boolean remove(Map.Entry<String, V> entry);
     }
+
     /**
      * 向中加入单词
+     *
      * @param key
      * @param value
      */
-    public void add(String key, V value)
-    {
+    public void add(String key, V value) {
         trie.put(key, value);
     }
 
-    public int size()
-    {
+    public int size() {
         return trie.size();
     }
 }

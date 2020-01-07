@@ -11,7 +11,6 @@
  */
 package com.hankcs.hanlp.corpus.tag;
 
-import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -19,8 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author hankcs
  */
-public class Nature
-{
+public class Nature {
     /**
      * 区别语素
      */
@@ -768,8 +766,7 @@ public class Nature
     private int ordinal;
     private final String name;
 
-    private Nature(String name)
-    {
+    private Nature(String name) {
         if (idMap == null) {
             idMap = new ConcurrentHashMap<String, Integer>();
         }
@@ -778,7 +775,7 @@ public class Nature
         ordinal = idMap.size();
         idMap.put(name, ordinal);
         Nature[] extended = new Nature[idMap.size()];
-        if (values != null){
+        if (values != null) {
             System.arraycopy(values, 0, extended, 0, values.length);
         }
         extended[ordinal] = this;
@@ -792,8 +789,7 @@ public class Nature
      * @param prefix 前缀
      * @return 是否以该前缀开头
      */
-    public boolean startsWith(String prefix)
-    {
+    public boolean startsWith(String prefix) {
         return name.startsWith(prefix);
     }
 
@@ -804,8 +800,7 @@ public class Nature
      * @param prefix 前缀
      * @return 是否以该前缀开头
      */
-    public boolean startsWith(char prefix)
-    {
+    public boolean startsWith(char prefix) {
         return name.charAt(0) == prefix;
     }
 
@@ -815,8 +810,7 @@ public class Nature
      *
      * @return
      */
-    public char firstChar()
-    {
+    public char firstChar() {
         return name.charAt(0);
     }
 
@@ -826,8 +820,7 @@ public class Nature
      * @param name 字符串词性
      * @return Enum词性
      */
-    public static final Nature fromString(String name)
-    {
+    public static final Nature fromString(String name) {
         Integer id = idMap.get(name);
         if (id == null)
             return null;
@@ -840,8 +833,7 @@ public class Nature
      * @param name 字符串词性
      * @return Enum词性
      */
-    public static final Nature create(String name)
-    {
+    public static final Nature create(String name) {
         Nature nature = fromString(name);
         if (nature == null)
             return new Nature(name);
@@ -849,18 +841,15 @@ public class Nature
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return name;
     }
 
-    public int ordinal()
-    {
+    public int ordinal() {
         return ordinal;
     }
 
-    public static Nature[] values()
-    {
+    public static Nature[] values() {
         return values;
     }
 }

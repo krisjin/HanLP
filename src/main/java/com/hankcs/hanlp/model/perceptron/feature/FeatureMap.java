@@ -28,17 +28,14 @@ import java.util.Set;
 /**
  * @author hankcs
  */
-public abstract class FeatureMap implements IStringIdMap, ICacheAble
-{
+public abstract class FeatureMap implements IStringIdMap, ICacheAble {
     public abstract int size();
 
-    public int[] allLabels()
-    {
+    public int[] allLabels() {
         return tagSet.allTags();
     }
 
-    public int bosTag()
-    {
+    public int bosTag() {
         return tagSet.size();
     }
 
@@ -48,57 +45,47 @@ public abstract class FeatureMap implements IStringIdMap, ICacheAble
      */
     public boolean mutable;
 
-    public FeatureMap(TagSet tagSet)
-    {
+    public FeatureMap(TagSet tagSet) {
         this(tagSet, false);
     }
 
-    public FeatureMap(TagSet tagSet, boolean mutable)
-    {
+    public FeatureMap(TagSet tagSet, boolean mutable) {
         this.tagSet = tagSet;
         this.mutable = mutable;
     }
 
     public abstract Set<Map.Entry<String, Integer>> entrySet();
 
-    public FeatureMap(boolean mutable)
-    {
+    public FeatureMap(boolean mutable) {
         this.mutable = mutable;
     }
 
-    public FeatureMap()
-    {
+    public FeatureMap() {
         this(false);
     }
 
     @Override
-    public void save(DataOutputStream out) throws IOException
-    {
+    public void save(DataOutputStream out) throws IOException {
         tagSet.save(out);
         out.writeInt(size());
-        for (Map.Entry<String, Integer> entry : entrySet())
-        {
+        for (Map.Entry<String, Integer> entry : entrySet()) {
             out.writeUTF(entry.getKey());
         }
     }
 
     @Override
-    public boolean load(ByteArray byteArray)
-    {
+    public boolean load(ByteArray byteArray) {
         loadTagSet(byteArray);
         int size = byteArray.nextInt();
-        for (int i = 0; i < size; i++)
-        {
+        for (int i = 0; i < size; i++) {
             idOf(byteArray.nextUTF());
         }
         return true;
     }
 
-    protected final void loadTagSet(ByteArray byteArray)
-    {
+    protected final void loadTagSet(ByteArray byteArray) {
         TaskType type = TaskType.values()[byteArray.nextInt()];
-        switch (type)
-        {
+        switch (type) {
             case CWS:
                 tagSet = new CWSTagSet();
                 break;

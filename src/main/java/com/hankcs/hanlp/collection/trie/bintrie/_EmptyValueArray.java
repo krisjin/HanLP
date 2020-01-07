@@ -13,15 +13,12 @@ package com.hankcs.hanlp.collection.trie.bintrie;
 /**
  * @author hankcs
  */
-public class _EmptyValueArray<V> extends _ValueArray<V>
-{
-    public _EmptyValueArray()
-    {
+public class _EmptyValueArray<V> extends _ValueArray<V> {
+    public _EmptyValueArray() {
     }
 
     @Override
-    public V nextValue()
-    {
+    public V nextValue() {
         return null;
     }
 }

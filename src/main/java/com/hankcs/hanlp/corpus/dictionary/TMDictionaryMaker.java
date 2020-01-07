@@ -15,36 +15,35 @@ package com.hankcs.hanlp.corpus.dictionary;
 import com.hankcs.hanlp.corpus.io.IOUtil;
 
 import java.io.BufferedWriter;
-import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+
 import static com.hankcs.hanlp.utility.Predefine.logger;
+
 /**
  * 转移矩阵词典制作工具
+ *
  * @author hankcs
  */
-public class TMDictionaryMaker implements ISaveAble
-{
+public class TMDictionaryMaker implements ISaveAble {
     Map<String, Map<String, Integer>> transferMatrix;
 
-    public TMDictionaryMaker()
-    {
+    public TMDictionaryMaker() {
         transferMatrix = new TreeMap<String, Map<String, Integer>>();
     }
 
     /**
      * 添加一个转移例子，会在内部完成统计
+     *
      * @param first
      * @param second
      */
-    public void addPair(String first, String second)
-    {
+    public void addPair(String first, String second) {
         Map<String, Integer> firstMatrix = transferMatrix.get(first);
-        if (firstMatrix == null)
-        {
+        if (firstMatrix == null) {
             firstMatrix = new TreeMap<String, Integer>();
             transferMatrix.put(first, firstMatrix);
         }
@@ -54,29 +53,24 @@ public class TMDictionaryMaker implements ISaveAble
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         Set<String> labelSet = new TreeSet<String>();
-        for (Map.Entry<String, Map<String, Integer>> first : transferMatrix.entrySet())
-        {
+        for (Map.Entry<String, Map<String, Integer>> first : transferMatrix.entrySet()) {
             labelSet.add(first.getKey());
             labelSet.addAll(first.getValue().keySet());
         }
         final StringBuilder sb = new StringBuilder();
         sb.append(' ');
-        for (String key : labelSet)
-        {
+        for (String key : labelSet) {
             sb.append(',');
             sb.append(key);
         }
         sb.append('\n');
-        for (String first : labelSet)
-        {
+        for (String first : labelSet) {
             Map<String, Integer> firstMatrix = transferMatrix.get(first);
             if (firstMatrix == null) firstMatrix = new TreeMap<String, Integer>();
             sb.append(first);
-            for (String second : labelSet)
-            {
+            for (String second : labelSet) {
                 sb.append(',');
                 Integer frequency = firstMatrix.get(second);
                 if (frequency == null) frequency = 0;
@@ -88,16 +82,12 @@ public class TMDictionaryMaker implements ISaveAble
     }
 
     @Override
-    public boolean saveTxtTo(String path)
-    {
-        try
-        {
+    public boolean saveTxtTo(String path) {
+        try {
             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(IOUtil.newOutputStream(path), "UTF-8"));
             bw.write(toString());
             bw.close();
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             logger.warning("在保存转移矩阵词典到" + path + "时发生异常" + e);
             return false;
         }

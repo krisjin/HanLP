@@ -31,51 +31,42 @@ import java.util.List;
 /**
  * @author hankcs
  */
-public class CRFPOSTagger extends CRFTagger implements POSTagger
-{
+public class CRFPOSTagger extends CRFTagger implements POSTagger {
     private PerceptronPOSTagger perceptronPOSTagger;
 
-    public CRFPOSTagger() throws IOException
-    {
+    public CRFPOSTagger() throws IOException {
         this(HanLP.Config.CRFPOSModelPath);
     }
 
-    public CRFPOSTagger(String modelPath) throws IOException
-    {
+    public CRFPOSTagger(String modelPath) throws IOException {
         super(modelPath);
-        if (modelPath != null)
-        {
+        if (modelPath != null) {
             perceptronPOSTagger = new PerceptronPOSTagger(this.model);
         }
     }
 
     @Override
-    public void train(String trainCorpusPath, String modelPath) throws IOException
-    {
+    public void train(String trainCorpusPath, String modelPath) throws IOException {
         crf_learn.Option option = new crf_learn.Option();
         train(trainCorpusPath, modelPath, option.maxiter, 10, option.eta, option.cost,
-              option.thread, option.shrinking_size, Encoder.Algorithm.fromString(option.algorithm));
+                option.thread, option.shrinking_size, Encoder.Algorithm.fromString(option.algorithm));
     }
 
     @Override
-    protected void convertCorpus(Sentence sentence, BufferedWriter bw) throws IOException
-    {
+    protected void convertCorpus(Sentence sentence, BufferedWriter bw) throws IOException {
         List<Word> simpleWordList = sentence.toSimpleWordList();
         List<String> wordList = new ArrayList<String>(simpleWordList.size());
-        for (Word word : simpleWordList)
-        {
+        for (Word word : simpleWordList) {
             wordList.add(word.value);
         }
         String[] words = wordList.toArray(new String[0]);
         Iterator<Word> iterator = simpleWordList.iterator();
-        for (int i = 0; i < words.length; i++)
-        {
+        for (int i = 0; i < words.length; i++) {
             String curWord = words[i];
             String[] cells = createCells(true);
             extractFeature(curWord, cells);
             cells[5] = iterator.next().label;
-            for (int j = 0; j < cells.length; j++)
-            {
+            for (int j = 0; j < cells.length; j++) {
                 bw.write(cells[j]);
                 if (j != cells.length - 1)
                     bw.write('\t');
@@ -84,13 +75,11 @@ public class CRFPOSTagger extends CRFTagger implements POSTagger
         }
     }
 
-    private String[] createCells(boolean withTag)
-    {
+    private String[] createCells(boolean withTag) {
         return withTag ? new String[6] : new String[5];
     }
 
-    private void extractFeature(String curWord, String[] cells)
-    {
+    private void extractFeature(String curWord, String[] cells) {
         int length = curWord.length();
         cells[0] = curWord;
         cells[1] = curWord.substring(0, 1);
@@ -102,59 +91,50 @@ public class CRFPOSTagger extends CRFTagger implements POSTagger
     }
 
     @Override
-    protected String getDefaultFeatureTemplate()
-    {
+    protected String getDefaultFeatureTemplate() {
         return "# Unigram\n" +
-            "U0:%x[-1,0]\n" +
-            "U1:%x[0,0]\n" +
-            "U2:%x[1,0]\n" +
-            "U3:%x[0,1]\n" +
-            "U4:%x[0,2]\n" +
-            "U5:%x[0,3]\n" +
-            "U6:%x[0,4]\n" +
+                "U0:%x[-1,0]\n" +
+                "U1:%x[0,0]\n" +
+                "U2:%x[1,0]\n" +
+                "U3:%x[0,1]\n" +
+                "U4:%x[0,2]\n" +
+                "U5:%x[0,3]\n" +
+                "U6:%x[0,4]\n" +
 //            "U7:%x[0,5]\n" +
 //            "U8:%x[0,6]\n" +
-            "\n" +
-            "# Bigram\n" +
-            "B";
+                "\n" +
+                "# Bigram\n" +
+                "B";
     }
 
-    public String[] tag(List<String> wordList)
-    {
+    public String[] tag(List<String> wordList) {
         String[] words = new String[wordList.size()];
         wordList.toArray(words);
         return tag(words);
     }
 
     @Override
-    public String[] tag(String... words)
-    {
+    public String[] tag(String... words) {
         return perceptronPOSTagger.tag(createInstance(words));
     }
 
-    private POSInstance createInstance(String[] words)
-    {
+    private POSInstance createInstance(String[] words) {
         final FeatureTemplate[] featureTemplateArray = model.getFeatureTemplateArray();
         final String[][] table = new String[words.length][5];
-        for (int i = 0; i < words.length; i++)
-        {
+        for (int i = 0; i < words.length; i++) {
             extractFeature(words[i], table[i]);
         }
 
-        return new POSInstance(words, model.featureMap)
-        {
+        return new POSInstance(words, model.featureMap) {
             @Override
-            protected int[] extractFeature(String[] words, FeatureMap featureMap, int position)
-            {
+            protected int[] extractFeature(String[] words, FeatureMap featureMap, int position) {
                 StringBuilder sbFeature = new StringBuilder();
                 List<Integer> featureVec = new LinkedList<Integer>();
-                for (int i = 0; i < featureTemplateArray.length; i++)
-                {
+                for (int i = 0; i < featureTemplateArray.length; i++) {
                     Iterator<int[]> offsetIterator = featureTemplateArray[i].offsetList.iterator();
                     Iterator<String> delimiterIterator = featureTemplateArray[i].delimiterList.iterator();
                     delimiterIterator.next(); // ignore U0 之类的id
-                    while (offsetIterator.hasNext())
-                    {
+                    while (offsetIterator.hasNext()) {
                         int[] offset = offsetIterator.next();
                         int t = offset[0] + position;
                         int j = offset[1];

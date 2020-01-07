@@ -22,15 +22,12 @@ import java.util.Map;
  *
  * @author hankcs
  */
-public abstract class EnumItemDictionary<E extends Enum<E>> extends CommonDictionary<EnumItem<E>>
-{
+public abstract class EnumItemDictionary<E extends Enum<E>> extends CommonDictionary<EnumItem<E>> {
     @Override
-    protected EnumItem<E> createValue(String[] params)
-    {
+    protected EnumItem<E> createValue(String[] params) {
         Map.Entry<String, Map.Entry<String, Integer>[]> args = EnumItem.create(params);
         EnumItem<E> nrEnumItem = new EnumItem<E>();
-        for (Map.Entry<String, Integer> e : args.getValue())
-        {
+        for (Map.Entry<String, Integer> e : args.getValue()) {
             nrEnumItem.labelMap.put(valueOf(e.getKey()), e.getValue());
         }
         return nrEnumItem;
@@ -59,21 +56,17 @@ public abstract class EnumItemDictionary<E extends Enum<E>> extends CommonDictio
     protected abstract EnumItem<E> newItem();
 
     @Override
-    final protected EnumItem<E>[] loadValueArray(ByteArray byteArray)
-    {
-        if (byteArray == null)
-        {
+    final protected EnumItem<E>[] loadValueArray(ByteArray byteArray) {
+        if (byteArray == null) {
             return null;
         }
         E[] nrArray = values();
         int size = byteArray.nextInt();
         EnumItem<E>[] valueArray = new EnumItem[size];
-        for (int i = 0; i < size; ++i)
-        {
+        for (int i = 0; i < size; ++i) {
             int currentSize = byteArray.nextInt();
             EnumItem<E> item = newItem();
-            for (int j = 0; j < currentSize; ++j)
-            {
+            for (int j = 0; j < currentSize; ++j) {
                 E nr = nrArray[byteArray.nextInt()];
                 int frequency = byteArray.nextInt();
                 item.labelMap.put(nr, frequency);
@@ -84,11 +77,9 @@ public abstract class EnumItemDictionary<E extends Enum<E>> extends CommonDictio
     }
 
     @Override
-    protected void saveValue(EnumItem<E> item, DataOutputStream out) throws IOException
-    {
+    protected void saveValue(EnumItem<E> item, DataOutputStream out) throws IOException {
         out.writeInt(item.labelMap.size());
-        for (Map.Entry<E, Integer> entry : item.labelMap.entrySet())
-        {
+        for (Map.Entry<E, Integer> entry : item.labelMap.entrySet()) {
             out.writeInt(entry.getKey().ordinal());
             out.writeInt(entry.getValue());
         }

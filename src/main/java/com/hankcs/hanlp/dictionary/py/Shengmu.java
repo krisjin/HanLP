@@ -13,10 +13,10 @@ package com.hankcs.hanlp.dictionary.py;
 
 /**
  * 声母
+ *
  * @author hankcs
  */
-public enum Shengmu
-{
+public enum Shengmu {
     b,
     c,
     ch,

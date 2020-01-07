@@ -11,13 +11,13 @@
 package com.hankcs.hanlp.model.perceptron;
 
 import com.hankcs.hanlp.HanLP;
+import com.hankcs.hanlp.corpus.document.sentence.Sentence;
 import com.hankcs.hanlp.corpus.document.sentence.word.Word;
+import com.hankcs.hanlp.model.perceptron.common.TaskType;
 import com.hankcs.hanlp.model.perceptron.feature.FeatureMap;
 import com.hankcs.hanlp.model.perceptron.instance.Instance;
 import com.hankcs.hanlp.model.perceptron.instance.POSInstance;
 import com.hankcs.hanlp.model.perceptron.model.LinearModel;
-import com.hankcs.hanlp.model.perceptron.common.TaskType;
-import com.hankcs.hanlp.corpus.document.sentence.Sentence;
 import com.hankcs.hanlp.tokenizer.lexical.POSTagger;
 
 import java.io.IOException;
@@ -28,19 +28,15 @@ import java.util.List;
  *
  * @author hankcs
  */
-public class PerceptronPOSTagger extends PerceptronTagger implements POSTagger
-{
-    public PerceptronPOSTagger(LinearModel model)
-    {
+public class PerceptronPOSTagger extends PerceptronTagger implements POSTagger {
+    public PerceptronPOSTagger(LinearModel model) {
         super(model);
-        if (model.featureMap.tagSet.type != TaskType.POS)
-        {
+        if (model.featureMap.tagSet.type != TaskType.POS) {
             throw new IllegalArgumentException(String.format("错误的模型类型: 传入的不是词性标注模型，而是 %s 模型", model.featureMap.tagSet.type));
         }
     }
 
-    public PerceptronPOSTagger(String modelPath) throws IOException
-    {
+    public PerceptronPOSTagger(String modelPath) throws IOException {
         this(new LinearModel(modelPath));
     }
 
@@ -49,8 +45,7 @@ public class PerceptronPOSTagger extends PerceptronTagger implements POSTagger
      *
      * @throws IOException
      */
-    public PerceptronPOSTagger() throws IOException
-    {
+    public PerceptronPOSTagger() throws IOException {
         this(HanLP.Config.PerceptronPOSModelPath);
     }
 
@@ -61,14 +56,12 @@ public class PerceptronPOSTagger extends PerceptronTagger implements POSTagger
      * @return
      */
     @Override
-    public String[] tag(String... words)
-    {
+    public String[] tag(String... words) {
         POSInstance instance = new POSInstance(words, model.featureMap);
         return tag(instance);
     }
 
-    public String[] tag(POSInstance instance)
-    {
+    public String[] tag(POSInstance instance) {
         instance.tagArray = new int[instance.featureMatrix.length];
 
         model.viterbiDecode(instance, instance.tagArray);
@@ -82,8 +75,7 @@ public class PerceptronPOSTagger extends PerceptronTagger implements POSTagger
      * @return
      */
     @Override
-    public String[] tag(List<String> wordList)
-    {
+    public String[] tag(List<String> wordList) {
         String[] termArray = new String[wordList.size()];
         wordList.toArray(termArray);
         return tag(termArray);
@@ -95,8 +87,7 @@ public class PerceptronPOSTagger extends PerceptronTagger implements POSTagger
      * @param segmentedTaggedSentence 人民日报2014格式的句子
      * @return 是否学习成功（失败的原因是参数错误）
      */
-    public boolean learn(String segmentedTaggedSentence)
-    {
+    public boolean learn(String segmentedTaggedSentence) {
         return learn(POSInstance.create(segmentedTaggedSentence, model.featureMap));
     }
 
@@ -106,12 +97,10 @@ public class PerceptronPOSTagger extends PerceptronTagger implements POSTagger
      * @param wordTags [单词]/[词性]数组
      * @return 是否学习成功（失败的原因是参数错误）
      */
-    public boolean learn(String... wordTags)
-    {
+    public boolean learn(String... wordTags) {
         String[] words = new String[wordTags.length];
         String[] tags = new String[wordTags.length];
-        for (int i = 0; i < wordTags.length; i++)
-        {
+        for (int i = 0; i < wordTags.length; i++) {
             String[] wordTag = wordTags[i].split("//");
             words[i] = wordTag[0];
             tags[i] = wordTag[1];
@@ -120,10 +109,8 @@ public class PerceptronPOSTagger extends PerceptronTagger implements POSTagger
     }
 
     @Override
-    protected Instance createInstance(Sentence sentence, FeatureMap featureMap)
-    {
-        for (Word word : sentence.toSimpleWordList())
-        {
+    protected Instance createInstance(Sentence sentence, FeatureMap featureMap) {
+        for (Word word : sentence.toSimpleWordList()) {
             if (!model.featureMap.tagSet.contains(word.getLabel()))
                 throw new IllegalArgumentException("在线学习不可能学习新的标签: " + word + " ；请标注语料库后重新全量训练。");
         }

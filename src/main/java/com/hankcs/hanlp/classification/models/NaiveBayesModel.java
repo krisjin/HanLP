@@ -6,8 +6,7 @@ import java.util.Map;
 /**
  * 储存学习过程中的数据
  */
-public class NaiveBayesModel extends AbstractModel
-{
+public class NaiveBayesModel extends AbstractModel {
 
     /**
      * 先验概率的对数值 log( P(c) )

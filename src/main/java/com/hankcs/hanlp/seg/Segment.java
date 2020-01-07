@@ -39,8 +39,7 @@ import static com.hankcs.hanlp.utility.Predefine.logger;
  *
  * @author hankcs
  */
-public abstract class Segment
-{
+public abstract class Segment {
     /**
      * 分词器配置
      */
@@ -49,8 +48,7 @@ public abstract class Segment
     /**
      * 构造一个分词器
      */
-    public Segment()
-    {
+    public Segment() {
         config = new Config();
     }
 
@@ -62,8 +60,7 @@ public abstract class Segment
      * @param end       到end结束（不包含end）
      * @return 一个列表，代表从start到from的所有字构成的原子节点
      */
-    protected static List<AtomNode> atomSegment(char[] charArray, int start, int end)
-    {
+    protected static List<AtomNode> atomSegment(char[] charArray, int start, int end) {
         List<AtomNode> atomSegment = new ArrayList<AtomNode>();
         int pCur = start, nCurType, nNextType;
         StringBuilder sb = new StringBuilder();
@@ -72,8 +69,7 @@ public abstract class Segment
         int[] charTypeArray = new int[end - start];
 
         // 生成对应单个汉字的字符类型数组
-        for (int i = 0; i < charTypeArray.length; ++i)
-        {
+        for (int i = 0; i < charTypeArray.length; ++i) {
             c = charArray[i + start];
             charTypeArray[i] = CharType.get(c);
 
@@ -86,33 +82,28 @@ public abstract class Segment
         }
 
         // 根据字符类型数组中的内容完成原子切割
-        while (pCur < end)
-        {
+        while (pCur < end) {
             nCurType = charTypeArray[pCur - start];
 
             if (nCurType == CharType.CT_CHINESE || nCurType == CharType.CT_INDEX ||
-                    nCurType == CharType.CT_DELIMITER || nCurType == CharType.CT_OTHER)
-            {
+                    nCurType == CharType.CT_DELIMITER || nCurType == CharType.CT_OTHER) {
                 String single = String.valueOf(charArray[pCur]);
                 if (single.length() != 0)
                     atomSegment.add(new AtomNode(single, nCurType));
                 pCur++;
             }
             //如果是字符、数字或者后面跟随了数字的小数点“.”则一直取下去。
-            else if (pCur < end - 1 && ((nCurType == CharType.CT_SINGLE) || nCurType == CharType.CT_NUM))
-            {
+            else if (pCur < end - 1 && ((nCurType == CharType.CT_SINGLE) || nCurType == CharType.CT_NUM)) {
                 sb.delete(0, sb.length());
                 sb.append(charArray[pCur]);
 
                 boolean reachEnd = true;
-                while (pCur < end - 1)
-                {
+                while (pCur < end - 1) {
                     nNextType = charTypeArray[++pCur - start];
 
                     if (nNextType == nCurType)
                         sb.append(charArray[pCur]);
-                    else
-                    {
+                    else {
                         reachEnd = false;
                         break;
                     }
@@ -122,8 +113,7 @@ public abstract class Segment
                     pCur++;
             }
             // 对于所有其它情况
-            else
-            {
+            else {
                 atomSegment.add(new AtomNode(charArray[pCur], nCurType));
                 pCur++;
             }
@@ -140,8 +130,7 @@ public abstract class Segment
      * @param end
      * @return
      */
-    protected static List<AtomNode> simpleAtomSegment(char[] charArray, int start, int end)
-    {
+    protected static List<AtomNode> simpleAtomSegment(char[] charArray, int start, int end) {
         List<AtomNode> atomNodeList = new LinkedList<AtomNode>();
         atomNodeList.add(new AtomNode(new String(charArray, start, end - start), CharType.CT_LETTER));
         return atomNodeList;
@@ -155,25 +144,19 @@ public abstract class Segment
      * @param end
      * @return
      */
-    protected static List<AtomNode> quickAtomSegment(char[] charArray, int start, int end)
-    {
+    protected static List<AtomNode> quickAtomSegment(char[] charArray, int start, int end) {
         List<AtomNode> atomNodeList = new LinkedList<AtomNode>();
         int offsetAtom = start;
         int preType = CharType.get(charArray[offsetAtom]);
         int curType;
-        while (++offsetAtom < end)
-        {
+        while (++offsetAtom < end) {
             curType = CharType.get(charArray[offsetAtom]);
-            if (curType != preType)
-            {
+            if (curType != preType) {
                 // 浮点数识别
-                if (preType == CharType.CT_NUM && "，,．.".indexOf(charArray[offsetAtom]) != -1)
-                {
-                    if (offsetAtom+1 < end)
-                    {
-                        int nextType = CharType.get(charArray[offsetAtom+1]);
-                        if (nextType == CharType.CT_NUM)
-                        {
+                if (preType == CharType.CT_NUM && "，,．.".indexOf(charArray[offsetAtom]) != -1) {
+                    if (offsetAtom + 1 < end) {
+                        int nextType = CharType.get(charArray[offsetAtom + 1]);
+                        if (nextType == CharType.CT_NUM) {
                             continue;
                         }
                     }
@@ -191,79 +174,68 @@ public abstract class Segment
 
     /**
      * 使用用户词典合并粗分结果
+     *
      * @param vertexList 粗分结果
      * @return 合并后的结果
      */
-    protected static List<Vertex> combineByCustomDictionary(List<Vertex> vertexList)
-    {
+    protected static List<Vertex> combineByCustomDictionary(List<Vertex> vertexList) {
         return combineByCustomDictionary(vertexList, CustomDictionary.dat);
     }
 
     /**
      * 使用用户词典合并粗分结果
+     *
      * @param vertexList 粗分结果
-     * @param dat 用户自定义词典
+     * @param dat        用户自定义词典
      * @return 合并后的结果
      */
-    protected static List<Vertex> combineByCustomDictionary(List<Vertex> vertexList, DoubleArrayTrie<CoreDictionary.Attribute> dat)
-    {
+    protected static List<Vertex> combineByCustomDictionary(List<Vertex> vertexList, DoubleArrayTrie<CoreDictionary.Attribute> dat) {
         assert vertexList.size() >= 2 : "vertexList至少包含 始##始 和 末##末";
         Vertex[] wordNet = new Vertex[vertexList.size()];
         vertexList.toArray(wordNet);
         // DAT合并
         int length = wordNet.length - 1; // 跳过首尾
-        for (int i = 1; i < length; ++i)
-        {
+        for (int i = 1; i < length; ++i) {
             int state = 1;
             state = dat.transition(wordNet[i].realWord, state);
-            if (state > 0)
-            {
+            if (state > 0) {
                 int to = i + 1;
                 int end = to;
                 CoreDictionary.Attribute value = dat.output(state);
-                for (; to < length; ++to)
-                {
+                for (; to < length; ++to) {
                     state = dat.transition(wordNet[to].realWord, state);
                     if (state < 0) break;
                     CoreDictionary.Attribute output = dat.output(state);
-                    if (output != null)
-                    {
+                    if (output != null) {
                         value = output;
                         end = to + 1;
                     }
                 }
-                if (value != null)
-                {
+                if (value != null) {
                     combineWords(wordNet, i, end, value);
                     i = end - 1;
                 }
             }
         }
         // BinTrie合并
-        if (CustomDictionary.trie != null)
-        {
-            for (int i = 1; i < length; ++i)
-            {
+        if (CustomDictionary.trie != null) {
+            for (int i = 1; i < length; ++i) {
                 if (wordNet[i] == null) continue;
                 BaseNode<CoreDictionary.Attribute> state = CustomDictionary.trie.transition(wordNet[i].realWord.toCharArray(), 0);
-                if (state != null)
-                {
+                if (state != null) {
                     int to = i + 1;
                     int end = to;
                     CoreDictionary.Attribute value = state.getValue();
-                    for (; to < length; ++to)
-                    {
+                    for (; to < length; ++to) {
                         if (wordNet[to] == null) continue;
                         state = state.transition(wordNet[to].realWord.toCharArray(), 0);
                         if (state == null) break;
-                        if (state.getValue() != null)
-                        {
+                        if (state.getValue() != null) {
                             value = state.getValue();
                             end = to + 1;
                         }
                     }
-                    if (value != null)
-                    {
+                    if (value != null) {
                         combineWords(wordNet, i, end, value);
                         i = end - 1;
                     }
@@ -271,8 +243,7 @@ public abstract class Segment
             }
         }
         vertexList.clear();
-        for (Vertex vertex : wordNet)
-        {
+        for (Vertex vertex : wordNet) {
             if (vertex != null) vertexList.add(vertex);
         }
         return vertexList;
@@ -280,37 +251,33 @@ public abstract class Segment
 
     /**
      * 使用用户词典合并粗分结果，并将用户词语收集到全词图中
+     *
      * @param vertexList 粗分结果
      * @param wordNetAll 收集用户词语到全词图中
      * @return 合并后的结果
      */
-    protected static List<Vertex> combineByCustomDictionary(List<Vertex> vertexList, final WordNet wordNetAll)
-    {
+    protected static List<Vertex> combineByCustomDictionary(List<Vertex> vertexList, final WordNet wordNetAll) {
         return combineByCustomDictionary(vertexList, CustomDictionary.dat, wordNetAll);
     }
 
     /**
      * 使用用户词典合并粗分结果，并将用户词语收集到全词图中
+     *
      * @param vertexList 粗分结果
-     * @param dat 用户自定义词典
+     * @param dat        用户自定义词典
      * @param wordNetAll 收集用户词语到全词图中
      * @return 合并后的结果
      */
-    protected static List<Vertex> combineByCustomDictionary(List<Vertex> vertexList, DoubleArrayTrie<CoreDictionary.Attribute> dat, final WordNet wordNetAll)
-    {
+    protected static List<Vertex> combineByCustomDictionary(List<Vertex> vertexList, DoubleArrayTrie<CoreDictionary.Attribute> dat, final WordNet wordNetAll) {
         List<Vertex> outputList = combineByCustomDictionary(vertexList, dat);
         int line = 0;
-        for (final Vertex vertex : outputList)
-        {
+        for (final Vertex vertex : outputList) {
             final int parentLength = vertex.realWord.length();
             final int currentLine = line;
-            if (parentLength >= 3)
-            {
-                CustomDictionary.parseText(vertex.realWord, new AhoCorasickDoubleArrayTrie.IHit<CoreDictionary.Attribute>()
-                {
+            if (parentLength >= 3) {
+                CustomDictionary.parseText(vertex.realWord, new AhoCorasickDoubleArrayTrie.IHit<CoreDictionary.Attribute>() {
                     @Override
-                    public void hit(int begin, int end, CoreDictionary.Attribute value)
-                    {
+                    public void hit(int begin, int end, CoreDictionary.Attribute value) {
                         if (end - begin == parentLength) return;
                         wordNetAll.add(currentLine + begin, new Vertex(vertex.realWord.substring(begin, end), value));
                     }
@@ -323,22 +290,19 @@ public abstract class Segment
 
     /**
      * 将连续的词语合并为一个
+     *
      * @param wordNet 词图
-     * @param start 起始下标（包含）
-     * @param end 结束下标（不包含）
-     * @param value 新的属性
+     * @param start   起始下标（包含）
+     * @param end     结束下标（不包含）
+     * @param value   新的属性
      */
-    private static void combineWords(Vertex[] wordNet, int start, int end, CoreDictionary.Attribute value)
-    {
+    private static void combineWords(Vertex[] wordNet, int start, int end, CoreDictionary.Attribute value) {
         if (start + 1 == end)   // 小优化，如果只有一个词，那就不需要合并，直接应用新属性
         {
             wordNet[start].attribute = value;
-        }
-        else
-        {
+        } else {
             StringBuilder sbTerm = new StringBuilder();
-            for (int j = start; j < end; ++j)
-            {
+            for (int j = start; j < end; ++j) {
                 if (wordNet[j] == null) continue;
                 String realWord = wordNet[j].realWord;
                 sbTerm.append(realWord);
@@ -356,30 +320,24 @@ public abstract class Segment
      * @param offsetEnabled 是否计算offset
      * @return
      */
-    protected static List<Term> convert(List<Vertex> vertexList, boolean offsetEnabled)
-    {
+    protected static List<Term> convert(List<Vertex> vertexList, boolean offsetEnabled) {
         assert vertexList != null;
         assert vertexList.size() >= 2 : "这条路径不应当短于2" + vertexList.toString();
         int length = vertexList.size() - 2;
         List<Term> resultList = new ArrayList<Term>(length);
         Iterator<Vertex> iterator = vertexList.iterator();
         iterator.next();
-        if (offsetEnabled)
-        {
+        if (offsetEnabled) {
             int offset = 0;
-            for (int i = 0; i < length; ++i)
-            {
+            for (int i = 0; i < length; ++i) {
                 Vertex vertex = iterator.next();
                 Term term = convert(vertex);
                 term.offset = offset;
                 offset += term.length();
                 resultList.add(term);
             }
-        }
-        else
-        {
-            for (int i = 0; i < length; ++i)
-            {
+        } else {
+            for (int i = 0; i < length; ++i) {
                 Vertex vertex = iterator.next();
                 Term term = convert(vertex);
                 resultList.add(term);
@@ -394,56 +352,45 @@ public abstract class Segment
      * @param vertex
      * @return
      */
-    static Term convert(Vertex vertex)
-    {
+    static Term convert(Vertex vertex) {
         return new Term(vertex.realWord, vertex.guessNature());
     }
 
     /**
      * 合并数字
+     *
      * @param termList
      */
-    protected void mergeNumberQuantifier(List<Vertex> termList, WordNet wordNetAll, Config config)
-    {
+    protected void mergeNumberQuantifier(List<Vertex> termList, WordNet wordNetAll, Config config) {
         if (termList.size() < 4) return;
         StringBuilder sbQuantifier = new StringBuilder();
         ListIterator<Vertex> iterator = termList.listIterator();
         iterator.next();
         int line = 1;
-        while (iterator.hasNext())
-        {
+        while (iterator.hasNext()) {
             Vertex pre = iterator.next();
-            if (pre.hasNature(Nature.m))
-            {
+            if (pre.hasNature(Nature.m)) {
                 sbQuantifier.append(pre.realWord);
                 Vertex cur = null;
-                while (iterator.hasNext() && (cur = iterator.next()).hasNature(Nature.m))
-                {
+                while (iterator.hasNext() && (cur = iterator.next()).hasNature(Nature.m)) {
                     sbQuantifier.append(cur.realWord);
                     iterator.remove();
                     removeFromWordNet(cur, wordNetAll, line, sbQuantifier.length());
                 }
-                if (cur != null)
-                {
-                    if ((cur.hasNature(Nature.q) || cur.hasNature(Nature.qv) || cur.hasNature(Nature.qt)))
-                    {
-                        if (config.indexMode > 0)
-                        {
+                if (cur != null) {
+                    if ((cur.hasNature(Nature.q) || cur.hasNature(Nature.qv) || cur.hasNature(Nature.qt))) {
+                        if (config.indexMode > 0) {
                             wordNetAll.add(line, new Vertex(sbQuantifier.toString(), new CoreDictionary.Attribute(Nature.m)));
                         }
                         sbQuantifier.append(cur.realWord);
                         iterator.remove();
                         removeFromWordNet(cur, wordNetAll, line, sbQuantifier.length());
-                    }
-                    else
-                    {
+                    } else {
                         line += cur.realWord.length();   // (cur = iterator.next()).hasNature(Nature.m) 最后一个next可能不含q词性
                     }
                 }
-                if (sbQuantifier.length() != pre.realWord.length())
-                {
-                    for (Vertex vertex : wordNetAll.get(line + pre.realWord.length()))
-                    {
+                if (sbQuantifier.length() != pre.realWord.length()) {
+                    for (Vertex vertex : wordNetAll.get(line + pre.realWord.length())) {
                         vertex.from = null;
                     }
                     pre.realWord = sbQuantifier.toString();
@@ -461,23 +408,21 @@ public abstract class Segment
 
     /**
      * 将一个词语从词网中彻底抹除
-     * @param cur 词语
+     *
+     * @param cur        词语
      * @param wordNetAll 词网
-     * @param line 当前扫描的行数
-     * @param length 当前缓冲区的长度
+     * @param line       当前扫描的行数
+     * @param length     当前缓冲区的长度
      */
-    private static void removeFromWordNet(Vertex cur, WordNet wordNetAll, int line, int length)
-    {
+    private static void removeFromWordNet(Vertex cur, WordNet wordNetAll, int line, int length) {
         LinkedList<Vertex>[] vertexes = wordNetAll.getVertexes();
         // 将其从wordNet中删除
-        for (Vertex vertex : vertexes[line + length])
-        {
+        for (Vertex vertex : vertexes[line + length]) {
             if (vertex.from == cur)
                 vertex.from = null;
         }
         ListIterator<Vertex> iterator = vertexes[line + length - cur.realWord.length()].listIterator();
-        while (iterator.hasNext())
-        {
+        while (iterator.hasNext()) {
             Vertex vertex = iterator.next();
             if (vertex == cur) iterator.remove();
         }
@@ -490,11 +435,9 @@ public abstract class Segment
      * @param text 待分词文本
      * @return 单词列表
      */
-    public List<Term> seg(String text)
-    {
+    public List<Term> seg(String text) {
         char[] charArray = text.toCharArray();
-        if (HanLP.Config.Normalization)
-        {
+        if (HanLP.Config.Normalization) {
             CharTable.normalization(charArray);
         }
         if (config.threadNumber > 1 && charArray.length > 10000)    // 小文本多线程没意义，反而变慢了
@@ -506,23 +449,18 @@ public abstract class Segment
             List<Term>[] termListArray = new List[sentenceArray.length];
             final int per = sentenceArray.length / config.threadNumber;
             WorkThread[] threadArray = new WorkThread[config.threadNumber];
-            for (int i = 0; i < config.threadNumber - 1; ++i)
-            {
+            for (int i = 0; i < config.threadNumber - 1; ++i) {
                 int from = i * per;
                 threadArray[i] = new WorkThread(sentenceArray, termListArray, from, from + per);
                 threadArray[i].start();
             }
             threadArray[config.threadNumber - 1] = new WorkThread(sentenceArray, termListArray, (config.threadNumber - 1) * per, sentenceArray.length);
             threadArray[config.threadNumber - 1].start();
-            try
-            {
-                for (WorkThread thread : threadArray)
-                {
+            try {
+                for (WorkThread thread : threadArray) {
                     thread.join();
                 }
-            }
-            catch (InterruptedException e)
-            {
+            } catch (InterruptedException e) {
                 logger.severe("线程同步异常：" + TextUtility.exceptionToString(e));
                 return Collections.emptyList();
             }
@@ -530,20 +468,15 @@ public abstract class Segment
             if (config.offset || config.indexMode > 0)  // 由于分割了句子，所以需要重新校正offset
             {
                 int sentenceOffset = 0;
-                for (int i = 0; i < sentenceArray.length; ++i)
-                {
-                    for (Term term : termListArray[i])
-                    {
+                for (int i = 0; i < sentenceArray.length; ++i) {
+                    for (Term term : termListArray[i]) {
                         term.offset += sentenceOffset;
                         termList.add(term);
                     }
                     sentenceOffset += sentenceArray[i].length();
                 }
-            }
-            else
-            {
-                for (List<Term> list : termListArray)
-                {
+            } else {
+                for (List<Term> list : termListArray) {
                     termList.addAll(list);
                 }
             }
@@ -586,11 +519,9 @@ public abstract class Segment
      * @param text 待分词文本
      * @return 单词列表
      */
-    public List<Term> seg(char[] text)
-    {
+    public List<Term> seg(char[] text) {
         assert text != null;
-        if (HanLP.Config.Normalization)
-        {
+        if (HanLP.Config.Normalization) {
             CharTable.normalization(text);
         }
         return segSentence(text);
@@ -602,8 +533,7 @@ public abstract class Segment
      * @param text 待分词句子
      * @return 句子列表，每个句子由一个单词列表组成
      */
-    public List<List<Term>> seg2sentence(String text)
-    {
+    public List<List<Term>> seg2sentence(String text) {
         return seg2sentence(text, true);
     }
 
@@ -614,12 +544,10 @@ public abstract class Segment
      * @param shortest 是否断句为最细的子句（将逗号也视作分隔符）
      * @return 句子列表，每个句子由一个单词列表组成
      */
-    public List<List<Term>> seg2sentence(String text, boolean shortest)
-    {
+    public List<List<Term>> seg2sentence(String text, boolean shortest) {
         List<List<Term>> resultList = new LinkedList<List<Term>>();
         {
-            for (String sentence : SentencesUtil.toSentenceList(text, shortest))
-            {
+            for (String sentence : SentencesUtil.toSentenceList(text, shortest)) {
                 resultList.add(segSentence(sentence.toCharArray()));
             }
         }
@@ -640,8 +568,7 @@ public abstract class Segment
      *
      * @return
      */
-    public Segment enableIndexMode(boolean enable)
-    {
+    public Segment enableIndexMode(boolean enable) {
         config.indexMode = enable ? 2 : 0;
         return this;
     }
@@ -652,8 +579,7 @@ public abstract class Segment
      * @param minimalLength 三字词及以上的词语将会被切分为大于等于此长度的子词语。默认取2。
      * @return
      */
-    public Segment enableIndexMode(int minimalLength)
-    {
+    public Segment enableIndexMode(int minimalLength) {
         if (minimalLength < 1) throw new IllegalArgumentException("最小长度应当大于等于1");
         config.indexMode = minimalLength;
 
@@ -666,8 +592,7 @@ public abstract class Segment
      * @param enable
      * @return
      */
-    public Segment enablePartOfSpeechTagging(boolean enable)
-    {
+    public Segment enablePartOfSpeechTagging(boolean enable) {
         config.speechTagging = enable;
         return this;
     }
@@ -678,8 +603,7 @@ public abstract class Segment
      * @param enable
      * @return
      */
-    public Segment enableNameRecognize(boolean enable)
-    {
+    public Segment enableNameRecognize(boolean enable) {
         config.nameRecognize = enable;
         config.updateNerConfig();
         return this;
@@ -691,8 +615,7 @@ public abstract class Segment
      * @param enable
      * @return
      */
-    public Segment enablePlaceRecognize(boolean enable)
-    {
+    public Segment enablePlaceRecognize(boolean enable) {
         config.placeRecognize = enable;
         config.updateNerConfig();
         return this;
@@ -704,8 +627,7 @@ public abstract class Segment
      * @param enable
      * @return
      */
-    public Segment enableOrganizationRecognize(boolean enable)
-    {
+    public Segment enableOrganizationRecognize(boolean enable) {
         config.organizationRecognize = enable;
         config.updateNerConfig();
         return this;
@@ -716,25 +638,22 @@ public abstract class Segment
      *
      * @param enable
      */
-    public Segment enableCustomDictionary(boolean enable)
-    {
+    public Segment enableCustomDictionary(boolean enable) {
         config.useCustomDictionary = enable;
         return this;
     }
 
     /**
      * 是否尽可能强制使用用户词典（使用户词典的优先级尽可能高）<br>
-     *     警告：具体实现由各子类决定，可能会破坏分词器的统计特性（例如，如果用户词典
-     *     含有“和服”，则“商品和服务”的分词结果可能会被用户词典的高优先级影响）。
+     * 警告：具体实现由各子类决定，可能会破坏分词器的统计特性（例如，如果用户词典
+     * 含有“和服”，则“商品和服务”的分词结果可能会被用户词典的高优先级影响）。
+     *
      * @param enable
      * @return 分词器本身
-     *
      * @since 1.3.5
      */
-    public Segment enableCustomDictionaryForcing(boolean enable)
-    {
-        if (enable)
-        {
+    public Segment enableCustomDictionaryForcing(boolean enable) {
+        if (enable) {
             enableCustomDictionary(true);
         }
         config.forceCustomDictionary = enable;
@@ -746,8 +665,7 @@ public abstract class Segment
      *
      * @param enable
      */
-    public Segment enableTranslatedNameRecognize(boolean enable)
-    {
+    public Segment enableTranslatedNameRecognize(boolean enable) {
         config.translatedNameRecognize = enable;
         config.updateNerConfig();
         return this;
@@ -758,8 +676,7 @@ public abstract class Segment
      *
      * @param enable
      */
-    public Segment enableJapaneseNameRecognize(boolean enable)
-    {
+    public Segment enableJapaneseNameRecognize(boolean enable) {
         config.japaneseNameRecognize = enable;
         config.updateNerConfig();
         return this;
@@ -771,20 +688,19 @@ public abstract class Segment
      * @param enable
      * @return
      */
-    public Segment enableOffset(boolean enable)
-    {
+    public Segment enableOffset(boolean enable) {
         config.offset = enable;
         return this;
     }
 
     /**
      * 是否启用数词和数量词识别<br>
-     *     即[二, 十, 一] => [二十一]，[十, 九, 元] => [十九元]
+     * 即[二, 十, 一] => [二十一]，[十, 九, 元] => [十九元]
+     *
      * @param enable
      * @return
      */
-    public Segment enableNumberQuantifierRecognize(boolean enable)
-    {
+    public Segment enableNumberQuantifierRecognize(boolean enable) {
         config.numberQuantifierRecognize = enable;
         return this;
     }
@@ -795,8 +711,7 @@ public abstract class Segment
      * @param enable
      * @return
      */
-    public Segment enableAllNamedEntityRecognize(boolean enable)
-    {
+    public Segment enableAllNamedEntityRecognize(boolean enable) {
         config.nameRecognize = enable;
         config.japaneseNameRecognize = enable;
         config.translatedNameRecognize = enable;
@@ -806,15 +721,13 @@ public abstract class Segment
         return this;
     }
 
-    class WorkThread extends Thread
-    {
+    class WorkThread extends Thread {
         String[] sentenceArray;
         List<Term>[] termListArray;
         int from;
         int to;
 
-        public WorkThread(String[] sentenceArray, List<Term>[] termListArray, int from, int to)
-        {
+        public WorkThread(String[] sentenceArray, List<Term>[] termListArray, int from, int to) {
             this.sentenceArray = sentenceArray;
             this.termListArray = termListArray;
             this.from = from;
@@ -822,10 +735,8 @@ public abstract class Segment
         }
 
         @Override
-        public void run()
-        {
-            for (int i = from; i < to; ++i)
-            {
+        public void run() {
+            for (int i = from; i < to; ++i) {
                 termListArray[i] = segSentence(sentenceArray[i].toCharArray());
             }
         }
@@ -833,11 +744,11 @@ public abstract class Segment
 
     /**
      * 开启多线程
+     *
      * @param enable true表示开启[系统CPU核心数]个线程，false表示单线程
      * @return
      */
-    public Segment enableMultithreading(boolean enable)
-    {
+    public Segment enableMultithreading(boolean enable) {
         if (enable) config.threadNumber = Runtime.getRuntime().availableProcessors();
         else config.threadNumber = 1;
         return this;
@@ -845,11 +756,11 @@ public abstract class Segment
 
     /**
      * 开启多线程
+     *
      * @param threadNumber 线程数量
      * @return
      */
-    public Segment enableMultithreading(int threadNumber)
-    {
+    public Segment enableMultithreading(int threadNumber) {
         config.threadNumber = threadNumber;
         return this;
     }

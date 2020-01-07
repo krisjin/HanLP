@@ -11,9 +11,9 @@
  */
 package com.hankcs.hanlp.classification.corpus;
 
+import com.hankcs.hanlp.classification.collections.FrequencyMap;
 import com.hankcs.hanlp.collection.trie.ITrie;
 import com.hankcs.hanlp.collection.trie.bintrie.BinTrie;
-import com.hankcs.hanlp.classification.collections.FrequencyMap;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -24,8 +24,7 @@ import java.util.Map;
  *
  * @author hankcs
  */
-public class Document extends BagOfWordsDocument
-{
+public class Document extends BagOfWordsDocument {
     /**
      * 文档所属类目
      */
@@ -33,13 +32,13 @@ public class Document extends BagOfWordsDocument
 
     /**
      * 一般用在训练集构造文档时
+     *
      * @param catalog
      * @param lexicon
      * @param category
      * @param tokenArray
      */
-    public Document(Catalog catalog, Lexicon lexicon, String category, String[] tokenArray)
-    {
+    public Document(Catalog catalog, Lexicon lexicon, String category, String[] tokenArray) {
         super();
         assert catalog != null;
         assert lexicon != null;
@@ -49,22 +48,20 @@ public class Document extends BagOfWordsDocument
         // 将其转为数组类型，方便处理
         this.category = catalog.addCategory(category);
         // 统计词频
-        for (int i = 0; i < tokenArray.length; i++)
-        {
+        for (int i = 0; i < tokenArray.length; i++) {
             tfMap.add(lexicon.addWord(tokenArray[i]));
         }
     }
 
     /**
      * 一般用在预测时构造文档用
+     *
      * @param wordIdTrie
      * @param tokenArray
      */
-    public Document(ITrie<Integer> wordIdTrie, String[] tokenArray)
-    {
+    public Document(ITrie<Integer> wordIdTrie, String[] tokenArray) {
         super();
-        for (int i = 0; i < tokenArray.length; i++)
-        {
+        for (int i = 0; i < tokenArray.length; i++) {
             Integer id = wordIdTrie.get(tokenArray[i].toCharArray());
             if (id == null) continue;
             tfMap.add(id);
@@ -73,26 +70,24 @@ public class Document extends BagOfWordsDocument
 
     /**
      * 一般用在测试集构造文档时使用
+     *
      * @param categoryId
      * @param wordId
      * @param category
      * @param tokenArray
      */
-    public Document(Map<String, Integer> categoryId, BinTrie<Integer> wordId, String category, String[] tokenArray)
-    {
+    public Document(Map<String, Integer> categoryId, BinTrie<Integer> wordId, String category, String[] tokenArray) {
         this(wordId, tokenArray);
         Integer id = categoryId.get(category);
         if (id == null) id = -1;
         this.category = id;
     }
 
-    public Document(DataInputStream in) throws IOException
-    {
+    public Document(DataInputStream in) throws IOException {
         category = in.readInt();
         int size = in.readInt();
         tfMap = new FrequencyMap<Integer>();
-        for (int i = 0; i < size; i++)
-        {
+        for (int i = 0; i < size; i++) {
             tfMap.put(in.readInt(), new int[]{in.readInt()});
         }
     }

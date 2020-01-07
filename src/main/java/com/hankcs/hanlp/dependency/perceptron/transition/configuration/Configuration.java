@@ -13,8 +13,7 @@ import java.util.ArrayList;
 /**
  * 由stack、buffer和arc组成，额外记录了导致该状态的动作历史和分数
  */
-public class Configuration implements Comparable, Cloneable, Serializable
-{
+public class Configuration implements Comparable, Cloneable, Serializable {
     public Sentence sentence;
 
     public State state;
@@ -23,16 +22,14 @@ public class Configuration implements Comparable, Cloneable, Serializable
 
     public float score;
 
-    public Configuration(Sentence sentence, boolean rootFirst)
-    {
+    public Configuration(Sentence sentence, boolean rootFirst) {
         this.sentence = sentence;
         state = new State(sentence.size(), rootFirst);
         score = 0.0f;
         actionHistory = new ArrayList<Integer>(2 * (sentence.size() + 1));
     }
 
-    public Configuration(Sentence sentence)
-    {
+    public Configuration(Sentence sentence) {
         this.sentence = sentence;
         state = new State(sentence.size());
         score = (float) 0.0;
@@ -45,31 +42,26 @@ public class Configuration implements Comparable, Cloneable, Serializable
      * @param normalized if true, the score will be normalized by the index of done actions
      * @return
      */
-    public float getScore(boolean normalized)
-    {
+    public float getScore(boolean normalized) {
         // if (normalized && actionHistory.size() > 0)
         //     return score / actionHistory.size();
         return score;
     }
 
-    public void addScore(float score)
-    {
+    public void addScore(float score) {
         this.score += score;
     }
 
-    public void setScore(float score)
-    {
+    public void setScore(float score) {
         this.score = score;
     }
 
-    public void addAction(int action)
-    {
+    public void addAction(int action) {
         actionHistory.add(action);
     }
 
     @Override
-    public int compareTo(Object o)
-    {
+    public int compareTo(Object o) {
         if (!(o instanceof Configuration))
             return hashCode() - o.hashCode();
 
@@ -86,10 +78,8 @@ public class Configuration implements Comparable, Cloneable, Serializable
     }
 
     @Override
-    public boolean equals(Object o)
-    {
-        if (o instanceof Configuration)
-        {
+    public boolean equals(Object o) {
+        if (o instanceof Configuration) {
             Configuration configuration = (Configuration) o;
             if (configuration.score != score)
                 return false;
@@ -104,8 +94,7 @@ public class Configuration implements Comparable, Cloneable, Serializable
     }
 
     @Override
-    public Configuration clone()
-    {
+    public Configuration clone() {
         Configuration configuration = new Configuration(sentence);
         configuration.actionHistory = new ArrayList<Integer>(actionHistory);
         configuration.score = score;
@@ -115,8 +104,7 @@ public class Configuration implements Comparable, Cloneable, Serializable
     }
 
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         int hashCode = 0;
         int i = 0;
         for (int action : actionHistory)

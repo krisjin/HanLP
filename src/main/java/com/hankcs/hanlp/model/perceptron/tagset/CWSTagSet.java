@@ -16,15 +16,13 @@ import com.hankcs.hanlp.model.perceptron.common.TaskType;
 /**
  * @author hankcs
  */
-public class CWSTagSet extends TagSet
-{
+public class CWSTagSet extends TagSet {
     public final int B;
     public final int M;
     public final int E;
     public final int S;
 
-    public CWSTagSet(int b, int m, int e, int s)
-    {
+    public CWSTagSet(int b, int m, int e, int s) {
         super(TaskType.CWS);
         B = b;
         M = m;
@@ -35,15 +33,13 @@ public class CWSTagSet extends TagSet
         id2tag[m] = "M";
         id2tag[e] = "E";
         id2tag[s] = "S";
-        for (String tag : id2tag)
-        {
+        for (String tag : id2tag) {
             add(tag);
         }
         lock();
     }
 
-    public CWSTagSet()
-    {
+    public CWSTagSet() {
         super(TaskType.CWS);
         B = add("B");
         M = add("M");

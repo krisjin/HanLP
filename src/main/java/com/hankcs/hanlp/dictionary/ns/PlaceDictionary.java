@@ -21,7 +21,8 @@ import com.hankcs.hanlp.seg.common.Vertex;
 import com.hankcs.hanlp.seg.common.WordNet;
 import com.hankcs.hanlp.utility.Predefine;
 
-import java.util.*;
+import java.util.List;
+import java.util.TreeMap;
 
 import static com.hankcs.hanlp.utility.Predefine.logger;
 
@@ -30,8 +31,7 @@ import static com.hankcs.hanlp.utility.Predefine.logger;
  *
  * @author hankcs
  */
-public class PlaceDictionary
-{
+public class PlaceDictionary {
     /**
      * 地名词典
      */
@@ -54,8 +54,7 @@ public class PlaceDictionary
      */
     static final CoreDictionary.Attribute ATTRIBUTE = CoreDictionary.get(WORD_ID);
 
-    static
-    {
+    static {
         long start = System.currentTimeMillis();
         dictionary = new NSDictionary();
         if (dictionary.load(HanLP.Config.PlaceDictionaryPath))
@@ -81,24 +80,19 @@ public class PlaceDictionary
      * @param wordNetOptimum 待优化的图
      * @param wordNetAll
      */
-    public static void parsePattern(List<NS> nsList, List<Vertex> vertexList, final WordNet wordNetOptimum, final WordNet wordNetAll)
-    {
+    public static void parsePattern(List<NS> nsList, List<Vertex> vertexList, final WordNet wordNetOptimum, final WordNet wordNetAll) {
 //        ListIterator<Vertex> listIterator = vertexList.listIterator();
         StringBuilder sbPattern = new StringBuilder(nsList.size());
-        for (NS ns : nsList)
-        {
+        for (NS ns : nsList) {
             sbPattern.append(ns.toString());
         }
         String pattern = sbPattern.toString();
         final Vertex[] wordArray = vertexList.toArray(new Vertex[0]);
-        trie.parseText(pattern, new AhoCorasickDoubleArrayTrie.IHit<String>()
-        {
+        trie.parseText(pattern, new AhoCorasickDoubleArrayTrie.IHit<String>() {
             @Override
-            public void hit(int begin, int end, String value)
-            {
+            public void hit(int begin, int end, String value) {
                 StringBuilder sbName = new StringBuilder();
-                for (int i = begin; i < end; ++i)
-                {
+                for (int i = begin; i < end; ++i) {
                     sbName.append(wordArray[i].realWord);
                 }
                 String name = sbName.toString();
@@ -106,13 +100,11 @@ public class PlaceDictionary
                 if (isBadCase(name)) return;
 
                 // 正式算它是一个名字
-                if (HanLP.Config.DEBUG)
-                {
+                if (HanLP.Config.DEBUG) {
                     System.out.printf("识别出地名：%s %s\n", name, value);
                 }
                 int offset = 0;
-                for (int i = 0; i < begin; ++i)
-                {
+                for (int i = 0; i < begin; ++i) {
                     offset += wordArray[i].realWord.length();
                 }
                 wordNetOptimum.insert(offset, new Vertex(Predefine.TAG_PLACE, name, ATTRIBUTE, WORD_ID), wordNetAll);
@@ -127,8 +119,7 @@ public class PlaceDictionary
      * @param name
      * @return
      */
-    static boolean isBadCase(String name)
-    {
+    static boolean isBadCase(String name) {
         EnumItem<NS> nrEnumItem = dictionary.get(name);
         if (nrEnumItem == null) return false;
         return nrEnumItem.containsLabel(NS.Z);

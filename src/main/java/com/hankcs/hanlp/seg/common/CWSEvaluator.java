@@ -15,43 +15,37 @@ import com.hankcs.hanlp.seg.Segment;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.util.*;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * 中文分词评测工具
  *
  * @author hankcs
  */
-public class CWSEvaluator
-{
+public class CWSEvaluator {
     private int A_size, B_size, A_cap_B_size, OOV, OOV_R, IV, IV_R;
     private Set<String> dic;
 
-    public CWSEvaluator()
-    {
+    public CWSEvaluator() {
     }
 
-    public CWSEvaluator(Set<String> dic)
-    {
+    public CWSEvaluator(Set<String> dic) {
         this.dic = dic;
     }
 
-    public CWSEvaluator(String dictPath) throws IOException
-    {
+    public CWSEvaluator(String dictPath) throws IOException {
         this(new TreeSet<String>());
         if (dictPath == null) return;
-        try
-        {
+        try {
             IOUtil.LineIterator lineIterator = new IOUtil.LineIterator(dictPath);
-            for (String word : lineIterator)
-            {
+            for (String word : lineIterator) {
                 word = word.trim();
                 if (word.isEmpty()) continue;
                 dic.add(word);
             }
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             throw new IOException(e);
         }
     }
@@ -62,25 +56,21 @@ public class CWSEvaluator
      * @param percentage 百分制
      * @return
      */
-    public Result getResult(boolean percentage)
-    {
+    public Result getResult(boolean percentage) {
         float p = A_cap_B_size / (float) B_size;
         float r = A_cap_B_size / (float) A_size;
-        if (percentage)
-        {
+        if (percentage) {
             p *= 100;
             r *= 100;
         }
         float oov_r = Float.NaN;
-        if (OOV > 0)
-        {
+        if (OOV > 0) {
             oov_r = OOV_R / (float) OOV;
             if (percentage)
                 oov_r *= 100;
         }
         float iv_r = Float.NaN;
-        if (IV > 0)
-        {
+        if (IV > 0) {
             iv_r = IV_R / (float) IV;
             if (percentage)
                 iv_r *= 100;
@@ -94,8 +84,7 @@ public class CWSEvaluator
      *
      * @return
      */
-    public Result getResult()
-    {
+    public Result getResult() {
         return getResult(true);
     }
 
@@ -105,8 +94,7 @@ public class CWSEvaluator
      * @param gold
      * @param pred
      */
-    public void compare(String gold, String pred)
-    {
+    public void compare(String gold, String pred) {
         String[] wordArray = gold.split("\\s+");
         A_size += wordArray.length;
         String[] predArray = pred.split("\\s+");
@@ -115,14 +103,10 @@ public class CWSEvaluator
         int goldIndex = 0, predIndex = 0;
         int goldLen = 0, predLen = 0;
 
-        while (goldIndex < wordArray.length && predIndex < predArray.length)
-        {
-            if (goldLen == predLen)
-            {
-                if (wordArray[goldIndex].equals(predArray[predIndex]))
-                {
-                    if (dic != null)
-                    {
+        while (goldIndex < wordArray.length && predIndex < predArray.length) {
+            if (goldLen == predLen) {
+                if (wordArray[goldIndex].equals(predArray[predIndex])) {
+                    if (dic != null) {
                         if (dic.contains(wordArray[goldIndex]))
                             IV_R += 1;
                         else
@@ -133,31 +117,23 @@ public class CWSEvaluator
                     predLen += wordArray[goldIndex].length();
                     goldIndex++;
                     predIndex++;
-                }
-                else
-                {
+                } else {
                     goldLen += wordArray[goldIndex].length();
                     predLen += predArray[predIndex].length();
                     goldIndex++;
                     predIndex++;
                 }
-            }
-            else if (goldLen < predLen)
-            {
+            } else if (goldLen < predLen) {
                 goldLen += wordArray[goldIndex].length();
                 goldIndex++;
-            }
-            else
-            {
+            } else {
                 predLen += predArray[predIndex].length();
                 predIndex++;
             }
         }
 
-        if (dic != null)
-        {
-            for (String word : wordArray)
-            {
+        if (dic != null) {
+            for (String word : wordArray) {
                 if (dic.contains(word))
                     IV += 1;
                 else
@@ -173,8 +149,7 @@ public class CWSEvaluator
      * @param predFile
      * @return
      */
-    public static Result evaluate(String goldFile, String predFile) throws IOException
-    {
+    public static Result evaluate(String goldFile, String predFile) throws IOException {
         return evaluate(goldFile, predFile, null);
     }
 
@@ -188,16 +163,13 @@ public class CWSEvaluator
      * @return 一个储存准确率的结构
      * @throws IOException
      */
-    public static CWSEvaluator.Result evaluate(Segment segment, String outputPath, String goldFile, String dictPath) throws IOException
-    {
+    public static CWSEvaluator.Result evaluate(Segment segment, String outputPath, String goldFile, String dictPath) throws IOException {
         IOUtil.LineIterator lineIterator = new IOUtil.LineIterator(goldFile);
         BufferedWriter bw = IOUtil.newBufferedWriter(outputPath);
-        for (String line : lineIterator)
-        {
+        for (String line : lineIterator) {
             List<Term> termList = segment.seg(line.replaceAll("\\s+", "")); // 一些testFile与goldFile根本不匹配，比如MSR的testFile有些行缺少单词，所以用goldFile去掉空格代替
             int i = 0;
-            for (Term term : termList)
-            {
+            for (Term term : termList) {
                 bw.write(term.word);
                 if (++i != termList.size())
                     bw.write("  ");
@@ -220,8 +192,7 @@ public class CWSEvaluator
      * @return 一个储存准确率的结构
      * @throws IOException
      */
-    public static CWSEvaluator.Result evaluate(Segment segment, String testFile, String outputPath, String goldFile, String dictPath) throws IOException
-    {
+    public static CWSEvaluator.Result evaluate(Segment segment, String testFile, String outputPath, String goldFile, String dictPath) throws IOException {
         return evaluate(segment, outputPath, goldFile, dictPath);
     }
 
@@ -232,24 +203,20 @@ public class CWSEvaluator
      * @param predFile
      * @return
      */
-    public static Result evaluate(String goldFile, String predFile, String dictPath) throws IOException
-    {
+    public static Result evaluate(String goldFile, String predFile, String dictPath) throws IOException {
         IOUtil.LineIterator goldIter = new IOUtil.LineIterator(goldFile);
         IOUtil.LineIterator predIter = new IOUtil.LineIterator(predFile);
         CWSEvaluator evaluator = new CWSEvaluator(dictPath);
-        while (goldIter.hasNext() && predIter.hasNext())
-        {
+        while (goldIter.hasNext() && predIter.hasNext()) {
             evaluator.compare(goldIter.next(), predIter.next());
         }
         return evaluator.getResult();
     }
 
-    public static class Result
-    {
+    public static class Result {
         float P, R, F1, OOV_R, IV_R;
 
-        public Result(float p, float r, float f1, float OOV_R, float IV_R)
-        {
+        public Result(float p, float r, float f1, float OOV_R, float IV_R) {
             P = p;
             R = r;
             F1 = f1;
@@ -258,8 +225,7 @@ public class CWSEvaluator
         }
 
         @Override
-        public String toString()
-        {
+        public String toString() {
             return String.format("P:%.2f R:%.2f F1:%.2f OOV-R:%.2f IV-R:%.2f", P, R, F1, OOV_R, IV_R);
         }
     }

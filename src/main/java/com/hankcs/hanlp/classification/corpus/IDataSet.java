@@ -21,8 +21,7 @@ import java.util.Map;
  *
  * @author hankcs
  */
-public interface IDataSet extends Iterable<Document>
-{
+public interface IDataSet extends Iterable<Document> {
     /**
      * 加载数据集
      *
@@ -42,6 +41,7 @@ public interface IDataSet extends Iterable<Document>
      * @throws IOException
      */
     IDataSet load(String folderPath) throws IllegalArgumentException, IOException;
+
     IDataSet load(String folderPath, double rate) throws IllegalArgumentException, IOException;
 
     /**
@@ -64,6 +64,7 @@ public interface IDataSet extends Iterable<Document>
      * @throws IOException
      */
     IDataSet load(String folderPath, String charsetName) throws IllegalArgumentException, IOException;
+
     IDataSet load(String folderPath, String charsetName, double percentage) throws IllegalArgumentException, IOException;
 
     /**

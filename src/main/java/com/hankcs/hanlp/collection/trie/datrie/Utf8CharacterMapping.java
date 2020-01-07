@@ -7,43 +7,36 @@ import java.nio.charset.Charset;
 /**
  * UTF-8编码到int的映射
  */
-public class Utf8CharacterMapping implements CharacterMapping, Serializable
-{
+public class Utf8CharacterMapping implements CharacterMapping, Serializable {
     private static final long serialVersionUID = -6529481088518753872L;
     private static final int N = 256;
     private static final int[] EMPTYLIST = new int[0];
     public static final Charset UTF_8 = Charset.forName("UTF-8");
 
     @Override
-    public int getInitSize()
-    {
+    public int getInitSize() {
         return N;
     }
 
     @Override
-    public int getCharsetSize()
-    {
+    public int getCharsetSize() {
         return N;
     }
 
     @Override
-    public int zeroId()
-    {
+    public int zeroId() {
         return 0;
     }
 
     @Override
-    public int[] toIdList(String key)
-    {
+    public int[] toIdList(String key) {
 
         byte[] bytes = key.getBytes(UTF_8);
         int[] res = new int[bytes.length];
-        for (int i = 0; i < res.length; i++)
-        {
+        for (int i = 0; i < res.length; i++) {
             res[i] = bytes[i] & 0xFF; // unsigned byte
         }
-        if ((res.length == 1) && (res[0] == 0))
-        {
+        if ((res.length == 1) && (res[0] == 0)) {
             return EMPTYLIST;
         }
         return res;
@@ -53,8 +46,7 @@ public class Utf8CharacterMapping implements CharacterMapping, Serializable
      * codes ported from iconv lib in utf8.h utf8_codepointtomb
      */
     @Override
-    public int[] toIdList(int codePoint)
-    {
+    public int[] toIdList(int codePoint) {
         int count;
         if (codePoint < 0x80)
             count = 1;
@@ -71,8 +63,7 @@ public class Utf8CharacterMapping implements CharacterMapping, Serializable
         else
             return EMPTYLIST;
         int[] r = new int[count];
-        switch (count)
-        { /* note: code falls through cases! */
+        switch (count) { /* note: code falls through cases! */
             case 6:
                 r[5] = (char) (0x80 | (codePoint & 0x3f));
                 codePoint = codePoint >> 6;
@@ -100,19 +91,14 @@ public class Utf8CharacterMapping implements CharacterMapping, Serializable
     }
 
     @Override
-    public String toString(int[] ids)
-    {
+    public String toString(int[] ids) {
         byte[] bytes = new byte[ids.length];
-        for (int i = 0; i < ids.length; i++)
-        {
+        for (int i = 0; i < ids.length; i++) {
             bytes[i] = (byte) ids[i];
         }
-        try
-        {
+        try {
             return new String(bytes, "UTF-8");
-        }
-        catch (UnsupportedEncodingException e)
-        {
+        } catch (UnsupportedEncodingException e) {
             return null;
         }
     }

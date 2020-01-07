@@ -21,10 +21,10 @@ import static com.hankcs.hanlp.dependency.nnparser.util.Log.INFO_LOG;
 
 /**
  * 基于神经网络模型的分类器
+ *
  * @author hankcs
  */
-public class NeuralNetworkClassifier
-{
+public class NeuralNetworkClassifier {
     /**
      * 输入层到隐藏层的权值矩阵
      */
@@ -104,10 +104,8 @@ public class NeuralNetworkClassifier
             final LearnOption opt,
             final List<List<Double>> embeddings,
             final List<Integer> precomputed_features
-    )
-    {
-        if (initialized)
-        {
+    ) {
+        if (initialized) {
             ERROR_LOG("classifier: weight should not be initialized twice!");
             return;
         }
@@ -143,12 +141,10 @@ public class NeuralNetworkClassifier
 
         E = Matrix.random(nrows, ncols).times(opt.init_range);
 
-        for (int i = 0; i < embeddings.size(); ++i)
-        {
+        for (int i = 0; i < embeddings.size(); ++i) {
             final List<Double> embedding = embeddings.get(i);
             int id = embedding.get(0).intValue();
-            for (int j = 1; j < embedding.size(); ++j)
-            {
+            for (int j = 1; j < embedding.size(); ++j) {
                 E.set(j - 1, id, embedding.get(j));
             }
         }
@@ -162,8 +158,7 @@ public class NeuralNetworkClassifier
         Map<Integer, Integer> encoder = precomputation_id_encoder;
         int rank = 0;
 
-        for (int i = 0; i < precomputed_features.size(); ++i)
-        {
+        for (int i = 0; i < precomputed_features.size(); ++i) {
             int fid = precomputed_features.get(i);
             encoder.put(fid, rank++);
         }
@@ -184,8 +179,7 @@ public class NeuralNetworkClassifier
         INFO_LOG("classifier: fix embedding = %s", (fix_embeddings ? "true" : "false"));
     }
 
-    void initialize_gradient_histories()
-    {
+    void initialize_gradient_histories() {
         eg2W1 = Matrix.zero(W1.rows(), W1.cols());
         eg2b1 = Matrix.zero(b1.rows(), 1);
         eg2W2 = Matrix.zero(W2.rows(), W2.cols());
@@ -198,9 +192,7 @@ public class NeuralNetworkClassifier
             Matrix _E,
             Matrix _b1,
             Matrix _saved,
-            Map<Integer, Integer> encoder)
-
-    {
+            Map<Integer, Integer> encoder) {
         initialized = false;
         W1 = _W1;
         W2 = _W2;
@@ -217,27 +209,23 @@ public class NeuralNetworkClassifier
 
     /**
      * 给每个类别打分
+     *
      * @param attributes 属性
-     * @param retval 返回各个类别的得分
+     * @param retval     返回各个类别的得分
      */
     void score(final List<Integer> attributes,
-               List<Double> retval)
-    {
-        Map <Integer,Integer >   encoder = precomputation_id_encoder;
+               List<Double> retval) {
+        Map<Integer, Integer> encoder = precomputation_id_encoder;
         // arma.vec hidden_layer = arma.zeros<arma.vec>(hidden_layer_size);
         Matrix hidden_layer = Matrix.zero(hidden_layer_size, 1);
 
-        for (int i = 0, off = 0; i < attributes.size(); ++i, off += embedding_size)
-        {
+        for (int i = 0, off = 0; i < attributes.size(); ++i, off += embedding_size) {
             int aid = attributes.get(i);
             int fid = aid * nr_feature_types + i;
             Integer rep = encoder.get(fid);
-            if (rep != null)
-            {
+            if (rep != null) {
                 hidden_layer.plusEquals(saved.col(rep));
-            }
-            else
-            {
+            } else {
                 // 使用向量而不是特征本身
                 // W1[0:hidden_layer, off:off+embedding_size] * E[fid:]'
                 hidden_layer.plusEquals(W1.block(0, off, hidden_layer_size, embedding_size).times(E.col(aid)));
@@ -246,11 +234,10 @@ public class NeuralNetworkClassifier
 
         hidden_layer.plusEquals(b1);    // 加上偏置
 
-        Matrix output = W2.times(new Matrix (hidden_layer.cube())); // 立方激活函数
+        Matrix output = W2.times(new Matrix(hidden_layer.cube())); // 立方激活函数
 //        retval.resize(nr_classes, 0.);
         retval.clear();
-        for (int i = 0; i < nr_classes; ++i)
-        {
+        for (int i = 0; i < nr_classes; ++i) {
             retval.add(output.get(i, 0));
         }
     }
@@ -298,13 +285,11 @@ public class NeuralNetworkClassifier
 //        }
 //    }
 
-    double get_cost()
-    {
+    double get_cost() {
         return loss;
     }
 
-    double get_accuracy()
-    {
+    double get_accuracy() {
         return accuracy;
     }
 
@@ -516,16 +501,14 @@ public class NeuralNetworkClassifier
     /**
      * 初始化参数
      */
-    void canonical()
-    {
+    void canonical() {
         hidden_layer_size = b1.rows();
         nr_feature_types = W1.cols() / E.rows();
         nr_classes = W2.rows();
         embedding_size = E.rows();
     }
 
-    void info()
-    {
+    void info() {
         INFO_LOG("classifier: E(%d,%d)", E.rows(), E.cols());
         INFO_LOG("classifier: W1(%d,%d)", W1.rows(), W1.cols());
         INFO_LOG("classifier: b1(%d)", b1.rows());

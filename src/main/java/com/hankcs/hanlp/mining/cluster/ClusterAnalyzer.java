@@ -11,7 +11,6 @@
 package com.hankcs.hanlp.mining.cluster;
 
 import com.hankcs.hanlp.HanLP;
-import com.hankcs.hanlp.classification.utilities.TextProcessUtility;
 import com.hankcs.hanlp.collection.trie.datrie.MutableDoubleArrayTrieInteger;
 import com.hankcs.hanlp.corpus.io.IOUtil;
 import com.hankcs.hanlp.dictionary.stopword.CoreStopWordDictionary;
@@ -31,25 +30,21 @@ import static com.hankcs.hanlp.classification.utilities.io.ConsoleLogger.logger;
  * @param <K> 文档的id类型
  * @author hankcs
  */
-public class ClusterAnalyzer<K>
-{
+public class ClusterAnalyzer<K> {
     protected HashMap<K, Document<K>> documents_;
     protected Segment segment;
     protected MutableDoubleArrayTrieInteger vocabulary;
     static final int NUM_REFINE_LOOP = 30;
 
-    public ClusterAnalyzer()
-    {
+    public ClusterAnalyzer() {
         documents_ = new HashMap<K, Document<K>>();
         segment = HanLP.newSegment();
         vocabulary = new MutableDoubleArrayTrieInteger();
     }
 
-    protected int id(String word)
-    {
+    protected int id(String word) {
         int id = vocabulary.get(word);
-        if (id == -1)
-        {
+        if (id == -1) {
             id = vocabulary.size();
             vocabulary.put(word, id);
         }
@@ -62,42 +57,33 @@ public class ClusterAnalyzer<K>
      * @param document 文档
      * @return 单词列表
      */
-    protected List<String> preprocess(String document)
-    {
+    protected List<String> preprocess(String document) {
         List<Term> termList = segment.seg(document);
         ListIterator<Term> listIterator = termList.listIterator();
-        while (listIterator.hasNext())
-        {
+        while (listIterator.hasNext()) {
             Term term = listIterator.next();
             if (CoreStopWordDictionary.contains(term.word) ||
-                term.nature.startsWith("w")
-                )
-            {
+                    term.nature.startsWith("w")
+            ) {
                 listIterator.remove();
             }
         }
         List<String> wordList = new ArrayList<String>(termList.size());
-        for (Term term : termList)
-        {
+        for (Term term : termList) {
             wordList.add(term.word);
         }
         return wordList;
     }
 
-    protected SparseVector toVector(List<String> wordList)
-    {
+    protected SparseVector toVector(List<String> wordList) {
         SparseVector vector = new SparseVector();
-        for (String word : wordList)
-        {
+        for (String word : wordList) {
             int id = id(word);
             Double f = vector.get(id);
-            if (f == null)
-            {
+            if (f == null) {
                 f = 1.;
                 vector.put(id, f);
-            }
-            else
-            {
+            } else {
                 vector.put(id, ++f);
             }
         }
@@ -111,8 +97,7 @@ public class ClusterAnalyzer<K>
      * @param document 文档内容
      * @return 文档对象
      */
-    public Document<K> addDocument(K id, String document)
-    {
+    public Document<K> addDocument(K id, String document) {
         return addDocument(id, preprocess(document));
     }
 
@@ -123,8 +108,7 @@ public class ClusterAnalyzer<K>
      * @param document 文档内容
      * @return 文档对象
      */
-    public Document<K> addDocument(K id, List<String> document)
-    {
+    public Document<K> addDocument(K id, List<String> document) {
         SparseVector vector = toVector(document);
         Document<K> d = new Document<K>(id, vector);
         return documents_.put(id, d);
@@ -136,32 +120,26 @@ public class ClusterAnalyzer<K>
      * @param nclusters 簇的数量
      * @return 指定数量的簇（Set）构成的集合
      */
-    public List<Set<K>> kmeans(int nclusters)
-    {
+    public List<Set<K>> kmeans(int nclusters) {
         Cluster<K> cluster = new Cluster<K>();
-        for (Document<K> document : documents_.values())
-        {
+        for (Document<K> document : documents_.values()) {
             cluster.add_document(document);
         }
         cluster.section(nclusters);
         refine_clusters(cluster.sectioned_clusters());
         List<Cluster<K>> clusters_ = new ArrayList<Cluster<K>>(nclusters);
-        for (Cluster<K> s : cluster.sectioned_clusters())
-        {
+        for (Cluster<K> s : cluster.sectioned_clusters()) {
             s.refresh();
             clusters_.add(s);
         }
         return toResult(clusters_);
     }
 
-    private List<Set<K>> toResult(List<Cluster<K>> clusters_)
-    {
+    private List<Set<K>> toResult(List<Cluster<K>> clusters_) {
         List<Set<K>> result = new ArrayList<Set<K>>(clusters_.size());
-        for (Cluster<K> c : clusters_)
-        {
+        for (Cluster<K> c : clusters_) {
             Set<K> s = new HashSet<K>();
-            for (Document<K> d : c.documents_)
-            {
+            for (Document<K> d : c.documents_) {
                 s.add(d.id_);
             }
             result.add(s);
@@ -175,8 +153,7 @@ public class ClusterAnalyzer<K>
      * @param nclusters 簇的数量
      * @return 指定数量的簇（Set）构成的集合
      */
-    public List<Set<K>> repeatedBisection(int nclusters)
-    {
+    public List<Set<K>> repeatedBisection(int nclusters) {
         return repeatedBisection(nclusters, 0);
     }
 
@@ -186,8 +163,7 @@ public class ClusterAnalyzer<K>
      * @param limit_eval 准则函数增幅阈值
      * @return 指定数量的簇（Set）构成的集合
      */
-    public List<Set<K>> repeatedBisection(double limit_eval)
-    {
+    public List<Set<K>> repeatedBisection(double limit_eval) {
         return repeatedBisection(0, limit_eval);
     }
 
@@ -198,12 +174,10 @@ public class ClusterAnalyzer<K>
      * @param limit_eval 准则函数增幅阈值
      * @return 指定数量的簇（Set）构成的集合
      */
-    public List<Set<K>> repeatedBisection(int nclusters, double limit_eval)
-    {
+    public List<Set<K>> repeatedBisection(int nclusters, double limit_eval) {
         Cluster<K> cluster = new Cluster<K>();
         List<Cluster<K>> clusters_ = new ArrayList<Cluster<K>>(nclusters > 0 ? nclusters : 16);
-        for (Document<K> document : documents_.values())
-        {
+        for (Document<K> document : documents_.values()) {
             cluster.add_document(document);
         }
 
@@ -214,8 +188,7 @@ public class ClusterAnalyzer<K>
         cluster.composite_vector().clear();
         que.add(cluster);
 
-        while (!que.isEmpty())
-        {
+        while (!que.isEmpty()) {
             if (nclusters > 0 && que.size() >= nclusters)
                 break;
             cluster = que.peek();
@@ -226,17 +199,13 @@ public class ClusterAnalyzer<K>
             que.poll();
             List<Cluster<K>> sectioned = cluster.sectioned_clusters();
 
-            for (Cluster<K> c : sectioned)
-            {
-                if (c.size() >= 2)
-                {
+            for (Cluster<K> c : sectioned) {
+                if (c.size() >= 2) {
                     c.section(2);
                     refine_clusters(c.sectioned_clusters());
                     c.set_sectioned_gain();
-                    if (c.sectioned_gain() < limit_eval)
-                    {
-                        for (Cluster<K> sub : c.sectioned_clusters())
-                        {
+                    if (c.sectioned_gain() < limit_eval) {
+                        for (Cluster<K> sub : c.sectioned_clusters()) {
                             sub.clear();
                         }
                     }
@@ -245,8 +214,7 @@ public class ClusterAnalyzer<K>
                 que.add(c);
             }
         }
-        while (!que.isEmpty())
-        {
+        while (!que.isEmpty()) {
             clusters_.add(0, que.poll());
         }
         return toResult(clusters_);
@@ -258,32 +226,26 @@ public class ClusterAnalyzer<K>
      * @param clusters 簇
      * @return 准则函数的值
      */
-    double refine_clusters(List<Cluster<K>> clusters)
-    {
+    double refine_clusters(List<Cluster<K>> clusters) {
         double[] norms = new double[clusters.size()];
         int offset = 0;
-        for (Cluster cluster : clusters)
-        {
+        for (Cluster cluster : clusters) {
             norms[offset++] = cluster.composite_vector().norm();
         }
 
         double eval_cluster = 0.0;
         int loop_count = 0;
-        while (loop_count++ < NUM_REFINE_LOOP)
-        {
+        while (loop_count++ < NUM_REFINE_LOOP) {
             List<int[]> items = new ArrayList<int[]>(documents_.size());
-            for (int i = 0; i < clusters.size(); i++)
-            {
-                for (int j = 0; j < clusters.get(i).documents().size(); j++)
-                {
+            for (int i = 0; i < clusters.size(); i++) {
+                for (int j = 0; j < clusters.get(i).documents().size(); j++) {
                     items.add(new int[]{i, j});
                 }
             }
             Collections.shuffle(items);
 
             boolean changed = false;
-            for (int[] item : items)
-            {
+            for (int[] item : items) {
                 int cluster_id = item[0];
                 int item_id = item[1];
                 Cluster<K> cluster = clusters.get(cluster_id);
@@ -295,8 +257,7 @@ public class ClusterAnalyzer<K>
                 double eval_max = -1.0;
                 double norm_max = 0.0;
                 int max_index = 0;
-                for (int j = 0; j < clusters.size(); j++)
-                {
+                for (int j = 0; j < clusters.size(); j++) {
                     if (cluster_id == j)
                         continue;
                     Cluster<K> other = clusters.get(j);
@@ -304,15 +265,13 @@ public class ClusterAnalyzer<K>
                     double norm_target_moved = Math.pow(norms[j], 2) + value_target;
                     norm_target_moved = norm_target_moved > 0 ? Math.sqrt(norm_target_moved) : 0.0;
                     double eval_moved = norm_base_moved + norm_target_moved - norms[cluster_id] - norms[j];
-                    if (eval_max < eval_moved)
-                    {
+                    if (eval_max < eval_moved) {
                         eval_max = eval_moved;
                         norm_max = norm_target_moved;
                         max_index = j;
                     }
                 }
-                if (eval_max > 0)
-                {
+                if (eval_max > 0) {
                     eval_cluster += eval_max;
                     clusters.get(max_index).add_document(doc);
                     clusters.get(cluster_id).remove_document(item_id);
@@ -323,8 +282,7 @@ public class ClusterAnalyzer<K>
             }
             if (!changed)
                 break;
-            for (Cluster<K> cluster : clusters)
-            {
+            for (Cluster<K> cluster : clusters) {
                 cluster.refresh();
             }
         }
@@ -339,11 +297,9 @@ public class ClusterAnalyzer<K>
      * @param sign
      * @return
      */
-    double refined_vector_value(SparseVector composite, SparseVector vec, int sign)
-    {
+    double refined_vector_value(SparseVector composite, SparseVector vec, int sign) {
         double sum = 0.0;
-        for (Map.Entry<Integer, Double> entry : vec.entrySet())
-        {
+        for (Map.Entry<Integer, Double> entry : vec.entrySet()) {
             sum += Math.pow(entry.getValue(), 2) + sign * 2 * composite.get(entry.getKey()) * entry.getValue();
         }
         return sum;
@@ -366,8 +322,7 @@ public class ClusterAnalyzer<K>
      * @param algorithm  kmeans 或 repeated bisection
      * @throws IOException 任何可能的IO异常
      */
-    public static double evaluate(String folderPath, String algorithm)
-    {
+    public static double evaluate(String folderPath, String algorithm) {
         if (folderPath == null) throw new IllegalArgumentException("参数 folderPath == null");
         File root = new File(folderPath);
         if (!root.exists()) throw new IllegalArgumentException(String.format("目录 %s 不存在", root.getAbsolutePath()));
@@ -382,8 +337,7 @@ public class ClusterAnalyzer<K>
         int[] ni = new int[folders.length];
         String[] cat = new String[folders.length];
         int offset = 0;
-        for (File folder : folders)
-        {
+        for (File folder : folders) {
             if (folder.isFile()) continue;
             File[] files = folder.listFiles();
             if (files == null) continue;
@@ -394,11 +348,9 @@ public class ClusterAnalyzer<K>
             int e = files.length;
 
             int logEvery = (int) Math.ceil((e - b) / 10000f);
-            for (int i = b; i < e; i++)
-            {
+            for (int i = b; i < e; i++) {
                 analyzer.addDocument(folder.getName() + " " + files[i].getName(), IOUtil.readTxt(files[i].getAbsolutePath()));
-                if (i % logEvery == 0)
-                {
+                if (i % logEvery == 0) {
                     logger.out("%c[%s]...%.2f%%", 13, category, MathUtility.percentage(i - b + 1, e - b));
                 }
                 ++docSize;
@@ -410,16 +362,13 @@ public class ClusterAnalyzer<K>
         logger.finish(" 加载了 %d 个类目,共 %d 篇文档\n", folders.length, docSize);
         logger.start(algorithm + "聚类中...");
         List<Set<String>> clusterList = algorithm.replaceAll("[-\\s]", "").toLowerCase().equals("kmeans") ?
-            analyzer.kmeans(ni.length) : analyzer.repeatedBisection(ni.length);
+                analyzer.kmeans(ni.length) : analyzer.repeatedBisection(ni.length);
         logger.finish(" 完毕。\n");
         double[] fi = new double[ni.length];
-        for (int i = 0; i < ni.length; i++)
-        {
-            for (Set<String> j : clusterList)
-            {
+        for (int i = 0; i < ni.length; i++) {
+            for (Set<String> j : clusterList) {
                 int nij = 0;
-                for (String d : j)
-                {
+                for (String d : j) {
                     if (d.startsWith(cat[i]))
                         ++nij;
                 }
@@ -431,8 +380,7 @@ public class ClusterAnalyzer<K>
             }
         }
         double f = 0;
-        for (int i = 0; i < fi.length; i++)
-        {
+        for (int i = 0; i < fi.length; i++) {
             f += fi[i] * ni[i] / docSize;
         }
         return f;

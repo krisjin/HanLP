@@ -17,24 +17,19 @@ import com.hankcs.hanlp.tokenizer.lexical.AbstractLexicalAnalyzer;
  *
  * @author hankcs
  */
-public class HMMLexicalAnalyzer extends AbstractLexicalAnalyzer
-{
-    private HMMLexicalAnalyzer()
-    {
+public class HMMLexicalAnalyzer extends AbstractLexicalAnalyzer {
+    private HMMLexicalAnalyzer() {
     }
 
-    public HMMLexicalAnalyzer(HMMSegmenter segmenter)
-    {
+    public HMMLexicalAnalyzer(HMMSegmenter segmenter) {
         super(segmenter);
     }
 
-    public HMMLexicalAnalyzer(HMMSegmenter segmenter, HMMPOSTagger posTagger)
-    {
+    public HMMLexicalAnalyzer(HMMSegmenter segmenter, HMMPOSTagger posTagger) {
         super(segmenter, posTagger);
     }
 
-    public HMMLexicalAnalyzer(HMMSegmenter segmenter, HMMPOSTagger posTagger, HMMNERecognizer neRecognizer)
-    {
+    public HMMLexicalAnalyzer(HMMSegmenter segmenter, HMMPOSTagger posTagger, HMMNERecognizer neRecognizer) {
         super(segmenter, posTagger, neRecognizer);
     }
 }

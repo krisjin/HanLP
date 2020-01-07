@@ -12,10 +12,10 @@ package com.hankcs.hanlp.dependency.perceptron.accessories;
 
 /**
  * 依存句法树上的一条边
+ *
  * @author hankcs
  */
-public class Edge
-{
+public class Edge {
     /**
      * head
      */
@@ -25,15 +25,13 @@ public class Edge
      */
     public int relationId;
 
-    public Edge(int headIndex, int relationId)
-    {
+    public Edge(int headIndex, int relationId) {
         this.headIndex = headIndex;
         this.relationId = relationId;
     }
 
     @Override
-    public Edge clone()
-    {
+    public Edge clone() {
         return new Edge(headIndex, relationId);
     }
 }

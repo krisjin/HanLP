@@ -10,8 +10,7 @@ import static com.hankcs.hanlp.utility.Predefine.logger;
 /**
  * 词向量训练工具
  */
-public class Word2VecTrainer
-{
+public class Word2VecTrainer {
     private Integer layerSize = 200;
     private Integer windowSize = 5;
     private Integer numThreads = Runtime.getRuntime().availableProcessors();
@@ -24,8 +23,7 @@ public class Word2VecTrainer
     private NeuralNetworkType type = NeuralNetworkType.CBOW;
     private TrainingCallback callback;
 
-    public Word2VecTrainer()
-    {
+    public Word2VecTrainer() {
     }
 
     /**
@@ -33,8 +31,7 @@ public class Word2VecTrainer
      *
      * @param callback 回调接口
      */
-    public void setCallback(TrainingCallback callback)
-    {
+    public void setCallback(TrainingCallback callback) {
         this.callback = callback;
     }
 
@@ -43,8 +40,7 @@ public class Word2VecTrainer
      * <p>
      * 默认 100
      */
-    public Word2VecTrainer setLayerSize(int layerSize)
-    {
+    public Word2VecTrainer setLayerSize(int layerSize) {
         Preconditions.checkArgument(layerSize > 0, "Value must be positive");
         this.layerSize = layerSize;
         return this;
@@ -55,8 +51,7 @@ public class Word2VecTrainer
      * <p>
      * 默认 5
      */
-    public Word2VecTrainer setWindowSize(int windowSize)
-    {
+    public Word2VecTrainer setWindowSize(int windowSize) {
         Preconditions.checkArgument(windowSize > 0, "Value must be positive");
         this.windowSize = windowSize;
         return this;
@@ -67,8 +62,7 @@ public class Word2VecTrainer
      * <p>
      * 默认 {@link Runtime#availableProcessors()}
      */
-    public Word2VecTrainer useNumThreads(int numThreads)
-    {
+    public Word2VecTrainer useNumThreads(int numThreads) {
         Preconditions.checkArgument(numThreads > 0, "Value must be positive");
         this.numThreads = numThreads;
         return this;
@@ -81,8 +75,7 @@ public class Word2VecTrainer
      * <p>
      * 默认 {@link NeuralNetworkType#SKIP_GRAM}
      */
-    public Word2VecTrainer type(NeuralNetworkType type)
-    {
+    public Word2VecTrainer type(NeuralNetworkType type) {
         this.type = Preconditions.checkNotNull(type);
         return this;
     }
@@ -92,8 +85,7 @@ public class Word2VecTrainer
      * <p>
      * 默认关闭
      */
-    public Word2VecTrainer useHierarchicalSoftmax()
-    {
+    public Word2VecTrainer useHierarchicalSoftmax() {
         this.useHierarchicalSoftmax = true;
         return this;
     }
@@ -104,8 +96,7 @@ public class Word2VecTrainer
      * <p>
      * 默认 0
      */
-    public Word2VecTrainer useNegativeSamples(int negativeSamples)
-    {
+    public Word2VecTrainer useNegativeSamples(int negativeSamples) {
         Preconditions.checkArgument(negativeSamples >= 0, "Value must be non-negative");
         this.negativeSamples = negativeSamples;
         return this;
@@ -116,8 +107,7 @@ public class Word2VecTrainer
      * <p>
      * 默认 5
      */
-    public Word2VecTrainer setMinVocabFrequency(int minFrequency)
-    {
+    public Word2VecTrainer setMinVocabFrequency(int minFrequency) {
         Preconditions.checkArgument(minFrequency >= 0, "Value must be non-negative");
         this.minFrequency = minFrequency;
         return this;
@@ -128,8 +118,7 @@ public class Word2VecTrainer
      * <p>
      * skip-gram 默认 0.025 ，CBOW 默认 0.05
      */
-    public Word2VecTrainer setInitialLearningRate(float initialLearningRate)
-    {
+    public Word2VecTrainer setInitialLearningRate(float initialLearningRate) {
         Preconditions.checkArgument(initialLearningRate >= 0, "Value must be non-negative");
         this.initialLearningRate = initialLearningRate;
         return this;
@@ -140,8 +129,7 @@ public class Word2VecTrainer
      * <p>
      * 默认 1e-3, 常用取值区间为 (0, 1e-5)
      */
-    public Word2VecTrainer setDownSamplingRate(float downSampleRate)
-    {
+    public Word2VecTrainer setDownSamplingRate(float downSampleRate) {
         Preconditions.checkArgument(downSampleRate >= 0, "Value must be non-negative");
         this.downSampleRate = downSampleRate;
         return this;
@@ -150,8 +138,7 @@ public class Word2VecTrainer
     /**
      * 设置迭代次数
      */
-    public Word2VecTrainer setNumIterations(int iterations)
-    {
+    public Word2VecTrainer setNumIterations(int iterations) {
         Preconditions.checkArgument(iterations > 0, "Value must be positive");
         this.iterations = iterations;
         return this;
@@ -161,12 +148,11 @@ public class Word2VecTrainer
     /**
      * 执行训练
      *
-     * @param trainFileName     输入语料文件
-     * @param modelFileName     输出模型路径
+     * @param trainFileName 输入语料文件
+     * @param modelFileName 输出模型路径
      * @return 词向量模型
      */
-    public WordVectorModel train(String trainFileName, String modelFileName)
-    {
+    public WordVectorModel train(String trainFileName, String modelFileName) {
         Config settings = new Config();
         settings.setInputFile(trainFileName);
         settings.setLayer1Size(layerSize);
@@ -213,15 +199,12 @@ public class Word2VecTrainer
 //        }
         settings.setCallback(callback);
 
-        try
-        {
+        try {
             model.trainModel();
             System.out.println();
             System.out.printf("训练结束，一共耗时：%s\n", Utility.humanTime(System.currentTimeMillis() - timeStart));
             return new WordVectorModel(modelFileName);
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             logger.warning("训练过程中发生IO异常\n" + TextUtility.exceptionToString(e));
         }
 

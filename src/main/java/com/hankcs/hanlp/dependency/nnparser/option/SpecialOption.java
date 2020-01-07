@@ -14,8 +14,7 @@ package com.hankcs.hanlp.dependency.nnparser.option;
 /**
  * @author hankcs
  */
-public class SpecialOption
-{
+public class SpecialOption {
     public final static String UNKNOWN = "$unk";
     public final static String NIL = "$nil";
     public final static String ROOT = "$root";

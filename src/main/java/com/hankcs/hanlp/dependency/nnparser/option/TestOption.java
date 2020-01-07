@@ -14,8 +14,7 @@ package com.hankcs.hanlp.dependency.nnparser.option;
 /**
  * @author hankcs
  */
-public class TestOption extends BasicOption
-{
+public class TestOption extends BasicOption {
     String input_file;   //! The path to the input file.
     String output_file;  //! The path to the output file.
     boolean evaluate;

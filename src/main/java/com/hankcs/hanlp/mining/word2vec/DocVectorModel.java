@@ -24,8 +24,7 @@ import java.util.Map;
  *
  * @author hankcs
  */
-public class DocVectorModel extends AbstractVectorModel<Integer>
-{
+public class DocVectorModel extends AbstractVectorModel<Integer> {
     private final WordVectorModel wordVectorModel;
     /**
      * 分词器
@@ -36,13 +35,11 @@ public class DocVectorModel extends AbstractVectorModel<Integer>
      */
     private boolean filter;
 
-    public DocVectorModel(WordVectorModel wordVectorModel)
-    {
+    public DocVectorModel(WordVectorModel wordVectorModel) {
         this(wordVectorModel, NotionalTokenizer.SEGMENT, true);
     }
 
-    public DocVectorModel(WordVectorModel wordVectorModel, Segment segment, boolean filter)
-    {
+    public DocVectorModel(WordVectorModel wordVectorModel, Segment segment, boolean filter) {
         super();
         this.wordVectorModel = wordVectorModel;
         this.segment = segment;
@@ -56,8 +53,7 @@ public class DocVectorModel extends AbstractVectorModel<Integer>
      * @param content 文档内容
      * @return 文档向量
      */
-    public Vector addDocument(int id, String content)
-    {
+    public Vector addDocument(int id, String content) {
         Vector result = query(content);
         if (result == null) return null;
         storage.put(id, result);
@@ -71,8 +67,7 @@ public class DocVectorModel extends AbstractVectorModel<Integer>
      * @param query 查询语句（或者说一个文档的内容）
      * @return
      */
-    public List<Map.Entry<Integer, Float>> nearest(String query)
-    {
+    public List<Map.Entry<Integer, Float>> nearest(String query) {
         return queryNearest(query, 10);
     }
 
@@ -82,8 +77,7 @@ public class DocVectorModel extends AbstractVectorModel<Integer>
      * @param query 查询语句（或者说一个文档的内容）
      * @return
      */
-    public List<Map.Entry<Integer, Float>> nearest(String query, int n)
-    {
+    public List<Map.Entry<Integer, Float>> nearest(String query, int n) {
         return queryNearest(query, n);
     }
 
@@ -94,28 +88,23 @@ public class DocVectorModel extends AbstractVectorModel<Integer>
      * @param content 文档
      * @return 向量
      */
-    public Vector query(String content)
-    {
+    public Vector query(String content) {
         if (content == null || content.length() == 0) return null;
         List<Term> termList = segment.seg(content);
-        if (filter)
-        {
+        if (filter) {
             CoreStopWordDictionary.apply(termList);
         }
         Vector result = new Vector(dimension());
         int n = 0;
-        for (Term term : termList)
-        {
+        for (Term term : termList) {
             Vector vector = wordVectorModel.vector(term.word);
-            if (vector == null)
-            {
+            if (vector == null) {
                 continue;
             }
             ++n;
             result.addToSelf(vector);
         }
-        if (n == 0)
-        {
+        if (n == 0) {
             return null;
         }
         result.normalize();
@@ -123,8 +112,7 @@ public class DocVectorModel extends AbstractVectorModel<Integer>
     }
 
     @Override
-    public int dimension()
-    {
+    public int dimension() {
         return wordVectorModel.dimension();
     }
 
@@ -135,8 +123,7 @@ public class DocVectorModel extends AbstractVectorModel<Integer>
      * @param with
      * @return
      */
-    public float similarity(String what, String with)
-    {
+    public float similarity(String what, String with) {
         Vector A = query(what);
         if (A == null) return -1f;
         Vector B = query(with);
@@ -144,13 +131,11 @@ public class DocVectorModel extends AbstractVectorModel<Integer>
         return A.cosineForUnitVector(B);
     }
 
-    public Segment getSegment()
-    {
+    public Segment getSegment() {
         return segment;
     }
 
-    public void setSegment(Segment segment)
-    {
+    public void setSegment(Segment segment) {
         this.segment = segment;
     }
 
@@ -159,8 +144,7 @@ public class DocVectorModel extends AbstractVectorModel<Integer>
      *
      * @return
      */
-    public boolean isFilterEnabled()
-    {
+    public boolean isFilterEnabled() {
         return filter;
     }
 
@@ -169,8 +153,7 @@ public class DocVectorModel extends AbstractVectorModel<Integer>
      *
      * @param filter
      */
-    public void enableFilter(boolean filter)
-    {
+    public void enableFilter(boolean filter) {
         this.filter = filter;
     }
 }

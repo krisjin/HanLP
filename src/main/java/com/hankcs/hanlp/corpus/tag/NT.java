@@ -14,8 +14,7 @@ package com.hankcs.hanlp.corpus.tag;
 /**
  * @author hankcs
  */
-public enum NT
-{
+public enum NT {
     /**
      * 上文	[参与]亚太经合组织的活动
      */

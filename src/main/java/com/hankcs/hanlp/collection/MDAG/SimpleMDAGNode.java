@@ -1,18 +1,18 @@
 /**
  * MDAG is a Java library capable of constructing character-sequence-storing,
- * directed acyclic graphs of minimal size. 
- *
- *  Copyright (C) 2012 Kevin Lawson <Klawson88@gmail.com>
- *
+ * directed acyclic graphs of minimal size.
+ * <p>
+ * Copyright (C) 2012 Kevin Lawson <Klawson88@gmail.com>
+ * <p>
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -33,8 +33,7 @@ import java.io.DataOutputStream;
  *
  * @author Kevin
  */
-public class SimpleMDAGNode implements ICacheAble
-{
+public class SimpleMDAGNode implements ICacheAble {
     //The character labeling an incoming _transition to this node
     private char letter;
 
@@ -55,16 +54,14 @@ public class SimpleMDAGNode implements ICacheAble
      * @param isAcceptNode      a boolean representing the accept state status of this SimpleMDAGNode
      * @param transitionSetSize an int denoting the size of this _transition set
      */
-    public SimpleMDAGNode(char letter, boolean isAcceptNode, int transitionSetSize)
-    {
+    public SimpleMDAGNode(char letter, boolean isAcceptNode, int transitionSetSize) {
         this.letter = letter;
         this.isAcceptNode = isAcceptNode;
         this.transitionSetSize = transitionSetSize;
         this.transitionSetBeginIndex = 0;           //will be changed for all objects of this type, necessary for dummy root node creation
     }
 
-    public SimpleMDAGNode()
-    {
+    public SimpleMDAGNode() {
 
     }
 
@@ -74,8 +71,7 @@ public class SimpleMDAGNode implements ICacheAble
      *
      * @return the char representing the _transition label leading up to this node
      */
-    public char getLetter()
-    {
+    public char getLetter() {
         return letter;
     }
 
@@ -85,8 +81,7 @@ public class SimpleMDAGNode implements ICacheAble
      *
      * @return true if this node is an accept state, false otherwise
      */
-    public boolean isAcceptNode()
-    {
+    public boolean isAcceptNode() {
         return isAcceptNode;
     }
 
@@ -96,8 +91,7 @@ public class SimpleMDAGNode implements ICacheAble
      *
      * @return an int of the index in this node's containing array at which its _transition set begins
      */
-    public int getTransitionSetBeginIndex()
-    {
+    public int getTransitionSetBeginIndex() {
         return transitionSetBeginIndex;
     }
 
@@ -107,8 +101,7 @@ public class SimpleMDAGNode implements ICacheAble
      *
      * @return an int denoting the size of this node's outgoing _transition set
      */
-    public int getOutgoingTransitionSetSize()
-    {
+    public int getOutgoingTransitionSetSize() {
         return transitionSetSize;
     }
 
@@ -118,8 +111,7 @@ public class SimpleMDAGNode implements ICacheAble
      *
      * @param transitionSetBeginIndex an int denoting the index in this node's containing array that is _transition set beings at
      */
-    public void setTransitionSetBeginIndex(int transitionSetBeginIndex)
-    {
+    public void setTransitionSetBeginIndex(int transitionSetBeginIndex) {
         this.transitionSetBeginIndex = transitionSetBeginIndex;
     }
 
@@ -132,12 +124,10 @@ public class SimpleMDAGNode implements ICacheAble
      * @return the SimpleMDAGNode that is the target of the _transition labeled with {@code letter},
      * or null if there is no such labeled _transition from this node
      */
-    public SimpleMDAGNode transition(SimpleMDAGNode[] mdagDataArray, char letter)
-    {
+    public SimpleMDAGNode transition(SimpleMDAGNode[] mdagDataArray, char letter) {
         SimpleMDAGNode targetNode = null;
         int offset = binarySearch(mdagDataArray, letter);
-        if (offset >= 0)
-        {
+        if (offset >= 0) {
             targetNode = mdagDataArray[offset];
         }
         /////
@@ -145,17 +135,14 @@ public class SimpleMDAGNode implements ICacheAble
         return targetNode;
     }
 
-    private SimpleMDAGNode transitionBruteForce(SimpleMDAGNode[] mdagDataArray, char letter)
-    {
+    private SimpleMDAGNode transitionBruteForce(SimpleMDAGNode[] mdagDataArray, char letter) {
         int onePastTransitionSetEndIndex = transitionSetBeginIndex + transitionSetSize;
         SimpleMDAGNode targetNode = null;
 
         //Loop through the SimpleMDAGNodes in this node's _transition set, searching for
         //the one with a letter equal to that which labels the desired _transition
-        for(int i = transitionSetBeginIndex; i < onePastTransitionSetEndIndex; i++)
-        {
-            if(mdagDataArray[i].getLetter() == letter)
-            {
+        for (int i = transitionSetBeginIndex; i < onePastTransitionSetEndIndex; i++) {
+            if (mdagDataArray[i].getLetter() == letter) {
                 targetNode = mdagDataArray[i];
                 break;
             }
@@ -167,20 +154,18 @@ public class SimpleMDAGNode implements ICacheAble
 
     /**
      * 二分搜索
+     *
      * @param mdagDataArray
      * @param node
      * @return
      */
-    private int binarySearch(SimpleMDAGNode[] mdagDataArray, char node)
-    {
-        if (transitionSetSize < 1)
-        {
+    private int binarySearch(SimpleMDAGNode[] mdagDataArray, char node) {
+        if (transitionSetSize < 1) {
             return -1;
         }
         int high = transitionSetBeginIndex + transitionSetSize - 1;
         int low = transitionSetBeginIndex;
-        while (low <= high)
-        {
+        while (low <= high) {
             int mid = ((low + high) >>> 1);
             int cmp = mdagDataArray[mid].getLetter() - node;
 
@@ -203,30 +188,26 @@ public class SimpleMDAGNode implements ICacheAble
      * @return the SimpleMDAGNode at the end of the _transition path corresponding to
      * {@code str}, or null if such a _transition path is not present in the MDAG
      */
-    public SimpleMDAGNode transition(SimpleMDAGNode[] mdagDataArray, String str)
-    {
+    public SimpleMDAGNode transition(SimpleMDAGNode[] mdagDataArray, String str) {
         SimpleMDAGNode currentNode = this;
         int numberOfChars = str.length();
 
         //Iteratively _transition through the MDAG using the chars in str
-        for(int i = 0; i < numberOfChars; i++)
-        {
+        for (int i = 0; i < numberOfChars; i++) {
             currentNode = currentNode.transition(mdagDataArray, str.charAt(i));
-            if(currentNode == null) break;
+            if (currentNode == null) break;
         }
         /////
 
         return currentNode;
     }
 
-    public SimpleMDAGNode transition(SimpleMDAGNode[] mdagDataArray, char[] str)
-    {
+    public SimpleMDAGNode transition(SimpleMDAGNode[] mdagDataArray, char[] str) {
         SimpleMDAGNode currentNode = this;
         int numberOfChars = str.length;
 
         //Iteratively _transition through the MDAG using the chars in str
-        for (int i = 0; i < numberOfChars; i++)
-        {
+        for (int i = 0; i < numberOfChars; i++) {
             currentNode = currentNode.transition(mdagDataArray, str[i]);
             if (currentNode == null) break;
         }
@@ -235,14 +216,12 @@ public class SimpleMDAGNode implements ICacheAble
         return currentNode;
     }
 
-    public SimpleMDAGNode transition(SimpleMDAGNode[] mdagDataArray, char[] str, int offset)
-    {
+    public SimpleMDAGNode transition(SimpleMDAGNode[] mdagDataArray, char[] str, int offset) {
         SimpleMDAGNode currentNode = this;
         int numberOfChars = str.length - offset;
 
         //Iteratively _transition through the MDAG using the chars in str
-        for (int i = 0; i < numberOfChars; i++)
-        {
+        for (int i = 0; i < numberOfChars; i++) {
             currentNode = currentNode.transition(mdagDataArray, str[offset + i]);
             if (currentNode == null) break;
         }
@@ -261,8 +240,7 @@ public class SimpleMDAGNode implements ICacheAble
      * @return the SimpleMDAGNode at the end of the _transition path corresponding to
      * {@code str}, or null if such a _transition path is not present in the MDAG
      */
-    public static SimpleMDAGNode traverseMDAG(SimpleMDAGNode[] mdagDataArray, SimpleMDAGNode sourceNode, String str)
-    {
+    public static SimpleMDAGNode traverseMDAG(SimpleMDAGNode[] mdagDataArray, SimpleMDAGNode sourceNode, String str) {
 //        char firstLetter = str.charAt(0);
 
         //Loop through the SimpleMDAGNodes in the processing MDAG's source node's _transition set,
@@ -280,8 +258,7 @@ public class SimpleMDAGNode implements ICacheAble
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         final StringBuilder sb = new StringBuilder("SimpleMDAGNode{");
         sb.append("letter=").append(letter);
         sb.append(", isAcceptNode=").append(isAcceptNode);
@@ -292,8 +269,7 @@ public class SimpleMDAGNode implements ICacheAble
     }
 
     @Override
-    public void save(DataOutputStream out) throws Exception
-    {
+    public void save(DataOutputStream out) throws Exception {
         out.writeChar(letter);
         out.writeByte(isAcceptNode ? 1 : 0);
         out.writeInt(transitionSetBeginIndex);
@@ -301,8 +277,7 @@ public class SimpleMDAGNode implements ICacheAble
     }
 
     @Override
-    public boolean load(ByteArray byteArray)
-    {
+    public boolean load(ByteArray byteArray) {
         letter = byteArray.nextChar();
         isAcceptNode = byteArray.nextByte() == 1;
         transitionSetBeginIndex = byteArray.nextInt();

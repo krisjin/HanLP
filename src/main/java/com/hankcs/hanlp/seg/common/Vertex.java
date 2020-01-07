@@ -11,9 +11,9 @@
  */
 package com.hankcs.hanlp.seg.common;
 
-import com.hankcs.hanlp.utility.MathUtility;
-import com.hankcs.hanlp.dictionary.CoreDictionary;
 import com.hankcs.hanlp.corpus.tag.Nature;
+import com.hankcs.hanlp.dictionary.CoreDictionary;
+import com.hankcs.hanlp.utility.MathUtility;
 import com.hankcs.hanlp.utility.Predefine;
 
 import java.util.Map;
@@ -25,8 +25,7 @@ import static com.hankcs.hanlp.utility.Predefine.logger;
  *
  * @author hankcs
  */
-public class Vertex
-{
+public class Vertex {
     /**
      * 节点对应的词或等效词（如未##数）
      */
@@ -60,11 +59,9 @@ public class Vertex
      */
     public double weight;
 
-    public void updateFrom(Vertex from)
-    {
+    public void updateFrom(Vertex from) {
         double weight = from.weight + MathUtility.calculateWeight(from, this);
-        if (this.from == null || this.weight > weight)
-        {
+        if (this.from == null || this.weight > weight) {
             this.from = from;
             this.weight = weight;
         }
@@ -77,13 +74,11 @@ public class Vertex
      * @param realWord  真实词
      * @param attribute 属性
      */
-    public Vertex(String word, String realWord, CoreDictionary.Attribute attribute)
-    {
+    public Vertex(String word, String realWord, CoreDictionary.Attribute attribute) {
         this(word, realWord, attribute, attribute == null ? -1 : -attribute.totalFrequency);
     }
 
-    public Vertex(String word, String realWord, CoreDictionary.Attribute attribute, int wordID)
-    {
+    public Vertex(String word, String realWord, CoreDictionary.Attribute attribute, int wordID) {
         if (attribute == null) attribute = new CoreDictionary.Attribute(Nature.n, 1);   // 安全起见
         this.wordID = wordID;
         this.attribute = attribute;
@@ -95,51 +90,40 @@ public class Vertex
 
     /**
      * 将原词转为等效词串
-     * @param realWord 原来的词
+     *
+     * @param realWord  原来的词
      * @param attribute 等效词串
      * @return
      */
-    private String compileRealWord(String realWord, CoreDictionary.Attribute attribute)
-    {
-        if (attribute.nature.length == 1)
-        {
+    private String compileRealWord(String realWord, CoreDictionary.Attribute attribute) {
+        if (attribute.nature.length == 1) {
             Nature nature = attribute.nature[0];
-            if (nature.startsWith("nr"))
-            {
+            if (nature.startsWith("nr")) {
                 wordID = CoreDictionary.NR_WORD_ID;
 //                    this.attribute = CoreDictionary.get(CoreDictionary.NR_WORD_ID);
                 return Predefine.TAG_PEOPLE;
-            }
-            else if (nature.startsWith("ns"))
-            {
+            } else if (nature.startsWith("ns")) {
                 wordID = CoreDictionary.NS_WORD_ID;
                 // 在地名识别的时候,希望类似"河镇"的词语保持自己的词性,而不是未##地的词性
 //                    this.attribute = CoreDictionary.get(CoreDictionary.NS_WORD_ID);
                 return Predefine.TAG_PLACE;
             }
 //                case nz:
-            else if (nature == Nature.nx)
-            {
+            else if (nature == Nature.nx) {
                 wordID = CoreDictionary.NX_WORD_ID;
                 if (wordID == -1)
                     wordID = CoreDictionary.X_WORD_ID;
 //                    this.attribute = CoreDictionary.get(wordID);
                 return Predefine.TAG_PROPER;
-            }
-            else if (nature.startsWith("nt") || nature == Nature.nit)
-            {
+            } else if (nature.startsWith("nt") || nature == Nature.nit) {
                 wordID = CoreDictionary.NT_WORD_ID;
 //                    this.attribute = CoreDictionary.get(CoreDictionary.NT_WORD_ID);
                 return Predefine.TAG_GROUP;
-            }
-            else if (nature.startsWith('m'))
-            {
+            } else if (nature.startsWith('m')) {
                 wordID = CoreDictionary.M_WORD_ID;
                 this.attribute = CoreDictionary.get(CoreDictionary.M_WORD_ID);
                 return Predefine.TAG_NUMBER;
-            }
-            else if (nature.startsWith('x'))
-            {
+            } else if (nature.startsWith('x')) {
                 wordID = CoreDictionary.X_WORD_ID;
                 this.attribute = CoreDictionary.get(CoreDictionary.X_WORD_ID);
                 return Predefine.TAG_CLUSTER;
@@ -150,8 +134,7 @@ public class Vertex
 //                    word= Predefine.TAG_OTHER;
 //                }
 //                break;
-            else if (nature == Nature.t)
-            {
+            else if (nature == Nature.t) {
                 wordID = CoreDictionary.T_WORD_ID;
                 this.attribute = CoreDictionary.get(CoreDictionary.T_WORD_ID);
                 return Predefine.TAG_TIME;
@@ -167,13 +150,11 @@ public class Vertex
      * @param realWord
      * @param attribute
      */
-    public Vertex(String realWord, CoreDictionary.Attribute attribute)
-    {
+    public Vertex(String realWord, CoreDictionary.Attribute attribute) {
         this(null, realWord, attribute);
     }
 
-    public Vertex(String realWord, CoreDictionary.Attribute attribute, int wordID)
-    {
+    public Vertex(String realWord, CoreDictionary.Attribute attribute, int wordID) {
         this(null, realWord, attribute, wordID);
     }
 
@@ -182,8 +163,7 @@ public class Vertex
      *
      * @param entry
      */
-    public Vertex(Map.Entry<String, CoreDictionary.Attribute> entry)
-    {
+    public Vertex(Map.Entry<String, CoreDictionary.Attribute> entry) {
         this(entry.getKey(), entry.getValue());
     }
 
@@ -192,13 +172,11 @@ public class Vertex
      *
      * @param realWord
      */
-    public Vertex(String realWord)
-    {
+    public Vertex(String realWord) {
         this(null, realWord, CoreDictionary.get(realWord));
     }
 
-    public Vertex(char realWord, CoreDictionary.Attribute attribute)
-    {
+    public Vertex(char realWord, CoreDictionary.Attribute attribute) {
         this(String.valueOf(realWord), attribute);
     }
 
@@ -207,18 +185,15 @@ public class Vertex
      *
      * @return
      */
-    public String getRealWord()
-    {
+    public String getRealWord() {
         return realWord;
     }
 
-    public Vertex getFrom()
-    {
+    public Vertex getFrom() {
         return from;
     }
 
-    public void setFrom(Vertex from)
-    {
+    public void setFrom(Vertex from) {
         this.from = from;
     }
 
@@ -227,8 +202,7 @@ public class Vertex
      *
      * @return
      */
-    public CoreDictionary.Attribute getAttribute()
-    {
+    public CoreDictionary.Attribute getAttribute() {
         return attribute;
     }
 
@@ -238,16 +212,13 @@ public class Vertex
      * @param nature 词性
      * @return 如果锁定词性在词性列表中，返回真，否则返回假
      */
-    public boolean confirmNature(Nature nature)
-    {
-        if (attribute.nature.length == 1 && attribute.nature[0] == nature)
-        {
+    public boolean confirmNature(Nature nature) {
+        if (attribute.nature.length == 1 && attribute.nature[0] == nature) {
             return true;
         }
         boolean result = true;
         int frequency = attribute.getNatureFrequency(nature);
-        if (frequency == 0)
-        {
+        if (frequency == 0) {
             frequency = 1000;
             result = false;
         }
@@ -262,10 +233,8 @@ public class Vertex
      * @param updateWord 是否更新预编译字串
      * @return 如果锁定词性在词性列表中，返回真，否则返回假
      */
-    public boolean confirmNature(Nature nature, boolean updateWord)
-    {
-        switch (nature.firstChar())
-        {
+    public boolean confirmNature(Nature nature, boolean updateWord) {
+        switch (nature.firstChar()) {
 
             case 'm':
                 word = Predefine.TAG_NUMBER;
@@ -286,10 +255,8 @@ public class Vertex
      *
      * @return
      */
-    public Nature getNature()
-    {
-        if (attribute.nature.length == 1)
-        {
+    public Nature getNature() {
+        if (attribute.nature.length == 1) {
             return attribute.nature[0];
         }
 
@@ -301,13 +268,11 @@ public class Vertex
      *
      * @return
      */
-    public Nature guessNature()
-    {
+    public Nature guessNature() {
         return attribute.nature[0];
     }
 
-    public boolean hasNature(Nature nature)
-    {
+    public boolean hasNature(Nature nature) {
         return attribute.getNatureFrequency(nature) > 0;
     }
 
@@ -316,19 +281,16 @@ public class Vertex
      *
      * @return 自己的备份
      */
-    public Vertex copy()
-    {
+    public Vertex copy() {
         return new Vertex(word, realWord, attribute);
     }
 
-    public Vertex setWord(String word)
-    {
+    public Vertex setWord(String word) {
         this.word = word;
         return this;
     }
 
-    public Vertex setRealWord(String realWord)
-    {
+    public Vertex setRealWord(String realWord) {
         this.realWord = realWord;
         return this;
     }
@@ -339,8 +301,7 @@ public class Vertex
      * @param realWord 数字对应的真实字串
      * @return 数词顶点
      */
-    public static Vertex newNumberInstance(String realWord)
-    {
+    public static Vertex newNumberInstance(String realWord) {
         return new Vertex(Predefine.TAG_NUMBER, realWord, new CoreDictionary.Attribute(Nature.m, 1000));
     }
 
@@ -350,8 +311,7 @@ public class Vertex
      * @param realWord 数字对应的真实字串
      * @return 地名顶点
      */
-    public static Vertex newAddressInstance(String realWord)
-    {
+    public static Vertex newAddressInstance(String realWord) {
         return new Vertex(Predefine.TAG_PLACE, realWord, new CoreDictionary.Attribute(Nature.ns, 1000));
     }
 
@@ -361,8 +321,7 @@ public class Vertex
      * @param realWord 标点符号对应的真实字串
      * @return 标点符号顶点
      */
-    public static Vertex newPunctuationInstance(String realWord)
-    {
+    public static Vertex newPunctuationInstance(String realWord) {
         return new Vertex(realWord, new CoreDictionary.Attribute(Nature.w, 1000));
     }
 
@@ -372,8 +331,7 @@ public class Vertex
      * @param realWord
      * @return
      */
-    public static Vertex newPersonInstance(String realWord)
-    {
+    public static Vertex newPersonInstance(String realWord) {
         return newPersonInstance(realWord, 1000);
     }
 
@@ -383,8 +341,7 @@ public class Vertex
      * @param realWord
      * @return
      */
-    public static Vertex newTranslatedPersonInstance(String realWord, int frequency)
-    {
+    public static Vertex newTranslatedPersonInstance(String realWord, int frequency) {
         return new Vertex(Predefine.TAG_PEOPLE, realWord, new CoreDictionary.Attribute(Nature.nrf, frequency));
     }
 
@@ -394,8 +351,7 @@ public class Vertex
      * @param realWord
      * @return
      */
-    public static Vertex newJapanesePersonInstance(String realWord, int frequency)
-    {
+    public static Vertex newJapanesePersonInstance(String realWord, int frequency) {
         return new Vertex(Predefine.TAG_PEOPLE, realWord, new CoreDictionary.Attribute(Nature.nrj, frequency));
     }
 
@@ -406,8 +362,7 @@ public class Vertex
      * @param frequency
      * @return
      */
-    public static Vertex newPersonInstance(String realWord, int frequency)
-    {
+    public static Vertex newPersonInstance(String realWord, int frequency) {
         return new Vertex(Predefine.TAG_PEOPLE, realWord, new CoreDictionary.Attribute(Nature.nr, frequency));
     }
 
@@ -418,8 +373,7 @@ public class Vertex
      * @param frequency
      * @return
      */
-    public static Vertex newPlaceInstance(String realWord, int frequency)
-    {
+    public static Vertex newPlaceInstance(String realWord, int frequency) {
         return new Vertex(Predefine.TAG_PLACE, realWord, new CoreDictionary.Attribute(Nature.ns, frequency));
     }
 
@@ -430,8 +384,7 @@ public class Vertex
      * @param frequency
      * @return
      */
-    public static Vertex newOrganizationInstance(String realWord, int frequency)
-    {
+    public static Vertex newOrganizationInstance(String realWord, int frequency) {
         return new Vertex(Predefine.TAG_GROUP, realWord, new CoreDictionary.Attribute(Nature.nt, frequency));
     }
 
@@ -441,37 +394,34 @@ public class Vertex
      * @param realWord 时间对应的真实字串
      * @return 时间顶点
      */
-    public static Vertex newTimeInstance(String realWord)
-    {
+    public static Vertex newTimeInstance(String realWord) {
         return new Vertex(Predefine.TAG_TIME, realWord, new CoreDictionary.Attribute(Nature.t, 1000));
     }
 
     /**
      * 生成线程安全的起始节点
+     *
      * @return
      */
-    public static Vertex newB()
-    {
+    public static Vertex newB() {
         return new Vertex(Predefine.TAG_BIGIN, " ", new CoreDictionary.Attribute(Nature.begin, Predefine.MAX_FREQUENCY / 10), CoreDictionary.getWordID(Predefine.TAG_BIGIN));
     }
 
     /**
      * 生成线程安全的终止节点
+     *
      * @return
      */
-    public static Vertex newE()
-    {
+    public static Vertex newE() {
         return new Vertex(Predefine.TAG_END, " ", new CoreDictionary.Attribute(Nature.end, Predefine.MAX_FREQUENCY / 10), CoreDictionary.getWordID(Predefine.TAG_END));
     }
 
-    public int length()
-    {
+    public int length() {
         return realWord.length();
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return realWord;
 //        return "WordNode{" +
 //                "word='" + word + '\'' +

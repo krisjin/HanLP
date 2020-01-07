@@ -21,24 +21,20 @@ import java.util.TreeMap;
  *
  * @author hankcs
  */
-public class PartOfSpeechTagDictionary
-{
+public class PartOfSpeechTagDictionary {
     /**
      * 词性映射表
      */
     public static Map<String, String> translator = new TreeMap<String, String>();
 
-    static
-    {
+    static {
         load(HanLP.Config.PartOfSpeechTagDictionary);
     }
 
-    public static void load(String path)
-    {
+    public static void load(String path) {
         IOUtil.LineIterator iterator = new IOUtil.LineIterator(path);
         iterator.next(); // header
-        while (iterator.hasNext())
-        {
+        while (iterator.hasNext()) {
             String[] args = iterator.next().split(",");
             if (args.length < 3) continue;
             translator.put(args[1], args[2]);
@@ -51,8 +47,7 @@ public class PartOfSpeechTagDictionary
      * @param tag
      * @return
      */
-    public static String translate(String tag)
-    {
+    public static String translate(String tag) {
         String cn = translator.get(tag);
         if (cn == null) return tag;
         return cn;

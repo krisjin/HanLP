@@ -8,8 +8,7 @@ import java.util.TreeSet;
 /**
  * 线段树，用于检查区间重叠
  */
-public class IntervalTree
-{
+public class IntervalTree {
     /**
      * 根节点
      */
@@ -20,8 +19,7 @@ public class IntervalTree
      *
      * @param intervals
      */
-    public IntervalTree(List<Intervalable> intervals)
-    {
+    public IntervalTree(List<Intervalable> intervals) {
         this.rootNode = new IntervalNode(intervals);
     }
 
@@ -31,19 +29,16 @@ public class IntervalTree
      * @param intervals
      * @return
      */
-    public List<Intervalable> removeOverlaps(List<Intervalable> intervals)
-    {
+    public List<Intervalable> removeOverlaps(List<Intervalable> intervals) {
 
         // 排序，按照先大小后左端点的顺序
         Collections.sort(intervals, new IntervalableComparatorBySize());
 
         Set<Intervalable> removeIntervals = new TreeSet<Intervalable>();
 
-        for (Intervalable interval : intervals)
-        {
+        for (Intervalable interval : intervals) {
             // 如果区间已经被移除了，就忽略它
-            if (removeIntervals.contains(interval))
-            {
+            if (removeIntervals.contains(interval)) {
                 continue;
             }
 
@@ -52,8 +47,7 @@ public class IntervalTree
         }
 
         // 移除所有的重叠区间
-        for (Intervalable removeInterval : removeIntervals)
-        {
+        for (Intervalable removeInterval : removeIntervals) {
             intervals.remove(removeInterval);
         }
 
@@ -69,8 +63,7 @@ public class IntervalTree
      * @param interval 与这个区间重叠
      * @return 重叠的区间列表
      */
-    public List<Intervalable> findOverlaps(Intervalable interval)
-    {
+    public List<Intervalable> findOverlaps(Intervalable interval) {
         return rootNode.findOverlaps(interval);
     }
 

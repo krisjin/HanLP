@@ -21,26 +21,23 @@ import static com.hankcs.hanlp.utility.Predefine.logger;
 
 /**
  * 静态调用的伪 Windows “dll”
+ *
  * @author hankcs
  */
-public class parser_dll
-{
+public class parser_dll {
     private NeuralNetworkParser parser;
 
-    public parser_dll()
-    {
+    public parser_dll() {
         this(ConfigOption.PATH);
     }
 
-    public parser_dll(String modelPath)
-    {
+    public parser_dll(String modelPath) {
         parser = GlobalObjectPool.get(modelPath);
         if (parser != null) return;
         parser = new NeuralNetworkParser();
         long start = System.currentTimeMillis();
         logger.info("开始加载神经网络依存句法模型：" + modelPath);
-        if (!parser.load(modelPath))
-        {
+        if (!parser.load(modelPath)) {
             throw new IllegalArgumentException("加载神经网络依存句法模型[" + modelPath + "]失败！");
         }
         logger.info("加载神经网络依存句法模型[" + modelPath + "]成功，耗时 " + (System.currentTimeMillis() - start) + " ms");
@@ -58,14 +55,12 @@ public class parser_dll
      * @param deprels 输出依存名称列表
      * @return 节点的个数
      */
-    public int parse(List<String> words, List<String> postags, List<Integer> heads, List<String> deprels)
-    {
+    public int parse(List<String> words, List<String> postags, List<Integer> heads, List<String> deprels) {
         Instance inst = new Instance();
         inst.forms.add(SpecialOption.ROOT);
         inst.postags.add(SpecialOption.ROOT);
 
-        for (int i = 0; i < words.size(); i++)
-        {
+        for (int i = 0; i < words.size(); i++) {
             inst.forms.add(words.get(i));
             inst.postags.add(postags.get(i));
         }

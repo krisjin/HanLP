@@ -6,10 +6,10 @@
 package com.hankcs.hanlp.dependency.perceptron.transition.parser;
 
 import com.hankcs.hanlp.dependency.perceptron.learning.AveragedPerceptron;
-import com.hankcs.hanlp.dependency.perceptron.transition.features.FeatureExtractor;
 import com.hankcs.hanlp.dependency.perceptron.transition.configuration.BeamElement;
 import com.hankcs.hanlp.dependency.perceptron.transition.configuration.Configuration;
 import com.hankcs.hanlp.dependency.perceptron.transition.configuration.State;
+import com.hankcs.hanlp.dependency.perceptron.transition.features.FeatureExtractor;
 
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
@@ -17,8 +17,7 @@ import java.util.concurrent.Callable;
 import static com.hankcs.hanlp.dependency.perceptron.transition.parser.PartialTreeBeamScorerThread.addAvailableBeamElements;
 
 
-public class BeamScorerThread implements Callable<ArrayList<BeamElement>>
-{
+public class BeamScorerThread implements Callable<ArrayList<BeamElement>> {
 
     boolean isDecode;
     AveragedPerceptron classifier;
@@ -28,8 +27,7 @@ public class BeamScorerThread implements Callable<ArrayList<BeamElement>>
     int b;
     boolean rootFirst;
 
-    public BeamScorerThread(boolean isDecode, AveragedPerceptron classifier, Configuration configuration, ArrayList<Integer> dependencyRelations, int featureLength, int b, boolean rootFirst)
-    {
+    public BeamScorerThread(boolean isDecode, AveragedPerceptron classifier, Configuration configuration, ArrayList<Integer> dependencyRelations, int featureLength, int b, boolean rootFirst) {
         this.isDecode = isDecode;
         this.classifier = classifier;
         this.configuration = configuration;
@@ -40,8 +38,7 @@ public class BeamScorerThread implements Callable<ArrayList<BeamElement>>
     }
 
 
-    public ArrayList<BeamElement> call()
-    {
+    public ArrayList<BeamElement> call() {
         ArrayList<BeamElement> elements = new ArrayList<BeamElement>(dependencyRelations.size() * 2 + 3);
 
         State currentState = configuration.state;

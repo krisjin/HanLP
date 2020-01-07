@@ -13,25 +13,21 @@ package com.hankcs.hanlp.dependency.nnparser.util;
 
 import com.hankcs.hanlp.corpus.document.sentence.Sentence;
 import com.hankcs.hanlp.corpus.io.IOUtil;
-import com.hankcs.hanlp.model.perceptron.PerceptronTrainer;
-import com.hankcs.hanlp.model.perceptron.instance.Instance;
-import com.hankcs.hanlp.model.perceptron.instance.InstanceHandler;
-import com.hankcs.hanlp.model.perceptron.utility.IOUtility;
-import com.hankcs.hanlp.model.perceptron.utility.Utility;
 import com.hankcs.hanlp.seg.common.Term;
 import com.hankcs.hanlp.tokenizer.lexical.POSTagger;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * @author hankcs
  */
-public class PosTagUtil
-{
+public class PosTagUtil {
     private static Map<String, String> posConverter = new TreeMap<String, String>();
 
-    static
-    {
+    static {
         posConverter.put("Mg", "m");
         posConverter.put("Rg", "r");
         posConverter.put("ad", "a");
@@ -184,11 +180,9 @@ public class PosTagUtil
      * @param termList
      * @return
      */
-    public static List<String> to863(List<Term> termList)
-    {
+    public static List<String> to863(List<Term> termList) {
         List<String> posTagList = new ArrayList<String>(termList.size());
-        for (Term term : termList)
-        {
+        for (Term term : termList) {
             String posTag = posConverter.get(term.nature.toString());
             if (posTag == null)
                 posTag = term.nature.toString();
@@ -205,20 +199,17 @@ public class PosTagUtil
      * @param corpus 测试集
      * @return Accuracy百分比
      */
-    public static float evaluate(POSTagger tagger, String corpus)
-    {
+    public static float evaluate(POSTagger tagger, String corpus) {
         int correct = 0, total = 0;
         IOUtil.LineIterator lineIterator = new IOUtil.LineIterator(corpus);
-        for (String line : lineIterator)
-        {
+        for (String line : lineIterator) {
             Sentence sentence = Sentence.create(line);
             if (sentence == null) continue;
             String[][] wordTagArray = sentence.toWordTagArray();
             String[] prediction = tagger.tag(wordTagArray[0]);
             assert prediction.length == wordTagArray[1].length;
             total += prediction.length;
-            for (int i = 0; i < prediction.length; i++)
-            {
+            for (int i = 0; i < prediction.length; i++) {
                 if (prediction[i].equals(wordTagArray[1][i]))
                     ++correct;
             }

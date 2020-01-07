@@ -17,10 +17,10 @@ import com.hankcs.hanlp.utility.LexiconUtility;
 
 /**
  * 一个单词，用户可以直接访问此单词的全部属性
+ *
  * @author hankcs
  */
-public class Term
-{
+public class Term {
     /**
      * 词语
      */
@@ -38,18 +38,17 @@ public class Term
 
     /**
      * 构造一个单词
-     * @param word 词语
+     *
+     * @param word   词语
      * @param nature 词性
      */
-    public Term(String word, Nature nature)
-    {
+    public Term(String word, Nature nature) {
         this.word = word;
         this.nature = nature;
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         if (HanLP.Config.ShowTermNature)
             return word + "/" + nature;
         return word;
@@ -57,19 +56,19 @@ public class Term
 
     /**
      * 长度
+     *
      * @return
      */
-    public int length()
-    {
+    public int length() {
         return word.length();
     }
 
     /**
      * 获取本词语在HanLP词库中的频次
+     *
      * @return 频次，0代表这是个OOV
      */
-    public int getFrequency()
-    {
+    public int getFrequency() {
         return LexiconUtility.getFrequency(word);
     }
 
@@ -79,11 +78,9 @@ public class Term
      */
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof Term)
-        {
-            Term term = (Term)obj;
-            if (this.nature == term.nature && this.word.equals(term.word))
-            {
+        if (obj instanceof Term) {
+            Term term = (Term) obj;
+            if (this.nature == term.nature && this.word.equals(term.word)) {
                 return true;
             }
         }

@@ -28,8 +28,7 @@ import static com.hankcs.hanlp.utility.Predefine.logger;
  *
  * @author hankcs
  */
-public class CharType
-{
+public class CharType {
     /**
      * 单字节
      */
@@ -72,47 +71,37 @@ public class CharType
 
     public static byte[] type;
 
-    static
-    {
+    static {
         type = new byte[65536];
         logger.info("字符类型对应表开始加载 " + HanLP.Config.CharTypePath);
         long start = System.currentTimeMillis();
         ByteArray byteArray = ByteArray.createByteArray(HanLP.Config.CharTypePath);
-        if (byteArray == null)
-        {
-            try
-            {
+        if (byteArray == null) {
+            try {
                 byteArray = generate();
-            }
-            catch (IOException e)
-            {
+            } catch (IOException e) {
                 throw new IllegalArgumentException("字符类型对应表 " + HanLP.Config.CharTypePath + " 加载失败： " + TextUtility.exceptionToString(e));
             }
         }
-        while (byteArray.hasMore())
-        {
+        while (byteArray.hasMore()) {
             int b = byteArray.nextChar();
             int e = byteArray.nextChar();
             byte t = byteArray.nextByte();
-            for (int i = b; i <= e; ++i)
-            {
+            for (int i = b; i <= e; ++i) {
                 type[i] = t;
             }
         }
         logger.info("字符类型对应表加载成功，耗时" + (System.currentTimeMillis() - start) + " ms");
     }
 
-    private static ByteArray generate() throws IOException
-    {
+    private static ByteArray generate() throws IOException {
         int preType = 5;
         int preChar = 0;
         List<int[]> typeList = new LinkedList<int[]>();
-        for (int i = 0; i <= Character.MAX_VALUE; ++i)
-        {
+        for (int i = 0; i <= Character.MAX_VALUE; ++i) {
             int type = TextUtility.charType((char) i);
 //            System.out.printf("%d %d\n", i, TextUtility.charType((char) i));
-            if (type != preType)
-            {
+            if (type != preType) {
                 int[] array = new int[3];
                 array[0] = preChar;
                 array[1] = i - 1;
@@ -132,8 +121,7 @@ public class CharType
         }
 //        System.out.print("int[" + typeList.size() + "][3] array = \n");
         DataOutputStream out = new DataOutputStream(new FileOutputStream(HanLP.Config.CharTypePath));
-        for (int[] array : typeList)
-        {
+        for (int[] array : typeList) {
 //            System.out.printf("%d %d %d\n", array[0], array[1], array[2]);
             out.writeChar(array[0]);
             out.writeChar(array[1]);
@@ -150,8 +138,7 @@ public class CharType
      * @param c
      * @return
      */
-    public static byte get(char c)
-    {
+    public static byte get(char c) {
         return type[(int) c];
     }
 
@@ -161,8 +148,7 @@ public class CharType
      * @param c 字符
      * @param t 类型
      */
-    public static void set(char c, byte t)
-    {
+    public static void set(char c, byte t) {
         type[c] = t;
     }
 }

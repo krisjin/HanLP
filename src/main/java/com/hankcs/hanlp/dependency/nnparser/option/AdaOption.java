@@ -14,8 +14,7 @@ package com.hankcs.hanlp.dependency.nnparser.option;
 /**
  * @author hankcs
  */
-public class AdaOption
-{
+public class AdaOption {
     double ada_eps;             //! Eps used in AdaGrad
     double ada_alpha;           //! Alpha used in AdaGrad
     double lambda;              //! TODO not known.

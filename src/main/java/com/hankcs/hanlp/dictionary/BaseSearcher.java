@@ -10,14 +10,15 @@
  * </copyright>
  */
 package com.hankcs.hanlp.dictionary;
+
 import java.util.Map;
 
 /**
  * 查询字典者
+ *
  * @author He Han
  */
-public abstract class BaseSearcher<V>
-{
+public abstract class BaseSearcher<V> {
     /**
      * 待分词文本的char
      */
@@ -27,28 +28,27 @@ public abstract class BaseSearcher<V>
      */
     protected int offset;
 
-    protected BaseSearcher(char[] c)
-    {
+    protected BaseSearcher(char[] c) {
         this.c = c;
     }
 
-    protected BaseSearcher(String text)
-    {
+    protected BaseSearcher(String text) {
         this(text.toCharArray());
     }
 
     /**
      * 分出下一个词
+     *
      * @return
      */
     public abstract Map.Entry<String, V> next();
 
     /**
      * 获取当前偏移
+     *
      * @return
      */
-    public int getOffset()
-    {
+    public int getOffset() {
         return offset;
     }
 }

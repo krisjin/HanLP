@@ -20,49 +20,41 @@ import java.util.TreeMap;
 /**
  * @author hankcs
  */
-public class MutableFeatureMap extends FeatureMap
-{
+public class MutableFeatureMap extends FeatureMap {
     public Map<String, Integer> featureIdMap;
     // TreeMap 5136
     // Bin 2712
     // DAT minutes
     // trie4j 3411
 
-    public MutableFeatureMap(TagSet tagSet)
-    {
+    public MutableFeatureMap(TagSet tagSet) {
         super(tagSet, true);
         featureIdMap = new TreeMap<String, Integer>();
         addTransitionFeatures(tagSet);
     }
 
-    private void addTransitionFeatures(TagSet tagSet)
-    {
-        for (int i = 0; i < tagSet.size(); i++)
-        {
+    private void addTransitionFeatures(TagSet tagSet) {
+        for (int i = 0; i < tagSet.size(); i++) {
             idOf("BL=" + tagSet.stringOf(i));
         }
         idOf("BL=_BL_");
     }
 
-    public MutableFeatureMap(TagSet tagSet, Map<String, Integer> featureIdMap)
-    {
+    public MutableFeatureMap(TagSet tagSet, Map<String, Integer> featureIdMap) {
         super(tagSet);
         this.featureIdMap = featureIdMap;
         addTransitionFeatures(tagSet);
     }
 
     @Override
-    public Set<Map.Entry<String, Integer>> entrySet()
-    {
+    public Set<Map.Entry<String, Integer>> entrySet() {
         return featureIdMap.entrySet();
     }
 
     @Override
-    public int idOf(String string)
-    {
+    public int idOf(String string) {
         Integer id = featureIdMap.get(string);
-        if (id == null)
-        {
+        if (id == null) {
             id = featureIdMap.size();
             featureIdMap.put(string, id);
         }
@@ -70,25 +62,21 @@ public class MutableFeatureMap extends FeatureMap
         return id;
     }
 
-    public int size()
-    {
+    public int size() {
         return featureIdMap.size();
     }
 
-    public Set<String> featureSet()
-    {
+    public Set<String> featureSet() {
         return featureIdMap.keySet();
     }
 
     @Override
-    public int[] allLabels()
-    {
+    public int[] allLabels() {
         return tagSet.allTags();
     }
 
     @Override
-    public int bosTag()
-    {
+    public int bosTag() {
         return tagSet.size();
     }
 }

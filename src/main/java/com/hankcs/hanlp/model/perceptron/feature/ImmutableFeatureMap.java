@@ -20,43 +20,36 @@ import java.util.Set;
 /**
  * @author hankcs
  */
-public class ImmutableFeatureMap extends FeatureMap
-{
+public class ImmutableFeatureMap extends FeatureMap {
     public Map<String, Integer> featureIdMap;
 
-    public ImmutableFeatureMap(Map<String, Integer> featureIdMap, TagSet tagSet)
-    {
+    public ImmutableFeatureMap(Map<String, Integer> featureIdMap, TagSet tagSet) {
         super(tagSet);
         this.featureIdMap = featureIdMap;
     }
 
-    public ImmutableFeatureMap(Set<Map.Entry<String, Integer>> entrySet, TagSet tagSet)
-    {
+    public ImmutableFeatureMap(Set<Map.Entry<String, Integer>> entrySet, TagSet tagSet) {
         super(tagSet);
         this.featureIdMap = new HashMap<String, Integer>();
-        for (Map.Entry<String, Integer> entry : entrySet)
-        {
+        for (Map.Entry<String, Integer> entry : entrySet) {
             featureIdMap.put(entry.getKey(), entry.getValue());
         }
     }
 
     @Override
-    public int idOf(String string)
-    {
+    public int idOf(String string) {
         Integer id = featureIdMap.get(string);
         if (id == null) return -1;
         return id;
     }
 
     @Override
-    public int size()
-    {
+    public int size() {
         return featureIdMap.size();
     }
 
     @Override
-    public Set<Map.Entry<String, Integer>> entrySet()
-    {
+    public Set<Map.Entry<String, Integer>> entrySet() {
         return featureIdMap.entrySet();
     }
 }

@@ -4,7 +4,10 @@ import com.hankcs.hanlp.corpus.io.IOUtil;
 import com.hankcs.hanlp.dependency.perceptron.accessories.Options;
 import com.hankcs.hanlp.dependency.perceptron.learning.AveragedPerceptron;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.zip.GZIPInputStream;
@@ -21,8 +24,7 @@ import java.util.zip.GZIPOutputStream;
 /**
  * 句法分析模型（参数、超参数、词表等）
  */
-public class ParserModel
-{
+public class ParserModel {
     public HashMap<Object, Float>[] shiftFeatureAveragedWeights;
     public HashMap<Object, Float>[] reduceFeatureAveragedWeights;
     public HashMap<Object, CompactArray>[] leftArcFeatureAveragedWeights;
@@ -34,8 +36,7 @@ public class ParserModel
     public Options options;
 
     public ParserModel(HashMap<Object, Float>[] shiftFeatureAveragedWeights, HashMap<Object, Float>[] reduceFeatureAveragedWeights, HashMap<Object, CompactArray>[] leftArcFeatureAveragedWeights, HashMap<Object, CompactArray>[] rightArcFeatureAveragedWeights,
-                       IndexMaps maps, ArrayList<Integer> dependencyLabels, Options options, int dependencySize)
-    {
+                       IndexMaps maps, ArrayList<Integer> dependencyLabels, Options options, int dependencySize) {
         this.shiftFeatureAveragedWeights = shiftFeatureAveragedWeights;
         this.reduceFeatureAveragedWeights = reduceFeatureAveragedWeights;
         this.leftArcFeatureAveragedWeights = leftArcFeatureAveragedWeights;
@@ -46,8 +47,7 @@ public class ParserModel
         this.dependencySize = dependencySize;
     }
 
-    public ParserModel(AveragedPerceptron perceptron, IndexMaps maps, ArrayList<Integer> dependencyLabels, Options options)
-    {
+    public ParserModel(AveragedPerceptron perceptron, IndexMaps maps, ArrayList<Integer> dependencyLabels, Options options) {
         shiftFeatureAveragedWeights = new HashMap[perceptron.shiftFeatureAveragedWeights.length];
         reduceFeatureAveragedWeights = new HashMap[perceptron.reduceFeatureAveragedWeights.length];
 
@@ -55,11 +55,9 @@ public class ParserModel
         HashMap<Object, Float>[] avgMap = perceptron.shiftFeatureAveragedWeights;
         this.dependencySize = perceptron.dependencySize;
 
-        for (int i = 0; i < shiftFeatureAveragedWeights.length; i++)
-        {
+        for (int i = 0; i < shiftFeatureAveragedWeights.length; i++) {
             shiftFeatureAveragedWeights[i] = new HashMap<Object, Float>();
-            for (Object feat : map[i].keySet())
-            {
+            for (Object feat : map[i].keySet()) {
                 float vals = map[i].get(feat);
                 float avgVals = avgMap[i].get(feat);
                 float newVals = vals - (avgVals / perceptron.iteration);
@@ -71,11 +69,9 @@ public class ParserModel
         HashMap<Object, Float>[] avgMap4 = perceptron.reduceFeatureAveragedWeights;
         this.dependencySize = perceptron.dependencySize;
 
-        for (int i = 0; i < reduceFeatureAveragedWeights.length; i++)
-        {
+        for (int i = 0; i < reduceFeatureAveragedWeights.length; i++) {
             reduceFeatureAveragedWeights[i] = new HashMap<Object, Float>();
-            for (Object feat : map4[i].keySet())
-            {
+            for (Object feat : map4[i].keySet()) {
                 float vals = map4[i].get(feat);
                 float avgVals = avgMap4[i].get(feat);
                 float newVals = vals - (avgVals / perceptron.iteration);
@@ -87,11 +83,9 @@ public class ParserModel
         HashMap<Object, CompactArray>[] map2 = perceptron.leftArcFeatureWeights;
         HashMap<Object, CompactArray>[] avgMap2 = perceptron.leftArcFeatureAveragedWeights;
 
-        for (int i = 0; i < leftArcFeatureAveragedWeights.length; i++)
-        {
+        for (int i = 0; i < leftArcFeatureAveragedWeights.length; i++) {
             leftArcFeatureAveragedWeights[i] = new HashMap<Object, CompactArray>();
-            for (Object feat : map2[i].keySet())
-            {
+            for (Object feat : map2[i].keySet()) {
                 CompactArray vals = map2[i].get(feat);
                 CompactArray avgVals = avgMap2[i].get(feat);
                 leftArcFeatureAveragedWeights[i].put(feat, getAveragedCompactArray(vals, avgVals, perceptron.iteration));
@@ -102,11 +96,9 @@ public class ParserModel
         HashMap<Object, CompactArray>[] map3 = perceptron.rightArcFeatureWeights;
         HashMap<Object, CompactArray>[] avgMap3 = perceptron.rightArcFeatureAveragedWeights;
 
-        for (int i = 0; i < rightArcFeatureAveragedWeights.length; i++)
-        {
+        for (int i = 0; i < rightArcFeatureAveragedWeights.length; i++) {
             rightArcFeatureAveragedWeights[i] = new HashMap<Object, CompactArray>();
-            for (Object feat : map3[i].keySet())
-            {
+            for (Object feat : map3[i].keySet()) {
                 CompactArray vals = map3[i].get(feat);
                 CompactArray avgVals = avgMap3[i].get(feat);
                 rightArcFeatureAveragedWeights[i].put(feat, getAveragedCompactArray(vals, avgVals, perceptron.iteration));
@@ -118,8 +110,7 @@ public class ParserModel
         this.options = options;
     }
 
-    public ParserModel(String modelPath) throws IOException, ClassNotFoundException
-    {
+    public ParserModel(String modelPath) throws IOException, ClassNotFoundException {
         ObjectInputStream reader = new ObjectInputStream(new GZIPInputStream(IOUtil.newInputStream(modelPath)));
         dependencyLabels = (ArrayList<Integer>) reader.readObject();
         maps = (IndexMaps) reader.readObject();
@@ -132,8 +123,7 @@ public class ParserModel
         reader.close();
     }
 
-    public void saveModel(String modelPath) throws IOException
-    {
+    public void saveModel(String modelPath) throws IOException {
         ObjectOutput writer = new ObjectOutputStream(new GZIPOutputStream(IOUtil.newOutputStream(modelPath)));
         writer.writeObject(dependencyLabels);
         writer.writeObject(maps);
@@ -146,14 +136,12 @@ public class ParserModel
         writer.close();
     }
 
-    private CompactArray getAveragedCompactArray(CompactArray ca, CompactArray aca, int iteration)
-    {
+    private CompactArray getAveragedCompactArray(CompactArray ca, CompactArray aca, int iteration) {
         int offset = ca.getOffset();
         float[] a = ca.getArray();
         float[] aa = aca.getArray();
         float[] aNew = new float[a.length];
-        for (int i = 0; i < a.length; i++)
-        {
+        for (int i = 0; i < a.length; i++) {
             aNew[i] = a[i] - (aa[i] / iteration);
         }
         return new CompactArray(offset, aNew);

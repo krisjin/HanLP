@@ -33,30 +33,25 @@ import java.util.concurrent.ExecutionException;
  *
  * @author hankcs
  */
-public class KBeamArcEagerDependencyParser extends AbstractDependencyParser
-{
+public class KBeamArcEagerDependencyParser extends AbstractDependencyParser {
     KBeamArcEagerParser parser;
 
-    public KBeamArcEagerDependencyParser() throws IOException, ClassNotFoundException
-    {
+    public KBeamArcEagerDependencyParser() throws IOException, ClassNotFoundException {
         this(HanLP.Config.PerceptronParserModelPath);
     }
 
-    public KBeamArcEagerDependencyParser(Segment segment, KBeamArcEagerParser parser)
-    {
+    public KBeamArcEagerDependencyParser(Segment segment, KBeamArcEagerParser parser) {
         super(segment);
         this.parser = parser;
     }
 
-    public KBeamArcEagerDependencyParser(KBeamArcEagerParser parser)
-    {
+    public KBeamArcEagerDependencyParser(KBeamArcEagerParser parser) {
         this.parser = parser;
     }
 
-    public KBeamArcEagerDependencyParser(String modelPath) throws IOException, ClassNotFoundException
-    {
+    public KBeamArcEagerDependencyParser(String modelPath) throws IOException, ClassNotFoundException {
         this(new PerceptronLexicalAnalyzer(HanLP.Config.PerceptronCWSModelPath,
-                                           HanLP.Config.PerceptronPOSModelPath.replaceFirst("data.*?.bin", "data/model/perceptron/ctb/pos.bin")
+                HanLP.Config.PerceptronPOSModelPath.replaceFirst("data.*?.bin", "data/model/perceptron/ctb/pos.bin")
         ).enableCustomDictionary(false), new KBeamArcEagerParser(modelPath));
     }
 
@@ -72,8 +67,7 @@ public class KBeamArcEagerDependencyParser extends AbstractDependencyParser
      * @throws IOException
      * @throws ClassNotFoundException
      */
-    public static KBeamArcEagerDependencyParser train(String trainCorpus, String devCorpus, String clusterPath, String modelPath) throws InterruptedException, ExecutionException, IOException, ClassNotFoundException
-    {
+    public static KBeamArcEagerDependencyParser train(String trainCorpus, String devCorpus, String clusterPath, String modelPath) throws InterruptedException, ExecutionException, IOException, ClassNotFoundException {
         Options options = new Options();
         options.train = true;
         options.inputFile = trainCorpus;
@@ -93,8 +87,7 @@ public class KBeamArcEagerDependencyParser extends AbstractDependencyParser
      * @throws ExecutionException
      * @throws InterruptedException
      */
-    public double[] evaluate(String testCorpus) throws IOException, ExecutionException, InterruptedException
-    {
+    public double[] evaluate(String testCorpus) throws IOException, ExecutionException, InterruptedException {
         Options options = parser.options;
         options.goldFile = testCorpus;
         File tmpTemplate = File.createTempFile("pred-" + new Date().getTime(), ".conll");
@@ -104,13 +97,12 @@ public class KBeamArcEagerDependencyParser extends AbstractDependencyParser
         File scoreFile = File.createTempFile("score-" + new Date().getTime(), ".txt");
         scoreFile.deleteOnExit();
         parser.parseConllFile(testCorpus, options.outputFile, options.rootFirst, options.beamWidth, true,
-                              options.lowercase, 1, false, scoreFile.getAbsolutePath());
+                options.lowercase, 1, false, scoreFile.getAbsolutePath());
         return Evaluator.evaluate(options.goldFile, options.predFile, options.punctuations);
     }
 
     @Override
-    public CoNLLSentence parse(List<Term> termList)
-    {
+    public CoNLLSentence parse(List<Term> termList) {
         return parse(termList, 64, 1);
     }
 
@@ -122,42 +114,32 @@ public class KBeamArcEagerDependencyParser extends AbstractDependencyParser
      * @param numOfThreads 多线程数
      * @return 句法树
      */
-    public CoNLLSentence parse(List<Term> termList, int beamWidth, int numOfThreads)
-    {
+    public CoNLLSentence parse(List<Term> termList, int beamWidth, int numOfThreads) {
         String[] words = new String[termList.size()];
         String[] tags = new String[termList.size()];
         int k = 0;
-        for (Term term : termList)
-        {
+        for (Term term : termList) {
             words[k] = term.word;
             tags[k] = term.nature.toString();
             ++k;
         }
 
         Configuration bestParse;
-        try
-        {
+        try {
             bestParse = parser.parse(words, tags, false, beamWidth, numOfThreads);
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
         CoNLLWord[] wordArray = new CoNLLWord[termList.size()];
-        for (int i = 0; i < words.length; i++)
-        {
+        for (int i = 0; i < words.length; i++) {
             wordArray[i] = new CoNLLWord(i + 1, words[i], tags[i]);
         }
-        for (int i = 0; i < words.length; i++)
-        {
+        for (int i = 0; i < words.length; i++) {
             wordArray[i].DEPREL = parser.idWord(bestParse.state.getDependent(i + 1));
             int index = bestParse.state.getHead(i + 1) - 1;
-            if (index < 0 || index >= wordArray.length)
-            {
+            if (index < 0 || index >= wordArray.length) {
                 wordArray[i].HEAD = CoNLLWord.ROOT;
-            }
-            else
-            {
+            } else {
                 wordArray[i].HEAD = wordArray[index];
             }
         }

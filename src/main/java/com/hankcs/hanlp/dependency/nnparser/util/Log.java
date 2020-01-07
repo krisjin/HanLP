@@ -14,15 +14,12 @@ package com.hankcs.hanlp.dependency.nnparser.util;
 /**
  * @author hankcs
  */
-public class Log
-{
-    public static void ERROR_LOG(String format, Object ... args)
-    {
+public class Log {
+    public static void ERROR_LOG(String format, Object... args) {
         System.err.printf(format, args);
     }
 
-    public static void INFO_LOG(String format, Object ... args)
-    {
+    public static void INFO_LOG(String format, Object... args) {
         System.err.printf(format, args);
     }
 }

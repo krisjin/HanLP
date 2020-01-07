@@ -13,10 +13,10 @@ package com.hankcs.hanlp.dependency.nnparser.action;
 
 /**
  * arc-standard system (Nivre, 2004) 用到的动作，类似于 Yamada 和 Matsumoto 提出的分析动作
+ *
  * @author hankcs
  */
-public interface ActionType
-{
+public interface ActionType {
     /**
      * 无效动作，正常情况下不会用到
      */

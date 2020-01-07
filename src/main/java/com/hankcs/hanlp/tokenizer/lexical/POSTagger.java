@@ -17,8 +17,7 @@ import java.util.List;
  *
  * @author hankcs
  */
-public interface POSTagger
-{
+public interface POSTagger {
     /**
      * 词性标注
      *

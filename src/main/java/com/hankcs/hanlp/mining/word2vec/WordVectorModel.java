@@ -19,16 +19,14 @@ import java.util.*;
  *
  * @author hankcs
  */
-public class WordVectorModel extends AbstractVectorModel<String>
-{
+public class WordVectorModel extends AbstractVectorModel<String> {
     /**
      * 加载模型<br>
      *
      * @param modelFileName 模型路径
      * @throws IOException 加载错误
      */
-    public WordVectorModel(String modelFileName) throws IOException
-    {
+    public WordVectorModel(String modelFileName) throws IOException {
         this(modelFileName, new TreeMap<String, Vector>());
     }
 
@@ -36,20 +34,17 @@ public class WordVectorModel extends AbstractVectorModel<String>
      * 加载模型
      *
      * @param modelFileName 模型路径
-     * @param storage 一个空白的Map（HashMap等）
+     * @param storage       一个空白的Map（HashMap等）
      * @throws IOException 加载错误
      */
-    public WordVectorModel(String modelFileName, Map<String, Vector> storage) throws IOException
-    {
+    public WordVectorModel(String modelFileName, Map<String, Vector> storage) throws IOException {
         super(loadVectorMap(modelFileName, storage));
     }
 
-    private static Map<String, Vector> loadVectorMap(String modelFileName, Map<String, Vector> storage) throws IOException
-    {
+    private static Map<String, Vector> loadVectorMap(String modelFileName, Map<String, Vector> storage) throws IOException {
         VectorsReader reader = new VectorsReader(modelFileName);
         reader.readVectorFile();
-        for (int i = 0; i < reader.vocab.length; i++)
-        {
+        for (int i = 0; i < reader.vocab.length; i++) {
             storage.put(reader.vocab[i], new Vector(reader.matrix[i]));
         }
         return storage;
@@ -63,8 +58,7 @@ public class WordVectorModel extends AbstractVectorModel<String>
      * @param C 做加法的词语
      * @return 与(A - B + C)语义距离最近的词语及其相似度列表
      */
-    public List<Map.Entry<String, Float>> analogy(String A, String B, String C)
-    {
+    public List<Map.Entry<String, Float>> analogy(String A, String B, String C) {
         return analogy(A, B, C, 10);
     }
 
@@ -77,29 +71,24 @@ public class WordVectorModel extends AbstractVectorModel<String>
      * @param size topN个
      * @return 与(A - B + C)语义距离最近的词语及其相似度列表
      */
-    public List<Map.Entry<String, Float>> analogy(String A, String B, String C, int size)
-    {
+    public List<Map.Entry<String, Float>> analogy(String A, String B, String C, int size) {
         Vector a = storage.get(A);
         Vector b = storage.get(B);
         Vector c = storage.get(C);
-        if (a == null || b == null || c == null)
-        {
+        if (a == null || b == null || c == null) {
             return Collections.emptyList();
         }
 
         List<Map.Entry<String, Float>> resultList = nearest(a.minus(b).add(c), size + 3);
         ListIterator<Map.Entry<String, Float>> listIterator = resultList.listIterator();
-        while (listIterator.hasNext())
-        {
+        while (listIterator.hasNext()) {
             String key = listIterator.next().getKey();
-            if (key.equals(A) || key.equals(B) || key.equals(C))
-            {
+            if (key.equals(A) || key.equals(B) || key.equals(C)) {
                 listIterator.remove();
             }
         }
 
-        if (resultList.size() > size)
-        {
+        if (resultList.size() > size) {
             resultList = resultList.subList(0, size);
         }
 
@@ -107,8 +96,7 @@ public class WordVectorModel extends AbstractVectorModel<String>
     }
 
     @Override
-    public Vector query(String query)
-    {
+    public Vector query(String query) {
         return vector(query);
     }
 }

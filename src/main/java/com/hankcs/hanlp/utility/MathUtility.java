@@ -17,45 +17,37 @@ import com.hankcs.hanlp.seg.common.Vertex;
 import java.util.Map;
 import java.util.Set;
 
-import static com.hankcs.hanlp.utility.Predefine.MAX_FREQUENCY;
-import static com.hankcs.hanlp.utility.Predefine.dSmoothingPara;
-import static com.hankcs.hanlp.utility.Predefine.dTemp;
+import static com.hankcs.hanlp.utility.Predefine.*;
 
 /**
  * 一些数学小工具
+ *
  * @author hankcs
  */
-public class MathUtility
-{
-    public static int sum(int ... var)
-    {
+public class MathUtility {
+    public static int sum(int... var) {
         int sum = 0;
-        for (int x : var)
-        {
+        for (int x : var) {
             sum += x;
         }
 
         return sum;
     }
 
-    public static float sum(float ... var)
-    {
+    public static float sum(float... var) {
         float sum = 0;
-        for (float x : var)
-        {
+        for (float x : var) {
             sum += x;
         }
 
         return sum;
     }
 
-    public static double percentage(double current, double total)
-    {
+    public static double percentage(double current, double total) {
         return current / total * 100.;
     }
 
-    public static double average(double array[])
-    {
+    public static double average(double array[]) {
         double sum = 0;
         for (int i = 0; i < array.length; i++)
             sum += array[i];
@@ -67,54 +59,44 @@ public class MathUtility
      *
      * @param predictionScores
      */
-    public static void normalizeExp(Map<String, Double> predictionScores)
-    {
+    public static void normalizeExp(Map<String, Double> predictionScores) {
         Set<Map.Entry<String, Double>> entrySet = predictionScores.entrySet();
         double max = Double.NEGATIVE_INFINITY;
-        for (Map.Entry<String, Double> entry : entrySet)
-        {
+        for (Map.Entry<String, Double> entry : entrySet) {
             max = Math.max(max, entry.getValue());
         }
 
         double sum = 0.0;
         //通过减去最大值防止浮点数溢出
-        for (Map.Entry<String, Double> entry : entrySet)
-        {
+        for (Map.Entry<String, Double> entry : entrySet) {
             Double value = Math.exp(entry.getValue() - max);
             entry.setValue(value);
 
             sum += value;
         }
 
-        if (sum != 0.0)
-        {
-            for (Map.Entry<String, Double> entry : entrySet)
-            {
+        if (sum != 0.0) {
+            for (Map.Entry<String, Double> entry : entrySet) {
                 predictionScores.put(entry.getKey(), entry.getValue() / sum);
             }
         }
     }
 
-    public static void normalizeExp(double[] predictionScores)
-    {
+    public static void normalizeExp(double[] predictionScores) {
         double max = Double.NEGATIVE_INFINITY;
-        for (double value : predictionScores)
-        {
+        for (double value : predictionScores) {
             max = Math.max(max, value);
         }
 
         double sum = 0.0;
         //通过减去最大值防止浮点数溢出
-        for (int i = 0; i < predictionScores.length; i++)
-        {
+        for (int i = 0; i < predictionScores.length; i++) {
             predictionScores[i] = Math.exp(predictionScores[i] - max);
             sum += predictionScores[i];
         }
 
-        if (sum != 0.0)
-        {
-            for (int i = 0; i < predictionScores.length; i++)
-            {
+        if (sum != 0.0) {
+            for (int i = 0; i < predictionScores.length; i++) {
                 predictionScores[i] /= sum;
             }
         }
@@ -127,18 +109,15 @@ public class MathUtility
      * @param to   后面的词
      * @return 分数
      */
-    public static double calculateWeight(Vertex from, Vertex to)
-    {
+    public static double calculateWeight(Vertex from, Vertex to) {
         int frequency = from.getAttribute().totalFrequency;
-        if (frequency == 0)
-        {
+        if (frequency == 0) {
             frequency = 1;  // 防止发生除零错误
         }
 //        int nTwoWordsFreq = BiGramDictionary.getBiFrequency(from.word, to.word);
         int nTwoWordsFreq = CoreBiGramTableDictionary.getBiFrequency(from.wordID, to.wordID);
         double value = -Math.log(dSmoothingPara * frequency / (MAX_FREQUENCY) + (1 - dSmoothingPara) * ((1 - dTemp) * nTwoWordsFreq / frequency + dTemp));
-        if (value < 0.0)
-        {
+        if (value < 0.0) {
             value = -value;
         }
 //        logger.info(String.format("%5s frequency:%6d, %s nTwoWordsFreq:%3d, weight:%.2f", from.word, frequency, from.word + "@" + to.word, nTwoWordsFreq, value));

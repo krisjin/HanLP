@@ -16,13 +16,12 @@ import java.util.*;
 
 /**
  * 基本打分器
+ *
  * @param <T> 这是储存器map中key的类型，具有相同key的句子会存入同一个entry
  * @author hankcs
  */
-public abstract class BaseScorer<T extends ISentenceKey> implements IScorer
-{
-    public BaseScorer()
-    {
+public abstract class BaseScorer<T extends ISentenceKey> implements IScorer {
+    public BaseScorer() {
         storage = new TreeMap<T, Set<String>>();
     }
 
@@ -37,23 +36,21 @@ public abstract class BaseScorer<T extends ISentenceKey> implements IScorer
 
     /**
      * 设置权重
+     *
      * @param boost
      * @return
      */
-    public BaseScorer setBoost(double boost)
-    {
+    public BaseScorer setBoost(double boost) {
         this.boost = boost;
         return this;
     }
 
     @Override
-    public void addSentence(String sentence)
-    {
+    public void addSentence(String sentence) {
         T key = generateKey(sentence);
         if (key == null) return;
         Set<String> set = storage.get(key);
-        if (set == null)
-        {
+        if (set == null) {
             set = new TreeSet<String>();
             storage.put(key, set);
         }
@@ -62,23 +59,21 @@ public abstract class BaseScorer<T extends ISentenceKey> implements IScorer
 
     /**
      * 生成能够代表这个句子的键
+     *
      * @param sentence
      * @return
      */
     protected abstract T generateKey(String sentence);
 
     @Override
-    public Map<String, Double> computeScore(String outerSentence)
-    {
+    public Map<String, Double> computeScore(String outerSentence) {
         TreeMap<String, Double> result = new TreeMap<String, Double>(Collections.reverseOrder());
         T keyOuter = generateKey(outerSentence);
         if (keyOuter == null) return result;
-        for (Map.Entry<T, Set<String>> entry : storage.entrySet())
-        {
+        for (Map.Entry<T, Set<String>> entry : storage.entrySet()) {
             T key = entry.getKey();
             Double score = keyOuter.similarity(key);
-            for (String sentence : entry.getValue())
-            {
+            for (String sentence : entry.getValue()) {
                 result.put(sentence, score);
             }
         }
@@ -86,8 +81,7 @@ public abstract class BaseScorer<T extends ISentenceKey> implements IScorer
     }
 
     @Override
-    public void removeAllSentences()
-    {
+    public void removeAllSentences() {
         storage.clear();
     }
 }

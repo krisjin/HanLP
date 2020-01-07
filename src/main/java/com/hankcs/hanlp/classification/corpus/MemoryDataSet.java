@@ -23,53 +23,45 @@ import java.util.Map;
 /**
  * @author hankcs
  */
-public class MemoryDataSet extends AbstractDataSet
-{
+public class MemoryDataSet extends AbstractDataSet {
     List<Document> documentList;
     boolean editMode;
 
-    public MemoryDataSet()
-    {
+    public MemoryDataSet() {
         super();
         documentList = new LinkedList<Document>();
     }
 
-    public MemoryDataSet(AbstractModel model)
-    {
+    public MemoryDataSet(AbstractModel model) {
         super(model);
         documentList = new LinkedList<Document>();
     }
 
     @Override
-    public Document add(String category, String text)
-    {
+    public Document add(String category, String text) {
         if (editMode) return null;
         Document document = convert(category, text);
         documentList.add(document);
         return document;
     }
+
     @Override
-    public int size()
-    {
+    public int size() {
         return documentList.size();
     }
 
     @Override
-    public void clear()
-    {
+    public void clear() {
         documentList.clear();
     }
 
     @Override
-    public IDataSet shrink(int[] idMap)
-    {
+    public IDataSet shrink(int[] idMap) {
         Iterator<Document> iterator = iterator();
-        while (iterator.hasNext())
-        {
+        while (iterator.hasNext()) {
             Document document = iterator.next();
             FrequencyMap<Integer> tfMap = new FrequencyMap<Integer>();
-            for (Map.Entry<Integer, int[]> entry : document.tfMap.entrySet())
-            {
+            for (Map.Entry<Integer, int[]> entry : document.tfMap.entrySet()) {
                 Integer feature = entry.getKey();
                 if (idMap[feature] == -1) continue;
                 tfMap.put(idMap[feature], entry.getValue());
@@ -82,8 +74,7 @@ public class MemoryDataSet extends AbstractDataSet
     }
 
     @Override
-    public Iterator<Document> iterator()
-    {
+    public Iterator<Document> iterator() {
         return documentList.iterator();
     }
 }

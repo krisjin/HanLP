@@ -13,12 +13,11 @@ package com.hankcs.hanlp.classification.tokenizers;
 
 /**
  * 使用\\s（如空白符）进行切分的分词器
+ *
  * @author hankcs
  */
-public class BlankTokenizer implements ITokenizer
-{
-    public String[] segment(String text)
-    {
+public class BlankTokenizer implements ITokenizer {
+    public String[] segment(String text) {
         return text.split("\\s");
     }
 }

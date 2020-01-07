@@ -18,10 +18,10 @@ import java.io.DataOutputStream;
 
 /**
  * 特征函数，其实是tag.size个特征函数的集合
+ *
  * @author hankcs
  */
-public class FeatureFunction implements ICacheAble
-{
+public class FeatureFunction implements ICacheAble {
     /**
      * 环境参数
      */
@@ -36,49 +36,40 @@ public class FeatureFunction implements ICacheAble
      */
     double[] w;
 
-    public FeatureFunction(char[] o, int tagSize)
-    {
+    public FeatureFunction(char[] o, int tagSize) {
         this.o = o;
         w = new double[tagSize];
     }
 
-    public FeatureFunction()
-    {
+    public FeatureFunction() {
     }
 
-    public FeatureFunction(String o, int tagSize)
-    {
+    public FeatureFunction(String o, int tagSize) {
         this(o.toCharArray(), tagSize);
     }
 
     @Override
-    public void save(DataOutputStream out) throws Exception
-    {
+    public void save(DataOutputStream out) throws Exception {
         out.writeInt(o.length);
-        for (char c : o)
-        {
+        for (char c : o) {
             out.writeChar(c);
         }
         out.writeInt(w.length);
-        for (double v : w)
-        {
+        for (double v : w) {
             out.writeDouble(v);
         }
     }
 
     @Override
-    public boolean load(ByteArray byteArray)
-    {
+    public boolean load(ByteArray byteArray) {
         int size = byteArray.nextInt();
         o = new char[size];
-        for (int i = 0; i < size; ++i)
-        {
+        for (int i = 0; i < size; ++i) {
             o[i] = byteArray.nextChar();
         }
         size = byteArray.nextInt();
         w = new double[size];
-        for (int i = 0; i < size; ++i)
-        {
+        for (int i = 0; i < size; ++i) {
             w[i] = byteArray.nextDouble();
         }
         return true;

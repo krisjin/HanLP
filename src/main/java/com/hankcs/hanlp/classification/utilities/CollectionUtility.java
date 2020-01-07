@@ -16,42 +16,33 @@ import java.util.*;
 /**
  * @author hankcs
  */
-public class CollectionUtility
-{
-    public static <K, V extends Comparable<V>> Map<K, V> sortMapByValue(Map<K, V> input, final boolean desc)
-    {
+public class CollectionUtility {
+    public static <K, V extends Comparable<V>> Map<K, V> sortMapByValue(Map<K, V> input, final boolean desc) {
         LinkedHashMap<K, V> output = new LinkedHashMap<K, V>(input.size());
         ArrayList<Map.Entry<K, V>> entryList = new ArrayList<Map.Entry<K, V>>(input.entrySet());
-        Collections.sort(entryList, new Comparator<Map.Entry<K, V>>()
-        {
-            public int compare(Map.Entry<K, V> o1, Map.Entry<K, V> o2)
-            {
+        Collections.sort(entryList, new Comparator<Map.Entry<K, V>>() {
+            public int compare(Map.Entry<K, V> o1, Map.Entry<K, V> o2) {
                 if (desc) return o2.getValue().compareTo(o1.getValue());
                 return o1.getValue().compareTo(o2.getValue());
             }
         });
-        for (Map.Entry<K, V> entry : entryList)
-        {
+        for (Map.Entry<K, V> entry : entryList) {
             output.put(entry.getKey(), entry.getValue());
         }
 
         return output;
     }
 
-    public static <K, V extends Comparable<V>> Map<K, V> sortMapByValue(Map<K, V> input)
-    {
+    public static <K, V extends Comparable<V>> Map<K, V> sortMapByValue(Map<K, V> input) {
         return sortMapByValue(input, true);
     }
 
-    public static String max(Map<String, Double> scoreMap)
-    {
+    public static String max(Map<String, Double> scoreMap) {
         double max = Double.NEGATIVE_INFINITY;
         String best = null;
-        for (Map.Entry<String, Double> entry : scoreMap.entrySet())
-        {
+        for (Map.Entry<String, Double> entry : scoreMap.entrySet()) {
             Double score = entry.getValue();
-            if (score > max)
-            {
+            if (score > max) {
                 max = score;
                 best = entry.getKey();
             }
@@ -62,12 +53,12 @@ public class CollectionUtility
 
     /**
      * 分割数组为两个数组
-     * @param src 原数组
+     *
+     * @param src  原数组
      * @param rate 第一个数组所占的比例
      * @return 两个数组
      */
-    public static String[][] spiltArray(String[] src, double rate)
-    {
+    public static String[][] spiltArray(String[] src, double rate) {
         assert 0 <= rate && rate <= 1;
         String[][] output = new String[2][];
         output[0] = new String[(int) (src.length * rate)];
@@ -79,16 +70,15 @@ public class CollectionUtility
 
     /**
      * 分割Map,其中旧map直接被改变
+     *
      * @param src
      * @param rate
      * @return
      */
-    public static Map<String, String[]> splitMap(Map<String, String[]> src, double rate)
-    {
+    public static Map<String, String[]> splitMap(Map<String, String[]> src, double rate) {
         assert 0 <= rate && rate <= 1;
         Map<String, String[]> output = new TreeMap<String, String[]>();
-        for (Map.Entry<String, String[]> entry : src.entrySet())
-        {
+        for (Map.Entry<String, String[]> entry : src.entrySet()) {
             String[][] array = spiltArray(entry.getValue(), rate);
             output.put(entry.getKey(), array[0]);
             entry.setValue(array[1]);

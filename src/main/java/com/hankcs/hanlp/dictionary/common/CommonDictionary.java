@@ -27,8 +27,7 @@ import static com.hankcs.hanlp.utility.Predefine.logger;
  *
  * @author hankcs
  */
-public abstract class CommonDictionary<V>
-{
+public abstract class CommonDictionary<V> {
     DoubleArrayTrie<V> trie;
 
     /**
@@ -45,28 +44,22 @@ public abstract class CommonDictionary<V>
      * @param path
      * @return
      */
-    public boolean load(String path)
-    {
+    public boolean load(String path) {
         trie = new DoubleArrayTrie<V>();
         long start = System.currentTimeMillis();
-        if (loadDat(ByteArray.createByteArray(path + BIN_EXT)))
-        {
+        if (loadDat(ByteArray.createByteArray(path + BIN_EXT))) {
             return true;
         }
         TreeMap<String, V> map = new TreeMap<String, V>();
-        try
-        {
+        try {
             BufferedReader br = new BufferedReader(new InputStreamReader(IOUtil.newInputStream(path), "UTF-8"));
             String line;
-            while ((line = br.readLine()) != null)
-            {
+            while ((line = br.readLine()) != null) {
                 String[] paramArray = line.split("\\s");
                 map.put(paramArray[0], createValue(paramArray));
             }
             br.close();
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             logger.warning("读取" + path + "失败" + e);
             return false;
         }
@@ -74,14 +67,12 @@ public abstract class CommonDictionary<V>
         Set<Map.Entry<String, V>> entrySet = map.entrySet();
         List<String> keyList = new ArrayList<String>(entrySet.size());
         List<V> valueList = new ArrayList<V>(entrySet.size());
-        for (Map.Entry<String, V> entry : entrySet)
-        {
+        for (Map.Entry<String, V> entry : entrySet) {
             keyList.add(entry.getKey());
             valueList.add(entry.getValue());
         }
         int resultCode = trie.build(keyList, valueList);
-        if (resultCode != 0)
-        {
+        if (resultCode != 0) {
             logger.warning("trie建立失败");
             return false;
         }
@@ -96,11 +87,9 @@ public abstract class CommonDictionary<V>
      * @param byteArray
      * @return
      */
-    protected boolean loadDat(ByteArray byteArray)
-    {
+    protected boolean loadDat(ByteArray byteArray) {
         V[] valueArray = loadValueArray(byteArray);
-        if (valueArray == null)
-        {
+        if (valueArray == null) {
             return false;
         }
         return trie.load(byteArray.getBytes(), byteArray.getOffset(), valueArray);
@@ -113,21 +102,16 @@ public abstract class CommonDictionary<V>
      * @param valueArray
      * @return
      */
-    protected boolean saveDat(String path, List<V> valueArray)
-    {
-        try
-        {
+    protected boolean saveDat(String path, List<V> valueArray) {
+        try {
             DataOutputStream out = new DataOutputStream(new BufferedOutputStream(IOUtil.newOutputStream(path)));
             out.writeInt(valueArray.size());
-            for (V item : valueArray)
-            {
+            for (V item : valueArray) {
                 saveValue(item, out);
             }
             trie.save(out);
             out.close();
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             logger.warning("保存失败" + TextUtility.exceptionToString(e));
             return false;
         }
@@ -149,8 +133,7 @@ public abstract class CommonDictionary<V>
      * @param key
      * @return 单词对应的条目
      */
-    public V get(String key)
-    {
+    public V get(String key) {
         return trie.get(key);
     }
 
@@ -160,8 +143,7 @@ public abstract class CommonDictionary<V>
      * @param key
      * @return
      */
-    public boolean contains(String key)
-    {
+    public boolean contains(String key) {
         return get(key) != null;
     }
 
@@ -170,8 +152,7 @@ public abstract class CommonDictionary<V>
      *
      * @return
      */
-    public int size()
-    {
+    public int size() {
         return trie.size();
     }
 
@@ -188,7 +169,6 @@ public abstract class CommonDictionary<V>
      *
      * @param map
      */
-    protected void onLoaded(TreeMap<String, V> map)
-    {
+    protected void onLoaded(TreeMap<String, V> map) {
     }
 }

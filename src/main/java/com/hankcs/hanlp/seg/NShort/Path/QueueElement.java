@@ -14,8 +14,7 @@ package com.hankcs.hanlp.seg.NShort.Path;
 /**
  * @author hankcs
  */
-public class QueueElement implements Comparable<QueueElement>
-{
+public class QueueElement implements Comparable<QueueElement> {
     /**
      * 边的起点
      */
@@ -35,20 +34,19 @@ public class QueueElement implements Comparable<QueueElement>
 
     /**
      * 构造一个边节点
-     * @param from 边的起点
-     * @param index 边的终点
+     *
+     * @param from   边的起点
+     * @param index  边的终点
      * @param weight 权重
      */
-    public QueueElement(int from, int index, double weight)
-    {
+    public QueueElement(int from, int index, double weight) {
         this.from = from;
         this.index = index;
         this.weight = weight;
     }
 
     @Override
-    public int compareTo(QueueElement other)
-    {
+    public int compareTo(QueueElement other) {
         return Double.compare(weight, other.weight);
     }
 }

@@ -21,31 +21,26 @@ import java.util.ListIterator;
  *
  * @author hankcs
  */
-public class LexicalAnalyzerPipe implements Pipe<List<IWord>, List<IWord>>
-{
+public class LexicalAnalyzerPipe implements Pipe<List<IWord>, List<IWord>> {
     /**
      * 代理的词法分析器
      */
     protected LexicalAnalyzer analyzer;
 
-    public LexicalAnalyzerPipe(LexicalAnalyzer analyzer)
-    {
+    public LexicalAnalyzerPipe(LexicalAnalyzer analyzer) {
         this.analyzer = analyzer;
     }
 
     @Override
-    public List<IWord> flow(List<IWord> input)
-    {
+    public List<IWord> flow(List<IWord> input) {
         ListIterator<IWord> listIterator = input.listIterator();
-        while (listIterator.hasNext())
-        {
+        while (listIterator.hasNext()) {
             IWord wordOrSentence = listIterator.next();
             if (wordOrSentence.getLabel() != null)
                 continue; // 这是别的管道已经处理过的单词，跳过
             listIterator.remove(); // 否则是句子
             String sentence = wordOrSentence.getValue();
-            for (IWord word : analyzer.analyze(sentence))
-            {
+            for (IWord word : analyzer.analyze(sentence)) {
                 listIterator.add(word);
             }
         }

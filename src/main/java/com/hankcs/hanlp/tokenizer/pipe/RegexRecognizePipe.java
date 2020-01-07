@@ -23,8 +23,7 @@ import java.util.regex.Pattern;
  *
  * @author hankcs
  */
-public class RegexRecognizePipe implements Pipe<List<IWord>, List<IWord>>
-{
+public class RegexRecognizePipe implements Pipe<List<IWord>, List<IWord>> {
     /**
      * 正则表达式
      */
@@ -34,19 +33,16 @@ public class RegexRecognizePipe implements Pipe<List<IWord>, List<IWord>>
      */
     protected String label;
 
-    public RegexRecognizePipe(Pattern pattern, String label)
-    {
+    public RegexRecognizePipe(Pattern pattern, String label) {
         this.pattern = pattern;
         this.label = label;
     }
 
 
     @Override
-    public List<IWord> flow(List<IWord> input)
-    {
+    public List<IWord> flow(List<IWord> input) {
         ListIterator<IWord> listIterator = input.listIterator();
-        while (listIterator.hasNext())
-        {
+        while (listIterator.hasNext()) {
             IWord wordOrSentence = listIterator.next();
             if (wordOrSentence.getLabel() != null)
                 continue; // 这是别的管道已经处理过的单词，跳过
@@ -55,8 +51,7 @@ public class RegexRecognizePipe implements Pipe<List<IWord>, List<IWord>>
             Matcher matcher = pattern.matcher(sentence);
             int begin = 0;
             int end;
-            while (matcher.find())
-            {
+            while (matcher.find()) {
                 end = matcher.start();
                 listIterator.add(new Word(sentence.substring(begin, end), null)); // 未拦截的部分
                 listIterator.add(new Word(matcher.group(), label)); // 拦截到的部分

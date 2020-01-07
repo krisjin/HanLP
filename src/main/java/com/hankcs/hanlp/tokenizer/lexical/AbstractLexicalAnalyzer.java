@@ -38,8 +38,7 @@ import java.util.*;
  *
  * @author hankcs
  */
-public class AbstractLexicalAnalyzer extends CharacterBasedSegment implements LexicalAnalyzer
-{
+public class AbstractLexicalAnalyzer extends CharacterBasedSegment implements LexicalAnalyzer {
     protected Segmenter segmenter;
     protected POSTagger posTagger;
     protected NERecognizer neRecognizer;
@@ -52,47 +51,39 @@ public class AbstractLexicalAnalyzer extends CharacterBasedSegment implements Le
      */
     protected boolean enableRuleBasedSegment = false;
 
-    static
-    {
+    static {
         typeTable = new byte[CharType.type.length];
         System.arraycopy(CharType.type, 0, typeTable, 0, typeTable.length);
-        for (char c : Predefine.CHINESE_NUMBERS.toCharArray())
-        {
+        for (char c : Predefine.CHINESE_NUMBERS.toCharArray()) {
             typeTable[c] = CharType.CT_CHINESE;
         }
         typeTable[CharTable.convert('·')] = CharType.CT_CHINESE;
     }
 
-    protected AbstractLexicalAnalyzer()
-    {
+    protected AbstractLexicalAnalyzer() {
         config.translatedNameRecognize = false;
         config.japaneseNameRecognize = false;
     }
 
-    public AbstractLexicalAnalyzer(Segmenter segmenter)
-    {
+    public AbstractLexicalAnalyzer(Segmenter segmenter) {
         this();
         this.segmenter = segmenter;
     }
 
-    public AbstractLexicalAnalyzer(Segmenter segmenter, POSTagger posTagger)
-    {
+    public AbstractLexicalAnalyzer(Segmenter segmenter, POSTagger posTagger) {
         this();
         this.segmenter = segmenter;
         this.posTagger = posTagger;
     }
 
-    public AbstractLexicalAnalyzer(Segmenter segmenter, POSTagger posTagger, NERecognizer neRecognizer)
-    {
+    public AbstractLexicalAnalyzer(Segmenter segmenter, POSTagger posTagger, NERecognizer neRecognizer) {
         this();
         this.segmenter = segmenter;
         this.posTagger = posTagger;
         this.neRecognizer = neRecognizer;
-        if (posTagger != null)
-        {
+        if (posTagger != null) {
             config.speechTagging = true;
-            if (neRecognizer != null)
-            {
+            if (neRecognizer != null) {
                 config.ner = true;
             }
         }
@@ -106,18 +97,13 @@ public class AbstractLexicalAnalyzer extends CharacterBasedSegment implements Le
      * @param wordList      储存单词列表
      * @param attributeList 储存用户词典中的词性，设为null表示不查询用户词典
      */
-    protected void segment(final String sentence, final String normalized, final List<String> wordList, final List<CoreDictionary.Attribute> attributeList)
-    {
-        if (attributeList != null)
-        {
+    protected void segment(final String sentence, final String normalized, final List<String> wordList, final List<CoreDictionary.Attribute> attributeList) {
+        if (attributeList != null) {
             final int[] offset = new int[]{0};
-            CustomDictionary.parseLongestText(sentence, new AhoCorasickDoubleArrayTrie.IHit<CoreDictionary.Attribute>()
-            {
+            CustomDictionary.parseLongestText(sentence, new AhoCorasickDoubleArrayTrie.IHit<CoreDictionary.Attribute>() {
                 @Override
-                public void hit(int begin, int end, CoreDictionary.Attribute value)
-                {
-                    if (begin != offset[0])
-                    {
+                public void hit(int begin, int end, CoreDictionary.Attribute value) {
+                    if (begin != offset[0]) {
                         segmentAfterRule(sentence.substring(offset[0], begin), normalized.substring(offset[0], begin), wordList);
                     }
                     while (attributeList.size() < wordList.size())
@@ -128,43 +114,32 @@ public class AbstractLexicalAnalyzer extends CharacterBasedSegment implements Le
                     offset[0] = end;
                 }
             });
-            if (offset[0] != sentence.length())
-            {
+            if (offset[0] != sentence.length()) {
                 segmentAfterRule(sentence.substring(offset[0]), normalized.substring(offset[0]), wordList);
             }
-        }
-        else
-        {
+        } else {
             segmentAfterRule(sentence, normalized, wordList);
         }
     }
 
     @Override
-    public void segment(final String sentence, final String normalized, final List<String> wordList)
-    {
-        if (config.useCustomDictionary)
-        {
+    public void segment(final String sentence, final String normalized, final List<String> wordList) {
+        if (config.useCustomDictionary) {
             final int[] offset = new int[]{0};
-            CustomDictionary.parseLongestText(sentence, new AhoCorasickDoubleArrayTrie.IHit<CoreDictionary.Attribute>()
-            {
+            CustomDictionary.parseLongestText(sentence, new AhoCorasickDoubleArrayTrie.IHit<CoreDictionary.Attribute>() {
                 @Override
-                public void hit(int begin, int end, CoreDictionary.Attribute value)
-                {
-                    if (begin != offset[0])
-                    {
+                public void hit(int begin, int end, CoreDictionary.Attribute value) {
+                    if (begin != offset[0]) {
                         segmentAfterRule(sentence.substring(offset[0], begin), normalized.substring(offset[0], begin), wordList);
                     }
                     wordList.add(sentence.substring(begin, end));
                     offset[0] = end;
                 }
             });
-            if (offset[0] != sentence.length())
-            {
+            if (offset[0] != sentence.length()) {
                 segmentAfterRule(sentence.substring(offset[0]), normalized.substring(offset[0]), wordList);
             }
-        }
-        else
-        {
+        } else {
             segmentAfterRule(sentence, normalized, wordList);
         }
     }
@@ -175,40 +150,33 @@ public class AbstractLexicalAnalyzer extends CharacterBasedSegment implements Le
      * @param sentence
      * @return
      */
-    public List<String> segment(String sentence)
-    {
+    public List<String> segment(String sentence) {
         return segment(sentence, CharTable.convert(sentence));
     }
 
     @Override
-    public String[] recognize(String[] wordArray, String[] posArray)
-    {
+    public String[] recognize(String[] wordArray, String[] posArray) {
         return neRecognizer.recognize(wordArray, posArray);
     }
 
     @Override
-    public String[] tag(String... words)
-    {
+    public String[] tag(String... words) {
         return posTagger.tag(words);
     }
 
     @Override
-    public String[] tag(List<String> wordList)
-    {
+    public String[] tag(List<String> wordList) {
         return posTagger.tag(wordList);
     }
 
     @Override
-    public NERTagSet getNERTagSet()
-    {
+    public NERTagSet getNERTagSet() {
         return neRecognizer.getNERTagSet();
     }
 
     @Override
-    public Sentence analyze(final String sentence)
-    {
-        if (sentence.isEmpty())
-        {
+    public Sentence analyze(final String sentence) {
+        if (sentence.isEmpty()) {
             return new Sentence(Collections.<IWord>emptyList());
         }
         final String normalized = CharTable.convert(sentence);
@@ -218,19 +186,16 @@ public class AbstractLexicalAnalyzer extends CharacterBasedSegment implements Le
         String[] wordArray = new String[wordList.size()];
         int offset = 0;
         int id = 0;
-        for (String word : wordList)
-        {
+        for (String word : wordList) {
             wordArray[id] = normalized.substring(offset, offset + word.length());
             ++id;
             offset += word.length();
         }
 
         List<IWord> termList = new ArrayList<IWord>(wordList.size());
-        if (posTagger != null)
-        {
+        if (posTagger != null) {
             String[] posArray = tag(wordArray);
-            if (neRecognizer != null)
-            {
+            if (neRecognizer != null) {
                 String[] nerArray = neRecognizer.recognize(wordArray, posArray);
                 overwriteTag(attributeList, posArray);
                 wordList.toArray(wordArray);
@@ -240,43 +205,31 @@ public class AbstractLexicalAnalyzer extends CharacterBasedSegment implements Le
                 String prePos = posArray[0];
 
                 NERTagSet tagSet = getNERTagSet();
-                for (int i = 1; i < nerArray.length; i++)
-                {
-                    if (nerArray[i].charAt(0) == tagSet.B_TAG_CHAR || nerArray[i].charAt(0) == tagSet.S_TAG_CHAR || nerArray[i].charAt(0) == tagSet.O_TAG_CHAR)
-                    {
+                for (int i = 1; i < nerArray.length; i++) {
+                    if (nerArray[i].charAt(0) == tagSet.B_TAG_CHAR || nerArray[i].charAt(0) == tagSet.S_TAG_CHAR || nerArray[i].charAt(0) == tagSet.O_TAG_CHAR) {
                         termList.add(result.size() > 1 ? new CompoundWord(result, prePos) : result.get(0));
                         result = new ArrayList<Word>();
                     }
                     result.add(new Word(wordArray[i], posArray[i]));
-                    if (nerArray[i].charAt(0) == tagSet.O_TAG_CHAR || nerArray[i].charAt(0) == tagSet.S_TAG_CHAR)
-                    {
+                    if (nerArray[i].charAt(0) == tagSet.O_TAG_CHAR || nerArray[i].charAt(0) == tagSet.S_TAG_CHAR) {
                         prePos = posArray[i];
-                    }
-                    else
-                    {
+                    } else {
                         prePos = NERTagSet.posOf(nerArray[i]);
                     }
                 }
-                if (result.size() != 0)
-                {
+                if (result.size() != 0) {
                     termList.add(result.size() > 1 ? new CompoundWord(result, prePos) : result.get(0));
                 }
-            }
-            else
-            {
+            } else {
                 overwriteTag(attributeList, posArray);
                 wordList.toArray(wordArray);
-                for (int i = 0; i < wordArray.length; i++)
-                {
+                for (int i = 0; i < wordArray.length; i++) {
                     termList.add(new Word(wordArray[i], posArray[i]));
                 }
             }
-        }
-        else
-        {
+        } else {
             wordList.toArray(wordArray);
-            for (String word : wordArray)
-            {
+            for (String word : wordArray) {
                 termList.add(new Word(word, null));
             }
         }
@@ -284,14 +237,11 @@ public class AbstractLexicalAnalyzer extends CharacterBasedSegment implements Le
         return new Sentence(termList);
     }
 
-    private void overwriteTag(List<CoreDictionary.Attribute> attributeList, String[] posArray)
-    {
+    private void overwriteTag(List<CoreDictionary.Attribute> attributeList, String[] posArray) {
         int id;
-        if (attributeList != null)
-        {
+        if (attributeList != null) {
             id = 0;
-            for (CoreDictionary.Attribute attribute : attributeList)
-            {
+            for (CoreDictionary.Attribute attribute : attributeList) {
                 if (attribute != null)
                     posArray[id] = attribute.nature[0].toString();
                 ++id;
@@ -306,8 +256,7 @@ public class AbstractLexicalAnalyzer extends CharacterBasedSegment implements Le
      * @param normalized
      * @return
      */
-    public List<String> segment(final String sentence, final String normalized)
-    {
+    public List<String> segment(final String sentence, final String normalized) {
         final List<String> wordList = new LinkedList<String>();
         segment(sentence, normalized, wordList);
         return wordList;
@@ -322,22 +271,18 @@ public class AbstractLexicalAnalyzer extends CharacterBasedSegment implements Le
      * @return true 表示接受
      * @deprecated 自1.6.7起废弃，强制模式下为最长匹配，否则按分词结果合并
      */
-    protected boolean acceptCustomWord(int begin, int end, CoreDictionary.Attribute value)
-    {
+    protected boolean acceptCustomWord(int begin, int end, CoreDictionary.Attribute value) {
         return config.forceCustomDictionary || (end - begin >= 4 && !value.hasNatureStartsWith("nr") && !value.hasNatureStartsWith("ns") && !value.hasNatureStartsWith("nt"));
     }
 
     @Override
-    protected List<Term> roughSegSentence(char[] sentence)
-    {
+    protected List<Term> roughSegSentence(char[] sentence) {
         return null;
     }
 
     @Override
-    protected List<Term> segSentence(char[] sentence)
-    {
-        if (sentence.length == 0)
-        {
+    protected List<Term> segSentence(char[] sentence) {
+        if (sentence.length == 0) {
             return Collections.emptyList();
         }
         String original = new String(sentence);
@@ -348,22 +293,18 @@ public class AbstractLexicalAnalyzer extends CharacterBasedSegment implements Le
         attributeList = segmentWithAttribute(original, normalized, wordList);
         List<Term> termList = new ArrayList<Term>(wordList.size());
         int offset = 0;
-        for (String word : wordList)
-        {
+        for (String word : wordList) {
             Term term = new Term(word, null);
             term.offset = offset;
             offset += term.length();
             termList.add(term);
         }
-        if (config.speechTagging)
-        {
-            if (posTagger != null)
-            {
+        if (config.speechTagging) {
+            if (posTagger != null) {
                 String[] wordArray = new String[wordList.size()];
                 offset = 0;
                 int id = 0;
-                for (String word : wordList)
-                {
+                for (String word : wordList) {
                     wordArray[id] = normalized.substring(offset, offset + word.length());
                     ++id;
                     offset += word.length();
@@ -371,13 +312,10 @@ public class AbstractLexicalAnalyzer extends CharacterBasedSegment implements Le
                 String[] posArray = tag(wordArray);
                 Iterator<Term> iterator = termList.iterator();
                 Iterator<CoreDictionary.Attribute> attributeIterator = attributeList == null ? null : attributeList.iterator();
-                for (int i = 0; i < posArray.length; i++)
-                {
-                    if (attributeIterator != null && attributeIterator.hasNext())
-                    {
+                for (int i = 0; i < posArray.length; i++) {
+                    if (attributeIterator != null && attributeIterator.hasNext()) {
                         CoreDictionary.Attribute attribute = attributeIterator.next();
-                        if (attribute != null)
-                        {
+                        if (attribute != null) {
                             iterator.next().nature = attribute.nature[0]; // 使用词典中的词性覆盖词性标注器的结果
                             continue;
                         }
@@ -385,11 +323,9 @@ public class AbstractLexicalAnalyzer extends CharacterBasedSegment implements Le
                     iterator.next().nature = Nature.create(posArray[i]);
                 }
 
-                if (config.ner && neRecognizer != null)
-                {
+                if (config.ner && neRecognizer != null) {
                     List<Term> childrenList = null;
-                    if (config.isIndexMode())
-                    {
+                    if (config.isIndexMode()) {
                         childrenList = new LinkedList<Term>();
                         iterator = termList.iterator();
                     }
@@ -398,15 +334,12 @@ public class AbstractLexicalAnalyzer extends CharacterBasedSegment implements Le
                     wordList.toArray(wordArray);
                     StringBuilder result = new StringBuilder();
                     result.append(wordArray[0]);
-                    if (childrenList != null)
-                    {
+                    if (childrenList != null) {
                         childrenList.add(iterator.next());
                     }
-                    if (attributeList != null)
-                    {
+                    if (attributeList != null) {
                         attributeIterator = attributeList.iterator();
-                        for (int i = 0; i < wordArray.length && attributeIterator.hasNext(); i++)
-                        {
+                        for (int i = 0; i < wordArray.length && attributeIterator.hasNext(); i++) {
                             CoreDictionary.Attribute attribute = attributeIterator.next();
                             if (attribute != null)
                                 posArray[i] = attribute.nature[0].toString();
@@ -415,23 +348,17 @@ public class AbstractLexicalAnalyzer extends CharacterBasedSegment implements Le
                     String prePos = posArray[0];
                     offset = 0;
 
-                    for (int i = 1; i < nerArray.length; i++)
-                    {
+                    for (int i = 1; i < nerArray.length; i++) {
                         NERTagSet tagSet = getNERTagSet();
-                        if (nerArray[i].charAt(0) == tagSet.B_TAG_CHAR || nerArray[i].charAt(0) == tagSet.S_TAG_CHAR || nerArray[i].charAt(0) == tagSet.O_TAG_CHAR)
-                        {
+                        if (nerArray[i].charAt(0) == tagSet.B_TAG_CHAR || nerArray[i].charAt(0) == tagSet.S_TAG_CHAR || nerArray[i].charAt(0) == tagSet.O_TAG_CHAR) {
                             Term term = new Term(result.toString(), Nature.create(prePos));
                             term.offset = offset;
                             offset += term.length();
                             termList.add(term);
-                            if (childrenList != null)
-                            {
-                                if (childrenList.size() > 1)
-                                {
-                                    for (Term shortTerm : childrenList)
-                                    {
-                                        if (shortTerm.length() >= config.indexMode)
-                                        {
+                            if (childrenList != null) {
+                                if (childrenList.size() > 1) {
+                                    for (Term shortTerm : childrenList) {
+                                        if (shortTerm.length() >= config.indexMode) {
                                             termList.add(shortTerm);
                                         }
                                     }
@@ -441,32 +368,23 @@ public class AbstractLexicalAnalyzer extends CharacterBasedSegment implements Le
                             result.setLength(0);
                         }
                         result.append(wordArray[i]);
-                        if (childrenList != null)
-                        {
+                        if (childrenList != null) {
                             childrenList.add(iterator.next());
                         }
-                        if (nerArray[i].charAt(0) == tagSet.O_TAG_CHAR || nerArray[i].charAt(0) == tagSet.S_TAG_CHAR)
-                        {
+                        if (nerArray[i].charAt(0) == tagSet.O_TAG_CHAR || nerArray[i].charAt(0) == tagSet.S_TAG_CHAR) {
                             prePos = posArray[i];
-                        }
-                        else
-                        {
+                        } else {
                             prePos = NERTagSet.posOf(nerArray[i]);
                         }
                     }
-                    if (result.length() != 0)
-                    {
+                    if (result.length() != 0) {
                         Term term = new Term(result.toString(), Nature.create(prePos));
                         term.offset = offset;
                         termList.add(term);
-                        if (childrenList != null)
-                        {
-                            if (childrenList.size() > 1)
-                            {
-                                for (Term shortTerm : childrenList)
-                                {
-                                    if (shortTerm.length() >= config.indexMode)
-                                    {
+                        if (childrenList != null) {
+                            if (childrenList.size() > 1) {
+                                for (Term shortTerm : childrenList) {
+                                    if (shortTerm.length() >= config.indexMode) {
                                         termList.add(shortTerm);
                                     }
                                 }
@@ -474,34 +392,25 @@ public class AbstractLexicalAnalyzer extends CharacterBasedSegment implements Le
                         }
                     }
                 }
-            }
-            else
-            {
-                for (Term term : termList)
-                {
+            } else {
+                for (Term term : termList) {
                     CoreDictionary.Attribute attribute = CoreDictionary.get(term.word);
-                    if (attribute != null)
-                    {
+                    if (attribute != null) {
                         term.nature = attribute.nature[0];
-                    }
-                    else
-                    {
+                    } else {
                         term.nature = Nature.n;
                     }
                 }
             }
         }
-        if (config.translatedNameRecognize || config.japaneseNameRecognize)
-        {
+        if (config.translatedNameRecognize || config.japaneseNameRecognize) {
             List<Vertex> vertexList = toVertexList(termList, true);
             WordNet wordNetOptimum = new WordNet(sentence, vertexList);
             WordNet wordNetAll = wordNetOptimum;
-            if (config.translatedNameRecognize)
-            {
+            if (config.translatedNameRecognize) {
                 TranslatedPersonRecognition.recognition(vertexList, wordNetOptimum, wordNetAll);
             }
-            if (config.japaneseNameRecognize)
-            {
+            if (config.japaneseNameRecognize) {
                 JapanesePersonRecognition.recognition(vertexList, wordNetOptimum, wordNetAll);
             }
             termList = convert(vertexList, config.offset);
@@ -519,14 +428,10 @@ public class AbstractLexicalAnalyzer extends CharacterBasedSegment implements Le
      * @param preType
      * @param wordList
      */
-    private void pushPiece(String sentence, String normalized, int start, int end, byte preType, List<String> wordList)
-    {
-        if (preType == CharType.CT_CHINESE)
-        {
+    private void pushPiece(String sentence, String normalized, int start, int end, byte preType, List<String> wordList) {
+        if (preType == CharType.CT_CHINESE) {
             segmenter.segment(sentence.substring(start, end), normalized.substring(start, end), wordList);
-        }
-        else
-        {
+        } else {
             wordList.add(sentence.substring(start, end));
         }
     }
@@ -538,10 +443,8 @@ public class AbstractLexicalAnalyzer extends CharacterBasedSegment implements Le
      * @param normalized
      * @param wordList
      */
-    protected void segmentAfterRule(String sentence, String normalized, List<String> wordList)
-    {
-        if (!enableRuleBasedSegment)
-        {
+    protected void segmentAfterRule(String sentence, String normalized, List<String> wordList) {
+        if (!enableRuleBasedSegment) {
             segmenter.segment(sentence, normalized, wordList);
             return;
         }
@@ -549,26 +452,18 @@ public class AbstractLexicalAnalyzer extends CharacterBasedSegment implements Le
         int end = start;
         byte preType = typeTable[normalized.charAt(end)];
         byte curType;
-        while (++end < normalized.length())
-        {
+        while (++end < normalized.length()) {
             curType = typeTable[normalized.charAt(end)];
-            if (curType != preType)
-            {
-                if (preType == CharType.CT_NUM)
-                {
+            if (curType != preType) {
+                if (preType == CharType.CT_NUM) {
                     // 浮点数识别
-                    if ("，,．.".indexOf(normalized.charAt(end)) != -1)
-                    {
-                        if (end + 1 < normalized.length())
-                        {
-                            if (typeTable[normalized.charAt(end + 1)] == CharType.CT_NUM)
-                            {
+                    if ("，,．.".indexOf(normalized.charAt(end)) != -1) {
+                        if (end + 1 < normalized.length()) {
+                            if (typeTable[normalized.charAt(end + 1)] == CharType.CT_NUM) {
                                 continue;
                             }
                         }
-                    }
-                    else if ("年月日时分秒".indexOf(normalized.charAt(end)) != -1)
-                    {
+                    } else if ("年月日时分秒".indexOf(normalized.charAt(end)) != -1) {
                         preType = curType; // 交给统计分词
                         continue;
                     }
@@ -590,24 +485,17 @@ public class AbstractLexicalAnalyzer extends CharacterBasedSegment implements Le
      * @param wordList
      * @return
      */
-    private List<CoreDictionary.Attribute> segmentWithAttribute(String original, String normalized, List<String> wordList)
-    {
+    private List<CoreDictionary.Attribute> segmentWithAttribute(String original, String normalized, List<String> wordList) {
         List<CoreDictionary.Attribute> attributeList;
-        if (config.useCustomDictionary)
-        {
-            if (config.forceCustomDictionary)
-            {
+        if (config.useCustomDictionary) {
+            if (config.forceCustomDictionary) {
                 attributeList = new LinkedList<CoreDictionary.Attribute>();
                 segment(original, normalized, wordList, attributeList);
-            }
-            else
-            {
+            } else {
                 segmentAfterRule(original, normalized, wordList);
                 attributeList = combineWithCustomDictionary(wordList);
             }
-        }
-        else
-        {
+        } else {
             segmentAfterRule(original, normalized, wordList);
             attributeList = null;
         }
@@ -620,66 +508,54 @@ public class AbstractLexicalAnalyzer extends CharacterBasedSegment implements Le
      * @param vertexList 粗分结果
      * @return 合并后的结果
      */
-    protected static List<CoreDictionary.Attribute> combineWithCustomDictionary(List<String> vertexList)
-    {
+    protected static List<CoreDictionary.Attribute> combineWithCustomDictionary(List<String> vertexList) {
         String[] wordNet = new String[vertexList.size()];
         vertexList.toArray(wordNet);
         CoreDictionary.Attribute[] attributeArray = new CoreDictionary.Attribute[wordNet.length];
         // DAT合并
         DoubleArrayTrie<CoreDictionary.Attribute> dat = CustomDictionary.dat;
         int length = wordNet.length;
-        for (int i = 0; i < length; ++i)
-        {
+        for (int i = 0; i < length; ++i) {
             int state = 1;
             state = dat.transition(wordNet[i], state);
-            if (state > 0)
-            {
+            if (state > 0) {
                 int to = i + 1;
                 int end = to;
                 CoreDictionary.Attribute value = dat.output(state);
-                for (; to < length; ++to)
-                {
+                for (; to < length; ++to) {
                     state = dat.transition(wordNet[to], state);
                     if (state < 0) break;
                     CoreDictionary.Attribute output = dat.output(state);
-                    if (output != null)
-                    {
+                    if (output != null) {
                         value = output;
                         end = to + 1;
                     }
                 }
-                if (value != null)
-                {
+                if (value != null) {
                     combineWords(wordNet, i, end, attributeArray, value);
                     i = end - 1;
                 }
             }
         }
         // BinTrie合并
-        if (CustomDictionary.trie != null)
-        {
-            for (int i = 0; i < length; ++i)
-            {
+        if (CustomDictionary.trie != null) {
+            for (int i = 0; i < length; ++i) {
                 if (wordNet[i] == null) continue;
                 BaseNode<CoreDictionary.Attribute> state = CustomDictionary.trie.transition(wordNet[i], 0);
-                if (state != null)
-                {
+                if (state != null) {
                     int to = i + 1;
                     int end = to;
                     CoreDictionary.Attribute value = state.getValue();
-                    for (; to < length; ++to)
-                    {
+                    for (; to < length; ++to) {
                         if (wordNet[to] == null) continue;
                         state = state.transition(wordNet[to], 0);
                         if (state == null) break;
-                        if (state.getValue() != null)
-                        {
+                        if (state.getValue() != null) {
                             value = state.getValue();
                             end = to + 1;
                         }
                     }
-                    if (value != null)
-                    {
+                    if (value != null) {
                         combineWords(wordNet, i, end, attributeArray, value);
                         i = end - 1;
                     }
@@ -688,10 +564,8 @@ public class AbstractLexicalAnalyzer extends CharacterBasedSegment implements Le
         }
         vertexList.clear();
         List<CoreDictionary.Attribute> attributeList = new LinkedList<CoreDictionary.Attribute>();
-        for (int i = 0; i < wordNet.length; i++)
-        {
-            if (wordNet[i] != null)
-            {
+        for (int i = 0; i < wordNet.length; i++) {
+            if (wordNet[i] != null) {
                 vertexList.add(wordNet[i]);
                 attributeList.add(attributeArray[i]);
             }
@@ -707,13 +581,11 @@ public class AbstractLexicalAnalyzer extends CharacterBasedSegment implements Le
      * @param end     结束下标（不包含）
      * @param value   新的属性
      */
-    private static void combineWords(String[] wordNet, int start, int end, CoreDictionary.Attribute[] attributeArray, CoreDictionary.Attribute value)
-    {
+    private static void combineWords(String[] wordNet, int start, int end, CoreDictionary.Attribute[] attributeArray, CoreDictionary.Attribute value) {
         if (start + 1 != end)   // 小优化，如果只有一个词，那就不需要合并，直接应用新属性
         {
             StringBuilder sbTerm = new StringBuilder();
-            for (int j = start; j < end; ++j)
-            {
+            for (int j = start; j < end; ++j) {
                 if (wordNet[j] == null) continue;
                 sbTerm.append(wordNet[j]);
                 wordNet[j] = null;
@@ -729,8 +601,7 @@ public class AbstractLexicalAnalyzer extends CharacterBasedSegment implements Le
      * @param enableRuleBasedSegment 是否激活
      * @return 词法分析器对象
      */
-    public AbstractLexicalAnalyzer enableRuleBasedSegment(boolean enableRuleBasedSegment)
-    {
+    public AbstractLexicalAnalyzer enableRuleBasedSegment(boolean enableRuleBasedSegment) {
         this.enableRuleBasedSegment = enableRuleBasedSegment;
         return this;
     }

@@ -16,19 +16,16 @@ import java.util.Map;
 /**
  * @author hankcs
  */
-public class Document<K>
-{
+public class Document<K> {
     K id_;    /// the identifier of a document
     SparseVector feature_;  /// feature vector of a document
 
-    public Document(K id_, SparseVector feature_)
-    {
+    public Document(K id_, SparseVector feature_) {
         this.id_ = id_;
         this.feature_ = feature_;
     }
 
-    public Document(K id_)
-    {
+    public Document(K id_) {
         this(id_, new SparseVector());
     }
 
@@ -37,8 +34,7 @@ public class Document<K>
      *
      * @return an identifier
      */
-    K id()
-    {
+    K id() {
         return id_;
     }
 
@@ -47,8 +43,7 @@ public class Document<K>
      *
      * @return the pointer of a feature vector
      */
-    SparseVector feature()
-    {
+    SparseVector feature() {
         return feature_;
     }
 
@@ -59,8 +54,7 @@ public class Document<K>
      * @param key   the key of a feature
      * @param value the value of a feature
      */
-    void add_feature(int key, double value)
-    {
+    void add_feature(int key, double value) {
         feature_.put(key, value);
     }
 
@@ -69,16 +63,14 @@ public class Document<K>
      *
      * @param feature a feature vector
      */
-    void set_features(SparseVector feature)
-    {
+    void set_features(SparseVector feature) {
         feature_ = feature;
     }
 
     /**
      * Clear features.
      */
-    void clear()
-    {
+    void clear() {
         feature_.clear();
     }
 
@@ -88,10 +80,8 @@ public class Document<K>
      * @param df    document frequencies
      * @param ndocs the number of documents
      */
-    void idf(HashMap<Integer, Integer> df, int ndocs)
-    {
-        for (Map.Entry<Integer, Double> entry : feature_.entrySet())
-        {
+    void idf(HashMap<Integer, Integer> df, int ndocs) {
+        for (Map.Entry<Integer, Double> entry : feature_.entrySet()) {
             Integer denom = df.get(entry.getKey());
             if (denom == null) denom = 1;
             entry.setValue((double) (entry.getValue() * Math.log(ndocs / denom)));
@@ -99,8 +89,7 @@ public class Document<K>
     }
 
     @Override
-    public boolean equals(Object o)
-    {
+    public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
@@ -110,8 +99,7 @@ public class Document<K>
     }
 
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         return id_ != null ? id_.hashCode() : 0;
     }
 }

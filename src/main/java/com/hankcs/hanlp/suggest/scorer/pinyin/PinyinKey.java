@@ -26,8 +26,7 @@ import java.util.List;
 /**
  * @author hankcs
  */
-public class PinyinKey implements Comparable<PinyinKey>, ISentenceKey<PinyinKey>
-{
+public class PinyinKey implements Comparable<PinyinKey>, ISentenceKey<PinyinKey> {
     /**
      * 句子的拼音
      */
@@ -41,24 +40,19 @@ public class PinyinKey implements Comparable<PinyinKey>, ISentenceKey<PinyinKey>
      */
     char[] firstCharArray;
 
-    public PinyinKey(String sentence)
-    {
+    public PinyinKey(String sentence) {
         Pair<List<Pinyin>, List<Boolean>> pair = String2PinyinConverter.convert2Pair(sentence, true);
         pinyinArray = PinyinUtil.convertList2Array(pair.getKey());
         List<Boolean> booleanList = pair.getValue();
         int pinyinSize = 0;
-        for (Boolean yes : booleanList)
-        {
-            if (yes)
-            {
+        for (Boolean yes : booleanList) {
+            if (yes) {
                 ++pinyinSize;
             }
         }
         int firstCharSize = 0;
-        for (Pinyin pinyin : pinyinArray)
-        {
-            if (pinyin != Pinyin.none5)
-            {
+        for (Pinyin pinyin : pinyinArray) {
+            if (pinyin != Pinyin.none5) {
                 ++firstCharSize;
             }
         }
@@ -68,22 +62,18 @@ public class PinyinKey implements Comparable<PinyinKey>, ISentenceKey<PinyinKey>
         pinyinSize = 0;
         firstCharSize = 0;
         Iterator<Boolean> iterator = booleanList.iterator();
-        for (int i = 0; i < pinyinArray.length; ++i)
-        {
-            if (iterator.next())
-            {
+        for (int i = 0; i < pinyinArray.length; ++i) {
+            if (iterator.next()) {
                 pyOrdinalArray[pinyinSize++] = pinyinArray[i].ordinal();
             }
-            if (pinyinArray[i] != Pinyin.none5)
-            {
+            if (pinyinArray[i] != Pinyin.none5) {
                 firstCharArray[firstCharSize++] = pinyinArray[i].getFirstChar();
             }
         }
     }
 
     @Override
-    public int compareTo(PinyinKey o)
-    {
+    public int compareTo(PinyinKey o) {
         int len1 = pyOrdinalArray.length;
         int len2 = o.pyOrdinalArray.length;
         int lim = Math.min(len1, len2);
@@ -91,12 +81,10 @@ public class PinyinKey implements Comparable<PinyinKey>, ISentenceKey<PinyinKey>
         int[] v2 = o.pyOrdinalArray;
 
         int k = 0;
-        while (k < lim)
-        {
+        while (k < lim) {
             int c1 = v1[k];
             int c2 = v2[k];
-            if (c1 != c2)
-            {
+            if (c1 != c2) {
                 return c1 - c2;
             }
             k++;
@@ -105,23 +93,21 @@ public class PinyinKey implements Comparable<PinyinKey>, ISentenceKey<PinyinKey>
     }
 
     @Override
-    public Double similarity(PinyinKey other)
-    {
+    public Double similarity(PinyinKey other) {
         int firstCharArrayLength = firstCharArray.length + 1;
         return
                 1.0 / (EditDistance.compute(pyOrdinalArray, other.pyOrdinalArray) + 1) +
-                (double)LongestCommonSubstring.compute(firstCharArray, other.firstCharArray) / firstCharArrayLength;
+                        (double) LongestCommonSubstring.compute(firstCharArray, other.firstCharArray) / firstCharArrayLength;
     }
 
     /**
      * 拼音的个数
+     *
      * @return
      */
-    public int size()
-    {
+    public int size() {
         int length = 0;
-        for (Pinyin pinyin : pinyinArray)
-        {
+        for (Pinyin pinyin : pinyinArray) {
             if (pinyin != Pinyin.none5) ++length;
         }
 
@@ -129,8 +115,7 @@ public class PinyinKey implements Comparable<PinyinKey>, ISentenceKey<PinyinKey>
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         final StringBuilder sb = new StringBuilder("PinyinKey{");
         sb.append("pinyinArray=").append(Arrays.toString(pinyinArray));
         sb.append(", pyOrdinalArray=").append(Arrays.toString(pyOrdinalArray));
@@ -139,8 +124,7 @@ public class PinyinKey implements Comparable<PinyinKey>, ISentenceKey<PinyinKey>
         return sb.toString();
     }
 
-    public char[] getFirstCharArray()
-    {
+    public char[] getFirstCharArray() {
         return firstCharArray;
     }
 }

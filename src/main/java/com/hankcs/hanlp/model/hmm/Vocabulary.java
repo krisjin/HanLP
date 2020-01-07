@@ -16,36 +16,29 @@ import com.hankcs.hanlp.model.perceptron.common.IStringIdMap;
 /**
  * @author hankcs
  */
-public class Vocabulary implements IStringIdMap
-{
+public class Vocabulary implements IStringIdMap {
     private BinTrie<Integer> trie;
     boolean mutable;
     private static final int UNK = 0;
 
-    public Vocabulary(BinTrie<Integer> trie, boolean mutable)
-    {
+    public Vocabulary(BinTrie<Integer> trie, boolean mutable) {
         this.trie = trie;
         this.mutable = mutable;
     }
 
-    public Vocabulary()
-    {
+    public Vocabulary() {
         this(new BinTrie<Integer>(), true);
         trie.put("\t", UNK);
     }
 
     @Override
-    public int idOf(String string)
-    {
+    public int idOf(String string) {
         Integer id = trie.get(string);
-        if (id == null)
-        {
-            if (mutable)
-            {
+        if (id == null) {
+            if (mutable) {
                 id = trie.size();
                 trie.put(string, id);
-            }
-            else
+            } else
                 id = UNK;
         }
         return id;

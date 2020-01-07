@@ -21,8 +21,7 @@ import java.util.Set;
 /**
  * @author hankcs
  */
-public class NERTagSet extends TagSet
-{
+public class NERTagSet extends TagSet {
     public final String O_TAG = "O";
     public final char O_TAG_CHAR = 'O';
     public final String B_TAG_PREFIX = "B-";
@@ -38,18 +37,15 @@ public class NERTagSet extends TagSet
      */
     public final int O;
 
-    public NERTagSet()
-    {
+    public NERTagSet() {
         super(TaskType.NER);
         O = add(O_TAG);
     }
 
-    public NERTagSet(int o, Collection<String> tags)
-    {
+    public NERTagSet(int o, Collection<String> tags) {
         super(TaskType.NER);
         O = o;
-        for (String tag : tags)
-        {
+        for (String tag : tags) {
             add(tag);
             String label = NERTagSet.posOf(tag);
             if (label.length() != tag.length())
@@ -57,11 +53,9 @@ public class NERTagSet extends TagSet
         }
     }
 
-    public static String posOf(String tag)
-    {
+    public static String posOf(String tag) {
         int index = tag.indexOf('-');
-        if (index == -1)
-        {
+        if (index == -1) {
             return tag;
         }
 
@@ -69,16 +63,13 @@ public class NERTagSet extends TagSet
     }
 
     @Override
-    public boolean load(ByteArray byteArray)
-    {
+    public boolean load(ByteArray byteArray) {
         super.load(byteArray);
         nerLabels.clear();
-        for (Map.Entry<String, Integer> entry : this)
-        {
+        for (Map.Entry<String, Integer> entry : this) {
             String tag = entry.getKey();
             int index = tag.indexOf('-');
-            if (index != -1)
-            {
+            if (index != -1) {
                 nerLabels.add(tag.substring(index + 1));
             }
         }

@@ -10,13 +10,15 @@
  */
 package com.hankcs.hanlp.mining.cluster;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Random;
 
 /**
  * @author hankcs
  */
-public class Cluster<K> implements Comparable<Cluster<K>>
-{
+public class Cluster<K> implements Comparable<Cluster<K>> {
     List<Document<K>> documents_;          ///< documents
     SparseVector composite_;                           ///< a composite SparseVector
     SparseVector centroid_;                            ///< a centroid SparseVector
@@ -24,13 +26,11 @@ public class Cluster<K> implements Comparable<Cluster<K>>
     double sectioned_gain_;                      ///< a sectioned gain
     Random random;
 
-    public Cluster()
-    {
+    public Cluster() {
         this(new ArrayList<Document<K>>());
     }
 
-    public Cluster(List<Document<K>> documents)
-    {
+    public Cluster(List<Document<K>> documents) {
         this.documents_ = documents;
         composite_ = new SparseVector();
         random = new Random();
@@ -39,11 +39,9 @@ public class Cluster<K> implements Comparable<Cluster<K>>
     /**
      * Add the vectors of all documents to a composite vector.
      */
-    void set_composite_vector()
-    {
+    void set_composite_vector() {
         composite_.clear();
-        for (Document<K> document : documents_)
-        {
+        for (Document<K> document : documents_) {
             composite_.add_vector(document.feature());
         }
     }
@@ -51,8 +49,7 @@ public class Cluster<K> implements Comparable<Cluster<K>>
     /**
      * Clear status.
      */
-    void clear()
-    {
+    void clear() {
         documents_.clear();
         composite_.clear();
         if (centroid_ != null)
@@ -68,8 +65,7 @@ public class Cluster<K> implements Comparable<Cluster<K>>
      *
      * @return the size of this cluster
      */
-    int size()
-    {
+    int size() {
         return documents_.size();
     }
 
@@ -78,8 +74,7 @@ public class Cluster<K> implements Comparable<Cluster<K>>
      *
      * @return the pointer of a centroid vector
      */
-    SparseVector centroid_vector()
-    {
+    SparseVector centroid_vector() {
         if (documents_.size() > 0 && composite_.size() == 0)
             set_composite_vector();
         centroid_ = (SparseVector) composite_vector().clone();
@@ -92,8 +87,7 @@ public class Cluster<K> implements Comparable<Cluster<K>>
      *
      * @return the pointer of a composite vector
      */
-    SparseVector composite_vector()
-    {
+    SparseVector composite_vector() {
         return composite_;
     }
 
@@ -102,8 +96,7 @@ public class Cluster<K> implements Comparable<Cluster<K>>
      *
      * @return documents in this cluster
      */
-    List<Document<K>> documents()
-    {
+    List<Document<K>> documents() {
         return documents_;
     }
 
@@ -112,8 +105,7 @@ public class Cluster<K> implements Comparable<Cluster<K>>
      *
      * @param doc the pointer of a document object
      */
-    void add_document(Document doc)
-    {
+    void add_document(Document doc) {
         doc.feature().normalize();
         documents_.add(doc);
         composite_.add_vector(doc.feature());
@@ -124,8 +116,7 @@ public class Cluster<K> implements Comparable<Cluster<K>>
      *
      * @param index the index of vector container of documents
      */
-    void remove_document(int index)
-    {
+    void remove_document(int index) {
         ListIterator<Document<K>> listIterator = documents_.listIterator(index);
         Document<K> document = listIterator.next();
         listIterator.set(null);
@@ -135,11 +126,9 @@ public class Cluster<K> implements Comparable<Cluster<K>>
     /**
      * Delete removed documents from the internal container.
      */
-    void refresh()
-    {
+    void refresh() {
         ListIterator<Document<K>> listIterator = documents_.listIterator();
-        while (listIterator.hasNext())
-        {
+        while (listIterator.hasNext()) {
             if (listIterator.next() == null)
                 listIterator.remove();
         }
@@ -150,21 +139,17 @@ public class Cluster<K> implements Comparable<Cluster<K>>
      *
      * @return a gain
      */
-    double sectioned_gain()
-    {
+    double sectioned_gain() {
         return sectioned_gain_;
     }
 
     /**
      * Set a gain when the cluster sectioned.
      */
-    void set_sectioned_gain()
-    {
+    void set_sectioned_gain() {
         double gain = 0.0f;
-        if (sectioned_gain_ == 0 && sectioned_clusters_.size() > 1)
-        {
-            for (Cluster<K> cluster : sectioned_clusters_)
-            {
+        if (sectioned_gain_ == 0 && sectioned_clusters_.size() > 1) {
+            for (Cluster<K> cluster : sectioned_clusters_) {
                 gain += cluster.composite_vector().norm();
             }
             gain -= composite_.norm();
@@ -177,8 +162,7 @@ public class Cluster<K> implements Comparable<Cluster<K>>
      *
      * @return sectioned clusters
      */
-    List<Cluster<K>> sectioned_clusters()
-    {
+    List<Cluster<K>> sectioned_clusters() {
         return sectioned_clusters_;
     }
 
@@ -211,8 +195,7 @@ public class Cluster<K> implements Comparable<Cluster<K>>
      * @param ndocs 质心数量
      * @param docs  输出到该列表中
      */
-    void choose_smartly(int ndocs, List<Document> docs)
-    {
+    void choose_smartly(int ndocs, List<Document> docs) {
         int siz = size();
         double[] closest = new double[siz];
         if (siz < ndocs)
@@ -223,20 +206,17 @@ public class Cluster<K> implements Comparable<Cluster<K>>
         docs.add(documents_.get(index));
         ++count;
         double potential = 0.0;
-        for (int i = 0; i < documents_.size(); i++)
-        {
+        for (int i = 0; i < documents_.size(); i++) {
             double dist = 1.0 - SparseVector.inner_product(documents_.get(i).feature(), documents_.get(index).feature());
             potential += dist;
             closest[i] = dist;
         }
 
         // choose each center
-        while (count < ndocs)
-        {
+        while (count < ndocs) {
             double randval = random.nextDouble() * potential;
 
-            for (index = 0; index < documents_.size(); index++)
-            {
+            for (index = 0; index < documents_.size(); index++) {
                 double dist = closest[index];
                 if (randval <= dist)
                     break;
@@ -248,12 +228,10 @@ public class Cluster<K> implements Comparable<Cluster<K>>
             ++count;
 
             double new_potential = 0.0;
-            for (int i = 0; i < documents_.size(); i++)
-            {
+            for (int i = 0; i < documents_.size(); i++) {
                 double dist = 1.0 - SparseVector.inner_product(documents_.get(i).feature(), documents_.get(index).feature());
                 double min = closest[i];
-                if (dist < min)
-                {
+                if (dist < min) {
                     closest[i] = dist;
                     min = dist;
                 }
@@ -268,8 +246,7 @@ public class Cluster<K> implements Comparable<Cluster<K>>
      *
      * @param nclusters
      */
-    void section(int nclusters)
-    {
+    void section(int nclusters) {
         if (size() < nclusters)
             return;
 
@@ -277,21 +254,17 @@ public class Cluster<K> implements Comparable<Cluster<K>>
         List<Document> centroids = new ArrayList<Document>(nclusters);
         // choose_randomly(nclusters, centroids);
         choose_smartly(nclusters, centroids);
-        for (int i = 0; i < centroids.size(); i++)
-        {
+        for (int i = 0; i < centroids.size(); i++) {
             Cluster<K> cluster = new Cluster<K>();
             sectioned_clusters_.add(cluster);
         }
 
-        for (Document<K> d : documents_)
-        {
+        for (Document<K> d : documents_) {
             double max_similarity = -1.0;
             int max_index = 0;
-            for (int j = 0; j < centroids.size(); j++)
-            {
+            for (int j = 0; j < centroids.size(); j++) {
                 double similarity = SparseVector.inner_product(d.feature(), centroids.get(j).feature());
-                if (max_similarity < similarity)
-                {
+                if (max_similarity < similarity) {
                     max_similarity = similarity;
                     max_index = j;
                 }
@@ -301,8 +274,7 @@ public class Cluster<K> implements Comparable<Cluster<K>>
     }
 
     @Override
-    public int compareTo(Cluster<K> o)
-    {
+    public int compareTo(Cluster<K> o) {
         return Double.compare(o.sectioned_gain(), sectioned_gain());
     }
 }

@@ -17,28 +17,24 @@ import java.util.List;
 /**
  * @author hankcs
  */
-public class Dependency
-{
+public class Dependency {
     public List<Integer> forms;
     public List<Integer> postags;
     public List<Integer> heads;
     public List<Integer> deprels;
 
-    private static ArrayList<Integer> allocate()
-    {
+    private static ArrayList<Integer> allocate() {
         return new ArrayList<Integer>();
     }
 
-    public Dependency()
-    {
+    public Dependency() {
         forms = allocate();
         postags = allocate();
         heads = allocate();
         deprels = allocate();
     }
 
-    int size()
-    {
+    int size() {
         return forms.size();
     }
 }

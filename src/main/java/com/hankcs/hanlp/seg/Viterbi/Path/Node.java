@@ -11,14 +11,13 @@
  */
 package com.hankcs.hanlp.seg.Viterbi.Path;
 
-import com.hankcs.hanlp.utility.MathUtility;
 import com.hankcs.hanlp.seg.common.Vertex;
+import com.hankcs.hanlp.utility.MathUtility;
 
 /**
  * @author hankcs
  */
-public class Node
-{
+public class Node {
     /**
      * 到该节点的最短路径的前驱节点
      */
@@ -32,24 +31,20 @@ public class Node
      */
     Vertex vertex;
 
-    public Node(Vertex vertex)
-    {
+    public Node(Vertex vertex) {
         this.vertex = vertex;
     }
 
-    public void updateFrom(Node from)
-    {
+    public void updateFrom(Node from) {
         double weight = from.weight + MathUtility.calculateWeight(from.vertex, this.vertex);
-        if (this.from == null || this.weight > weight)
-        {
+        if (this.from == null || this.weight > weight) {
             this.from = from;
             this.weight = weight;
         }
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return vertex.toString();
     }
 }

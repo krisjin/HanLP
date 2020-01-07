@@ -24,8 +24,7 @@ import java.util.*;
  *
  * @author hankcs
  */
-public class TermFrequencyCounter extends KeywordExtractor implements Collection<TermFrequency>
-{
+public class TermFrequencyCounter extends KeywordExtractor implements Collection<TermFrequency> {
     boolean filterStopWord;
     Map<String, TermFrequency> termFrequencyMap;
 
@@ -35,42 +34,33 @@ public class TermFrequencyCounter extends KeywordExtractor implements Collection
      * @param filterStopWord 是否过滤停用词
      * @param segment        分词器
      */
-    public TermFrequencyCounter(Segment segment, boolean filterStopWord)
-    {
+    public TermFrequencyCounter(Segment segment, boolean filterStopWord) {
         this.filterStopWord = filterStopWord;
         this.defaultSegment = segment;
         termFrequencyMap = new TreeMap<String, TermFrequency>();
     }
 
-    public TermFrequencyCounter()
-    {
+    public TermFrequencyCounter() {
         this(HanLP.newSegment(), true);
     }
 
-    public void add(String document)
-    {
+    public void add(String document) {
         if (document == null || document.isEmpty()) return;
         List<Term> termList = defaultSegment.seg(document);
         add(termList);
     }
 
-    public void add(List<Term> termList)
-    {
-        if (filterStopWord)
-        {
+    public void add(List<Term> termList) {
+        if (filterStopWord) {
             filter(termList);
         }
-        for (Term term : termList)
-        {
+        for (Term term : termList) {
             String word = term.word;
             TermFrequency frequency = termFrequencyMap.get(word);
-            if (frequency == null)
-            {
+            if (frequency == null) {
                 frequency = new TermFrequency(word);
                 termFrequencyMap.put(word, frequency);
-            }
-            else
-            {
+            } else {
                 frequency.increase();
             }
         }
@@ -82,13 +72,10 @@ public class TermFrequencyCounter extends KeywordExtractor implements Collection
      * @param N
      * @return
      */
-    public Collection<TermFrequency> top(int N)
-    {
-        MaxHeap<TermFrequency> heap = new MaxHeap<TermFrequency>(N, new Comparator<TermFrequency>()
-        {
+    public Collection<TermFrequency> top(int N) {
+        MaxHeap<TermFrequency> heap = new MaxHeap<TermFrequency>(N, new Comparator<TermFrequency>() {
             @Override
-            public int compare(TermFrequency o1, TermFrequency o2)
-            {
+            public int compare(TermFrequency o1, TermFrequency o2) {
                 return o1.compareTo(o2);
             }
         });
@@ -101,26 +88,22 @@ public class TermFrequencyCounter extends KeywordExtractor implements Collection
      *
      * @return
      */
-    public Collection<TermFrequency> all()
-    {
+    public Collection<TermFrequency> all() {
         return termFrequencyMap.values();
     }
 
     @Override
-    public int size()
-    {
+    public int size() {
         return termFrequencyMap.size();
     }
 
     @Override
-    public boolean isEmpty()
-    {
+    public boolean isEmpty() {
         return termFrequencyMap.isEmpty();
     }
 
     @Override
-    public boolean contains(Object o)
-    {
+    public boolean contains(Object o) {
         if (o instanceof String)
             return termFrequencyMap.containsKey(o);
         else if (o instanceof TermFrequency)
@@ -129,29 +112,24 @@ public class TermFrequencyCounter extends KeywordExtractor implements Collection
     }
 
     @Override
-    public Iterator<TermFrequency> iterator()
-    {
+    public Iterator<TermFrequency> iterator() {
         return termFrequencyMap.values().iterator();
     }
 
     @Override
-    public Object[] toArray()
-    {
+    public Object[] toArray() {
         return termFrequencyMap.values().toArray();
     }
 
     @Override
-    public <T> T[] toArray(T[] a)
-    {
+    public <T> T[] toArray(T[] a) {
         return termFrequencyMap.values().toArray(a);
     }
 
     @Override
-    public boolean add(TermFrequency termFrequency)
-    {
+    public boolean add(TermFrequency termFrequency) {
         TermFrequency tf = termFrequencyMap.get(termFrequency.getTerm());
-        if (tf == null)
-        {
+        if (tf == null) {
             termFrequencyMap.put(termFrequency.getKey(), termFrequency);
             return true;
         }
@@ -160,16 +138,13 @@ public class TermFrequencyCounter extends KeywordExtractor implements Collection
     }
 
     @Override
-    public boolean remove(Object o)
-    {
+    public boolean remove(Object o) {
         return termFrequencyMap.remove(o) != null;
     }
 
     @Override
-    public boolean containsAll(Collection<?> c)
-    {
-        for (Object o : c)
-        {
+    public boolean containsAll(Collection<?> c) {
+        for (Object o : c) {
             if (!contains(o))
                 return false;
         }
@@ -177,20 +152,16 @@ public class TermFrequencyCounter extends KeywordExtractor implements Collection
     }
 
     @Override
-    public boolean addAll(Collection<? extends TermFrequency> c)
-    {
-        for (TermFrequency termFrequency : c)
-        {
+    public boolean addAll(Collection<? extends TermFrequency> c) {
+        for (TermFrequency termFrequency : c) {
             add(termFrequency);
         }
         return !c.isEmpty();
     }
 
     @Override
-    public boolean removeAll(Collection<?> c)
-    {
-        for (Object o : c)
-        {
+    public boolean removeAll(Collection<?> c) {
+        for (Object o : c) {
             if (!remove(o))
                 return false;
         }
@@ -198,14 +169,12 @@ public class TermFrequencyCounter extends KeywordExtractor implements Collection
     }
 
     @Override
-    public boolean retainAll(Collection<?> c)
-    {
+    public boolean retainAll(Collection<?> c) {
         return termFrequencyMap.values().retainAll(c);
     }
 
     @Override
-    public void clear()
-    {
+    public void clear() {
         termFrequencyMap.clear();
     }
 
@@ -217,14 +186,12 @@ public class TermFrequencyCounter extends KeywordExtractor implements Collection
      * @return
      */
     @Override
-    public List<String> getKeywords(List<Term> termList, int size)
-    {
+    public List<String> getKeywords(List<Term> termList, int size) {
         clear();
         add(termList);
         Collection<TermFrequency> topN = top(size);
         List<String> r = new ArrayList<String>(topN.size());
-        for (TermFrequency termFrequency : topN)
-        {
+        for (TermFrequency termFrequency : topN) {
             r.add(termFrequency.getTerm());
         }
         return r;
@@ -237,14 +204,12 @@ public class TermFrequencyCounter extends KeywordExtractor implements Collection
      * @param size     希望提取几个关键词
      * @return 一个列表
      */
-    public static List<String> getKeywordList(String document, int size)
-    {
+    public static List<String> getKeywordList(String document, int size) {
         return new TermFrequencyCounter().getKeywords(document, size);
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         final int max = 100;
         return top(Math.min(max, size())).toString();
     }

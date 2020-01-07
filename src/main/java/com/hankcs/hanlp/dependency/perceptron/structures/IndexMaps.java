@@ -12,8 +12,7 @@ import java.util.HashMap;
 /**
  * 将所有字符串混到一起赋予id的结构
  */
-public class IndexMaps implements Serializable
-{
+public class IndexMaps implements Serializable {
     /**
      * ROOT
      */
@@ -41,16 +40,14 @@ public class IndexMaps implements Serializable
     private HashMap<String, Integer> brownFullClusters;
 
     public IndexMaps(HashMap<String, Integer> wordId, HashMap<Integer, Integer> labels, String rootString,
-                     HashMap<Integer, Integer> brown4Clusters, HashMap<Integer, Integer> brown6Clusters, HashMap<String, Integer> brownFullClusters)
-    {
+                     HashMap<Integer, Integer> brown4Clusters, HashMap<Integer, Integer> brown6Clusters, HashMap<String, Integer> brownFullClusters) {
         this.wordId = wordId;
         this.labels = labels;
 
         idWord = new String[wordId.size() + 1];
         idWord[0] = "ROOT";
 
-        for (String word : wordId.keySet())
-        {
+        for (String word : wordId.keySet()) {
             idWord[wordId.get(word)] = word;
         }
 
@@ -69,8 +66,7 @@ public class IndexMaps implements Serializable
      * @param lowerCased
      * @return
      */
-    public Sentence makeSentence(String[] words, String[] posTags, boolean rootFirst, boolean lowerCased)
-    {
+    public Sentence makeSentence(String[] words, String[] posTags, boolean rootFirst, boolean lowerCased) {
         ArrayList<Integer> tokens = new ArrayList<Integer>();
         ArrayList<Integer> tags = new ArrayList<Integer>();
         ArrayList<Integer> bc4 = new ArrayList<Integer>();
@@ -78,8 +74,7 @@ public class IndexMaps implements Serializable
         ArrayList<Integer> bcf = new ArrayList<Integer>();
 
         int i = 0;
-        for (String word : words)
-        {
+        for (String word : words) {
             if (word.length() == 0)
                 continue;
             String lowerCaseWord = word.toLowerCase();
@@ -107,8 +102,7 @@ public class IndexMaps implements Serializable
             i++;
         }
 
-        if (!rootFirst)
-        {
+        if (!rootFirst) {
             tokens.add(0);
             tags.add(0);
             bcf.add(0);
@@ -119,8 +113,7 @@ public class IndexMaps implements Serializable
         return new Sentence(tokens, tags, bc4, bc6, bcf);
     }
 
-    public HashMap<String, Integer> getWordId()
-    {
+    public HashMap<String, Integer> getWordId() {
         return wordId;
     }
 
@@ -129,8 +122,7 @@ public class IndexMaps implements Serializable
      *
      * @return
      */
-    public HashMap<Integer, Integer> getLabels()
-    {
+    public HashMap<Integer, Integer> getLabels() {
         return labels;
     }
 
@@ -140,8 +132,7 @@ public class IndexMaps implements Serializable
      * @param word
      * @return
      */
-    public int[] clusterId(String word)
-    {
+    public int[] clusterId(String word) {
         int[] ids = new int[3];
         ids[0] = -100;
         ids[1] = -100;
@@ -149,16 +140,14 @@ public class IndexMaps implements Serializable
         if (brownFullClusters.containsKey(word))
             ids[0] = brownFullClusters.get(word);
 
-        if (ids[0] > 0)
-        {
+        if (ids[0] > 0) {
             ids[1] = brown4Clusters.get(ids[0]);
             ids[2] = brown6Clusters.get(ids[0]);
         }
         return ids;
     }
 
-    public boolean hasClusters()
-    {
+    public boolean hasClusters() {
         if (brownFullClusters != null && brownFullClusters.size() > 0)
             return true;
         return false;

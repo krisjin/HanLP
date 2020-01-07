@@ -20,15 +20,13 @@ import java.io.IOException;
  * @author hankcs
  * @since 1.6.2
  */
-public class CRFLexicalAnalyzer extends AbstractLexicalAnalyzer
-{
+public class CRFLexicalAnalyzer extends AbstractLexicalAnalyzer {
     /**
      * 构造CRF词法分析器
      *
      * @param segmenter CRF分词器
      */
-    public CRFLexicalAnalyzer(CRFSegmenter segmenter)
-    {
+    public CRFLexicalAnalyzer(CRFSegmenter segmenter) {
         this.segmenter = segmenter;
     }
 
@@ -38,8 +36,7 @@ public class CRFLexicalAnalyzer extends AbstractLexicalAnalyzer
      * @param segmenter CRF分词器
      * @param posTagger CRF词性标注器
      */
-    public CRFLexicalAnalyzer(CRFSegmenter segmenter, CRFPOSTagger posTagger)
-    {
+    public CRFLexicalAnalyzer(CRFSegmenter segmenter, CRFPOSTagger posTagger) {
         this.segmenter = segmenter;
         this.posTagger = posTagger;
         config.speechTagging = true;
@@ -52,8 +49,7 @@ public class CRFLexicalAnalyzer extends AbstractLexicalAnalyzer
      * @param posTagger    CRF词性标注器
      * @param neRecognizer CRF命名实体识别器
      */
-    public CRFLexicalAnalyzer(CRFSegmenter segmenter, CRFPOSTagger posTagger, CRFNERecognizer neRecognizer)
-    {
+    public CRFLexicalAnalyzer(CRFSegmenter segmenter, CRFPOSTagger posTagger, CRFNERecognizer neRecognizer) {
         this.segmenter = segmenter;
         this.posTagger = posTagger;
         this.neRecognizer = neRecognizer;
@@ -66,8 +62,7 @@ public class CRFLexicalAnalyzer extends AbstractLexicalAnalyzer
      *
      * @param cwsModelPath CRF分词器模型路径
      */
-    public CRFLexicalAnalyzer(String cwsModelPath) throws IOException
-    {
+    public CRFLexicalAnalyzer(String cwsModelPath) throws IOException {
         this(new CRFSegmenter(cwsModelPath));
     }
 
@@ -77,8 +72,7 @@ public class CRFLexicalAnalyzer extends AbstractLexicalAnalyzer
      * @param cwsModelPath CRF分词器模型路径
      * @param posModelPath CRF词性标注器模型路径
      */
-    public CRFLexicalAnalyzer(String cwsModelPath, String posModelPath) throws IOException
-    {
+    public CRFLexicalAnalyzer(String cwsModelPath, String posModelPath) throws IOException {
         this(new CRFSegmenter(cwsModelPath), new CRFPOSTagger(posModelPath));
     }
 
@@ -89,8 +83,7 @@ public class CRFLexicalAnalyzer extends AbstractLexicalAnalyzer
      * @param posModelPath CRF词性标注器模型路径
      * @param nerModelPath CRF命名实体识别器模型路径
      */
-    public CRFLexicalAnalyzer(String cwsModelPath, String posModelPath, String nerModelPath) throws IOException
-    {
+    public CRFLexicalAnalyzer(String cwsModelPath, String posModelPath, String nerModelPath) throws IOException {
         this(new CRFSegmenter(cwsModelPath), new CRFPOSTagger(posModelPath), new CRFNERecognizer(nerModelPath));
     }
 
@@ -99,8 +92,7 @@ public class CRFLexicalAnalyzer extends AbstractLexicalAnalyzer
      *
      * @throws IOException
      */
-    public CRFLexicalAnalyzer() throws IOException
-    {
+    public CRFLexicalAnalyzer() throws IOException {
         this(new CRFSegmenter(), new CRFPOSTagger(), new CRFNERecognizer());
     }
 }

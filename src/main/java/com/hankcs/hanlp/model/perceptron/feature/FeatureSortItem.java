@@ -16,18 +16,15 @@ import java.util.Map;
 /**
  * @author hankcs
  */
-public class FeatureSortItem
-{
+public class FeatureSortItem {
     public String key;
     public Integer id;
     public float total;
 
-    public FeatureSortItem(Map.Entry<String, Integer> entry, float[] parameter, int tagSetSize)
-    {
+    public FeatureSortItem(Map.Entry<String, Integer> entry, float[] parameter, int tagSetSize) {
         key = entry.getKey();
         id = entry.getValue();
-        for (int i = 0; i < tagSetSize; ++i)
-        {
+        for (int i = 0; i < tagSetSize; ++i) {
             total += Math.abs(parameter[id * tagSetSize + i]);
         }
     }

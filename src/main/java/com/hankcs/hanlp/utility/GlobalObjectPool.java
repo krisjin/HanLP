@@ -23,8 +23,7 @@ import java.util.Map;
  * @author hankcs
  */
 @SuppressWarnings("unchecked")
-public class GlobalObjectPool
-{
+public class GlobalObjectPool {
     /**
      * 缓存池
      */
@@ -32,12 +31,12 @@ public class GlobalObjectPool
 
     /**
      * 获取对象
-     * @param id 对象的id，可以是任何全局唯一的标示符
+     *
+     * @param id  对象的id，可以是任何全局唯一的标示符
      * @param <T> 对象类型
      * @return 对象
      */
-    public synchronized static <T> T get(Object id)
-    {
+    public synchronized static <T> T get(Object id) {
         SoftReference reference = pool.get(id);
         if (reference == null) return null;
         return (T) reference.get();
@@ -45,12 +44,12 @@ public class GlobalObjectPool
 
     /**
      * 存放全局变量
+     *
      * @param id
      * @param <T>
      * @return
      */
-    public synchronized static <T> T put(Object id, T value)
-    {
+    public synchronized static <T> T put(Object id, T value) {
         SoftReference old = pool.put(id, new SoftReference(value));
         return old == null ? null : (T) old.get();
     }
@@ -58,8 +57,7 @@ public class GlobalObjectPool
     /**
      * 清空全局变量
      */
-    public synchronized static void clear()
-    {
+    public synchronized static void clear() {
         pool.clear();
     }
 }

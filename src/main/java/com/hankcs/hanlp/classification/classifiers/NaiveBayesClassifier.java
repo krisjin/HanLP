@@ -1,22 +1,23 @@
 package com.hankcs.hanlp.classification.classifiers;
 
-import com.hankcs.hanlp.utility.MathUtility;
-import com.hankcs.hanlp.collection.trie.bintrie.BinTrie;
-import com.hankcs.hanlp.classification.corpus.*;
-import com.hankcs.hanlp.classification.features.ChiSquareFeatureExtractor;
+import com.hankcs.hanlp.classification.corpus.Document;
+import com.hankcs.hanlp.classification.corpus.IDataSet;
 import com.hankcs.hanlp.classification.features.BaseFeatureData;
+import com.hankcs.hanlp.classification.features.ChiSquareFeatureExtractor;
 import com.hankcs.hanlp.classification.models.AbstractModel;
 import com.hankcs.hanlp.classification.models.NaiveBayesModel;
+import com.hankcs.hanlp.collection.trie.bintrie.BinTrie;
+import com.hankcs.hanlp.utility.MathUtility;
+
+import java.util.Map;
+import java.util.TreeMap;
 
 import static com.hankcs.hanlp.classification.utilities.io.ConsoleLogger.logger;
-
-import java.util.*;
 
 /**
  * 实现一个基于多项式贝叶斯模型的文本分类器
  */
-public class NaiveBayesClassifier extends AbstractClassifier
-{
+public class NaiveBayesClassifier extends AbstractClassifier {
 
     private NaiveBayesModel model;
 
@@ -25,16 +26,14 @@ public class NaiveBayesClassifier extends AbstractClassifier
      *
      * @param naiveBayesModel
      */
-    public NaiveBayesClassifier(NaiveBayesModel naiveBayesModel)
-    {
+    public NaiveBayesClassifier(NaiveBayesModel naiveBayesModel) {
         this.model = naiveBayesModel;
     }
 
     /**
      * 构造一个空白的贝叶斯分类器，通常准备用来进行训练
      */
-    public NaiveBayesClassifier()
-    {
+    public NaiveBayesClassifier() {
         this(null);
     }
 
@@ -43,13 +42,11 @@ public class NaiveBayesClassifier extends AbstractClassifier
      *
      * @return
      */
-    public NaiveBayesModel getNaiveBayesModel()
-    {
+    public NaiveBayesModel getNaiveBayesModel() {
         return model;
     }
 
-    public void train(IDataSet dataSet)
-    {
+    public void train(IDataSet dataSet) {
         logger.out("原始数据集大小:%d\n", dataSet.size());
         //选择最佳特征
         BaseFeatureData featureData = selectFeatures(dataSet);
@@ -63,8 +60,7 @@ public class NaiveBayesClassifier extends AbstractClassifier
         model.logPriors = new TreeMap<Integer, Double>();
 
         int sumCategory;
-        for (int category = 0; category < featureData.categoryCounts.length; category++)
-        {
+        for (int category = 0; category < featureData.categoryCounts.length; category++) {
             sumCategory = featureData.categoryCounts[category];
             model.logPriors.put(category, Math.log((double) sumCategory / model.n));
         }
@@ -73,11 +69,9 @@ public class NaiveBayesClassifier extends AbstractClassifier
         Map<Integer, Double> featureOccurrencesInCategory = new TreeMap<Integer, Double>();
 
         Double featureOccSum;
-        for (Integer category : model.logPriors.keySet())
-        {
+        for (Integer category : model.logPriors.keySet()) {
             featureOccSum = 0.0;
-            for (int feature = 0; feature < featureData.featureCategoryJointCount.length; feature++)
-            {
+            for (int feature = 0; feature < featureData.featureCategoryJointCount.length; feature++) {
 
                 featureOccSum += featureData.featureCategoryJointCount[feature][category];
             }
@@ -88,18 +82,15 @@ public class NaiveBayesClassifier extends AbstractClassifier
         int count;
         int[] featureCategoryCounts;
         double logLikelihood;
-        for (Integer category : model.logPriors.keySet())
-        {
-            for (int feature = 0; feature < featureData.featureCategoryJointCount.length; feature++)
-            {
+        for (Integer category : model.logPriors.keySet()) {
+            for (int feature = 0; feature < featureData.featureCategoryJointCount.length; feature++) {
 
                 featureCategoryCounts = featureData.featureCategoryJointCount[feature];
 
                 count = featureCategoryCounts[category];
 
                 logLikelihood = Math.log((count + 1.0) / (featureOccurrencesInCategory.get(category) + model.d));
-                if (!model.logLikelihoods.containsKey(feature))
-                {
+                if (!model.logLikelihoods.containsKey(feature)) {
                     model.logLikelihoods.put(feature, new TreeMap<Integer, Double>());
                 }
                 model.logLikelihoods.get(feature).put(category, logLikelihood);
@@ -111,19 +102,15 @@ public class NaiveBayesClassifier extends AbstractClassifier
         model.wordIdTrie = featureData.wordIdTrie;
     }
 
-    public AbstractModel getModel()
-    {
+    public AbstractModel getModel() {
         return model;
     }
 
-    public Map<String, Double> predict(String text) throws IllegalArgumentException, IllegalStateException
-    {
-        if (model == null)
-        {
+    public Map<String, Double> predict(String text) throws IllegalArgumentException, IllegalStateException {
+        if (model == null) {
             throw new IllegalStateException("未训练模型！无法执行预测！");
         }
-        if (text == null)
-        {
+        if (text == null) {
             throw new IllegalArgumentException("参数 text == null");
         }
 
@@ -134,26 +121,22 @@ public class NaiveBayesClassifier extends AbstractClassifier
     }
 
     @Override
-    public double[] categorize(Document document) throws IllegalArgumentException, IllegalStateException
-    {
+    public double[] categorize(Document document) throws IllegalArgumentException, IllegalStateException {
         Integer category;
         Integer feature;
         Integer occurrences;
         Double logprob;
 
         double[] predictionScores = new double[model.catalog.length];
-        for (Map.Entry<Integer, Double> entry1 : model.logPriors.entrySet())
-        {
+        for (Map.Entry<Integer, Double> entry1 : model.logPriors.entrySet()) {
             category = entry1.getKey();
             logprob = entry1.getValue(); //用类目的对数似然初始化概率
 
             //对文档中的每个特征
-            for (Map.Entry<Integer, int[]> entry2 : document.tfMap.entrySet())
-            {
+            for (Map.Entry<Integer, int[]> entry2 : document.tfMap.entrySet()) {
                 feature = entry2.getKey();
 
-                if (!model.logLikelihoods.containsKey(feature))
-                {
+                if (!model.logLikelihoods.containsKey(feature)) {
                     continue; //如果在模型中找不到就跳过了
                 }
 
@@ -174,8 +157,7 @@ public class NaiveBayesClassifier extends AbstractClassifier
      * @param dataSet
      * @return
      */
-    protected BaseFeatureData selectFeatures(IDataSet dataSet)
-    {
+    protected BaseFeatureData selectFeatures(IDataSet dataSet) {
         ChiSquareFeatureExtractor chiSquareFeatureExtractor = new ChiSquareFeatureExtractor();
 
         logger.start("使用卡方检测选择特征中...");
@@ -190,14 +172,13 @@ public class NaiveBayesClassifier extends AbstractClassifier
         featureData.wordIdTrie = new BinTrie<Integer>();
         String[] wordIdArray = dataSet.getLexicon().getWordIdArray();
         int p = -1;
-        for (Integer feature : selectedFeatures.keySet())
-        {
+        for (Integer feature : selectedFeatures.keySet()) {
             featureCategoryJointCount[++p] = featureData.featureCategoryJointCount[feature];
             featureData.wordIdTrie.put(wordIdArray[feature], p);
         }
         logger.finish(",选中特征数:%d / %d = %.2f%%\n", featureCategoryJointCount.length,
-                      featureData.featureCategoryJointCount.length,
-                      featureCategoryJointCount.length / (double)featureData.featureCategoryJointCount.length * 100.);
+                featureData.featureCategoryJointCount.length,
+                featureCategoryJointCount.length / (double) featureData.featureCategoryJointCount.length * 100.);
         featureData.featureCategoryJointCount = featureCategoryJointCount;
 
         return featureData;

@@ -3,8 +3,7 @@ package com.hankcs.hanlp.collection.trie.datrie;
 /**
  * 字符映射接口
  */
-public interface CharacterMapping
-{
+public interface CharacterMapping {
     int getInitSize();
 
     int getCharsetSize();

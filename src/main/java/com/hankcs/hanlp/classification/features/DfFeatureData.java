@@ -15,18 +15,18 @@ import com.hankcs.hanlp.classification.corpus.IDataSet;
 
 /**
  * 包含倒排文档频次的特征数据
+ *
  * @author hankcs
  */
-public class DfFeatureData extends BaseFeatureData
-{
+public class DfFeatureData extends BaseFeatureData {
     public int[] df;
+
     /**
      * 构造一个空白的统计对象
      *
      * @param dataSet
      */
-    public DfFeatureData(IDataSet dataSet)
-    {
+    public DfFeatureData(IDataSet dataSet) {
         super(dataSet);
     }
 }

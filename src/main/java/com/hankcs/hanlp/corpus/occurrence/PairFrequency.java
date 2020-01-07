@@ -13,10 +13,10 @@ package com.hankcs.hanlp.corpus.occurrence;
 
 /**
  * 一个二元的词串的频度
+ *
  * @author hankcs
  */
-public class PairFrequency extends TermFrequency
-{
+public class PairFrequency extends TermFrequency {
     /**
      * 互信息值
      */
@@ -37,25 +37,23 @@ public class PairFrequency extends TermFrequency
     public String second;
     public char delimiter;
 
-    protected PairFrequency(String term, Integer frequency)
-    {
+    protected PairFrequency(String term, Integer frequency) {
         super(term, frequency);
     }
 
-    protected PairFrequency(String term)
-    {
+    protected PairFrequency(String term) {
         super(term);
     }
 
     /**
      * 构造一个pf
+     *
      * @param first
      * @param delimiter
      * @param second
      * @return
      */
-    public static PairFrequency create(String first, char delimiter ,String second)
-    {
+    public static PairFrequency create(String first, char delimiter, String second) {
         PairFrequency pairFrequency = new PairFrequency(first + delimiter + second);
         pairFrequency.first = first;
         pairFrequency.delimiter = delimiter;
@@ -65,16 +63,15 @@ public class PairFrequency extends TermFrequency
 
     /**
      * 该共现是否统计的是否是从左到右的顺序
+     *
      * @return
      */
-    public boolean isRight()
-    {
+    public boolean isRight() {
         return delimiter == Occurrence.RIGHT;
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         final StringBuilder sb = new StringBuilder();
         sb.append(first);
         sb.append(isRight() ? '→' : '←');

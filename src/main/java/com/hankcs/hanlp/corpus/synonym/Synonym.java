@@ -16,78 +16,70 @@ import java.util.List;
 
 /**
  * 同义词
+ *
  * @author hankcs
  */
-public class Synonym implements ISynonym
-{
+public class Synonym implements ISynonym {
     public String realWord;
     public long id;
     public Type type;
 
     @Deprecated
-    public Synonym(String realWord, String idString)
-    {
+    public Synonym(String realWord, String idString) {
         this.realWord = realWord;
         id = SynonymHelper.convertString2Id(idString);
     }
 
     @Deprecated
-    public Synonym(String realWord, long id)
-    {
+    public Synonym(String realWord, long id) {
         this.realWord = realWord;
         this.id = id;
     }
 
-    public Synonym(String realWord, long id, Type type)
-    {
+    public Synonym(String realWord, long id, Type type) {
         this.realWord = realWord;
         this.id = id;
         this.type = type;
     }
 
     @Override
-    public String getRealWord()
-    {
+    public String getRealWord() {
         return realWord;
     }
 
     @Override
-    public long getId()
-    {
+    public long getId() {
         return id;
     }
 
     @Override
-    public String getIdString()
-    {
+    public String getIdString() {
         return SynonymHelper.convertId2StringWithIndex(id);
     }
 
     /**
      * 通过类似 Bh06A32= 番茄 西红柿 的字符串构造一系列同义词
+     *
      * @param param
      * @return
      */
-    public static List<Synonym> create(String param)
-    {
+    public static List<Synonym> create(String param) {
         if (param == null) return null;
         String[] args = param.split(" ");
         return create(args);
     }
 
     /**
-     * @see com.hankcs.hanlp.corpus.synonym.Synonym#create(String)
      * @param args
      * @return
+     * @see com.hankcs.hanlp.corpus.synonym.Synonym#create(String)
      */
-    public static ArrayList<Synonym> create(String[] args)
-    {
+    public static ArrayList<Synonym> create(String[] args) {
         ArrayList<Synonym> synonymList = new ArrayList<Synonym>(args.length - 1);
 
         String idString = args[0];
         Type type;
-        switch (idString.charAt(idString.length() - 1))
-        {
+        switch (idString.charAt(idString.length() - 1)) {
             case '=':
                 type = Type.EQUAL;
                 break;
@@ -99,14 +91,10 @@ public class Synonym implements ISynonym
                 break;
         }
         long startId = SynonymHelper.convertString2IdWithIndex(idString, 0);    // id从这里开始
-        for (int i = 1; i < args.length; ++i)
-        {
-            if (type == Type.LIKE)
-            {
+        for (int i = 1; i < args.length; ++i) {
+            if (type == Type.LIKE) {
                 synonymList.add(new Synonym(args[i], startId + i, type));             // 如果不同则id递增
-            }
-            else
-            {
+            } else {
                 synonymList.add(new Synonym(args[i], startId, type));             // 如果相同则不变
             }
         }
@@ -114,12 +102,10 @@ public class Synonym implements ISynonym
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         final StringBuilder sb = new StringBuilder();
         sb.append(realWord);
-        switch (type)
-        {
+        switch (type) {
 
             case EQUAL:
                 sb.append('=');
@@ -140,16 +126,15 @@ public class Synonym implements ISynonym
 
     /**
      * 语义距离
+     *
      * @param other
      * @return
      */
-    public long distance(Synonym other)
-    {
+    public long distance(Synonym other) {
         return Math.abs(id - other.id);
     }
 
-    public enum Type
-    {
+    public enum Type {
         /**
          * 完全同义词，对应词典中的=号
          */

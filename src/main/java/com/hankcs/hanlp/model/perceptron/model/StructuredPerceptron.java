@@ -12,23 +12,20 @@
 package com.hankcs.hanlp.model.perceptron.model;
 
 import com.hankcs.hanlp.model.perceptron.feature.FeatureMap;
-import com.hankcs.hanlp.model.perceptron.tagset.TagSet;
 import com.hankcs.hanlp.model.perceptron.instance.Instance;
+import com.hankcs.hanlp.model.perceptron.tagset.TagSet;
 
 /**
  * 结构化感知机算法学习的线性模型
  *
  * @author hankcs
  */
-public class StructuredPerceptron extends LinearModel
-{
-    public StructuredPerceptron(FeatureMap featureMap, float[] parameter)
-    {
+public class StructuredPerceptron extends LinearModel {
+    public StructuredPerceptron(FeatureMap featureMap, float[] parameter) {
         super(featureMap, parameter);
     }
 
-    public StructuredPerceptron(FeatureMap featureMap)
-    {
+    public StructuredPerceptron(FeatureMap featureMap) {
         super(featureMap);
     }
 
@@ -38,10 +35,8 @@ public class StructuredPerceptron extends LinearModel
      * @param goldIndex    答案的特征函数（非压缩形式）
      * @param predictIndex 预测的特征函数（非压缩形式）
      */
-    public void update(int[] goldIndex, int[] predictIndex)
-    {
-        for (int i = 0; i < goldIndex.length; ++i)
-        {
+    public void update(int[] goldIndex, int[] predictIndex) {
+        for (int i = 0; i < goldIndex.length; ++i) {
             if (goldIndex[i] == predictIndex[i])
                 continue;
             else // 预测与答案不一致
@@ -49,8 +44,7 @@ public class StructuredPerceptron extends LinearModel
                 parameter[goldIndex[i]]++; // 奖励正确的特征函数（将它的权值加一）
                 if (predictIndex[i] >= 0 && predictIndex[i] < parameter.length)
                     parameter[predictIndex[i]]--; // 惩罚招致错误的特征函数（将它的权值减一）
-                else
-                {
+                else {
                     throw new IllegalArgumentException("更新参数时传入了非法的下标");
                 }
             }
@@ -62,18 +56,15 @@ public class StructuredPerceptron extends LinearModel
      *
      * @param instance 样本
      */
-    public void update(Instance instance)
-    {
+    public void update(Instance instance) {
         int[] guessLabel = new int[instance.length()];
         viterbiDecode(instance, guessLabel);
         TagSet tagSet = featureMap.tagSet;
-        for (int i = 0; i < instance.length(); i++)
-        {
+        for (int i = 0; i < instance.length(); i++) {
             int[] featureVector = instance.getFeatureAt(i);
             int[] goldFeature = new int[featureVector.length]; // 根据答案应当被激活的特征
             int[] predFeature = new int[featureVector.length]; // 实际预测时激活的特征
-            for (int j = 0; j < featureVector.length - 1; j++)
-            {
+            for (int j = 0; j < featureVector.length - 1; j++) {
                 goldFeature[j] = featureVector[j] * tagSet.size() + instance.tagArray[i];
                 predFeature[j] = featureVector[j] * tagSet.size() + guessLabel[i];
             }

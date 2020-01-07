@@ -13,8 +13,7 @@ import java.util.ArrayList;
 /**
  * This class is just for making connection between different types of transition-based parsers
  */
-public abstract class TransitionBasedParser
-{
+public abstract class TransitionBasedParser {
 
     /**
      * Any kind of classifier that can give us scores
@@ -24,16 +23,14 @@ public abstract class TransitionBasedParser
     protected int featureLength;
     protected IndexMaps maps;
 
-    public TransitionBasedParser(AveragedPerceptron classifier, ArrayList<Integer> dependencyRelations, int featureLength, IndexMaps maps)
-    {
+    public TransitionBasedParser(AveragedPerceptron classifier, ArrayList<Integer> dependencyRelations, int featureLength, IndexMaps maps) {
         this.classifier = classifier;
         this.dependencyRelations = dependencyRelations;
         this.featureLength = featureLength;
         this.maps = maps;
     }
 
-    public String idWord(int id)
-    {
+    public String idWord(int id) {
         return maps.idWord[id];
     }
 }

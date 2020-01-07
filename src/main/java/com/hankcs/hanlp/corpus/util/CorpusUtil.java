@@ -23,8 +23,7 @@ import java.util.ListIterator;
 /**
  * @author hankcs
  */
-public class CorpusUtil
-{
+public class CorpusUtil {
     public final static String TAG_PLACE = "未##地";
     public final static String TAG_BIGIN = "始##始";
     public final static String TAG_OTHER = "未##它";
@@ -42,8 +41,7 @@ public class CorpusUtil
      * @param word
      * @return
      */
-    public static IWord compile(IWord word)
-    {
+    public static IWord compile(IWord word) {
         String label = word.getLabel();
         if ("nr".equals(label)) return new Word(word.getValue(), TAG_PEOPLE);
         else if ("m".equals(label) || "mq".equals(label)) return new Word(word.getValue(), TAG_NUMBER);
@@ -71,27 +69,21 @@ public class CorpusUtil
      * @param simpleSentenceList
      * @return
      */
-    public static List<List<IWord>> convert2CompatibleList(List<List<Word>> simpleSentenceList)
-    {
+    public static List<List<IWord>> convert2CompatibleList(List<List<Word>> simpleSentenceList) {
         List<List<IWord>> compatibleList = new LinkedList<List<IWord>>();
-        for (List<Word> wordList : simpleSentenceList)
-        {
+        for (List<Word> wordList : simpleSentenceList) {
             compatibleList.add(new LinkedList<IWord>(wordList));
         }
         return compatibleList;
     }
 
-    public static List<IWord> spilt(List<IWord> wordList)
-    {
+    public static List<IWord> spilt(List<IWord> wordList) {
         ListIterator<IWord> listIterator = wordList.listIterator();
-        while (listIterator.hasNext())
-        {
+        while (listIterator.hasNext()) {
             IWord word = listIterator.next();
-            if (word instanceof CompoundWord)
-            {
+            if (word instanceof CompoundWord) {
                 listIterator.remove();
-                for (Word inner : ((CompoundWord) word).innerList)
-                {
+                for (Word inner : ((CompoundWord) word).innerList) {
                     listIterator.add(inner);
                 }
             }

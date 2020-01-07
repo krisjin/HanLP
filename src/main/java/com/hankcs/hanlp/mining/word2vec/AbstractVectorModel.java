@@ -19,17 +19,14 @@ import java.util.*;
  *
  * @author hankcs
  */
-public abstract class AbstractVectorModel<K>
-{
+public abstract class AbstractVectorModel<K> {
     Map<K, Vector> storage;
 
-    public AbstractVectorModel(Map<K, Vector> storage)
-    {
+    public AbstractVectorModel(Map<K, Vector> storage) {
         this.storage = storage;
     }
 
-    public AbstractVectorModel()
-    {
+    public AbstractVectorModel() {
         storage = new TreeMap<K, Vector>();
     }
 
@@ -39,8 +36,7 @@ public abstract class AbstractVectorModel<K>
      * @param key 键
      * @return 向量
      */
-    final public Vector vector(K key)
-    {
+    final public Vector vector(K key) {
         Vector vector = storage.get(key);
         if (vector == null) return null;
         return vector;
@@ -53,16 +49,13 @@ public abstract class AbstractVectorModel<K>
      * @param with 另一个词
      * @return 余弦相似度
      */
-    public float similarity(K what, K with)
-    {
+    public float similarity(K what, K with) {
         Vector vectorWhat = storage.get(what);
-        if (vectorWhat == null)
-        {
+        if (vectorWhat == null) {
             return -1f;
         }
         Vector vectorWith = storage.get(with);
-        if (vectorWith == null)
-        {
+        if (vectorWith == null) {
             return -1f;
         }
         return vectorWhat.cosineForUnitVector(vectorWith);
@@ -75,11 +68,9 @@ public abstract class AbstractVectorModel<K>
      * @param size topN个
      * @return 键值对列表, 键是相似词语, 值是相似度, 按相似度降序排列
      */
-    public List<Map.Entry<K, Float>> nearest(K key, int size)
-    {
+    public List<Map.Entry<K, Float>> nearest(K key, int size) {
         Vector vector = storage.get(key);
-        if (vector == null)
-        {
+        if (vector == null) {
             return Collections.emptyList();
         }
         return nearest(key, vector, size);
@@ -93,21 +84,16 @@ public abstract class AbstractVectorModel<K>
      * @param size   topN个
      * @return 键值对列表, 键是相似词语, 值是相似度, 按相似度降序排列
      */
-    private List<Map.Entry<K, Float>> nearest(K key, Vector vector, int size)
-    {
-        MaxHeap<Map.Entry<K, Float>> maxHeap = new MaxHeap<Map.Entry<K, Float>>(size, new Comparator<Map.Entry<K, Float>>()
-        {
+    private List<Map.Entry<K, Float>> nearest(K key, Vector vector, int size) {
+        MaxHeap<Map.Entry<K, Float>> maxHeap = new MaxHeap<Map.Entry<K, Float>>(size, new Comparator<Map.Entry<K, Float>>() {
             @Override
-            public int compare(Map.Entry<K, Float> o1, Map.Entry<K, Float> o2)
-            {
+            public int compare(Map.Entry<K, Float> o1, Map.Entry<K, Float> o2) {
                 return o1.getValue().compareTo(o2.getValue());
             }
         });
 
-        for (Map.Entry<K, Vector> entry : storage.entrySet())
-        {
-            if (entry.getKey().equals(key))
-            {
+        for (Map.Entry<K, Vector> entry : storage.entrySet()) {
+            if (entry.getKey().equals(key)) {
                 continue;
             }
             maxHeap.add(new AbstractMap.SimpleEntry<K, Float>(entry.getKey(), entry.getValue().cosineForUnitVector(vector)));
@@ -122,19 +108,15 @@ public abstract class AbstractVectorModel<K>
      * @param size   topN个
      * @return 键值对列表, 键是相似词语, 值是相似度, 按相似度降序排列
      */
-    public List<Map.Entry<K, Float>> nearest(Vector vector, int size)
-    {
-        MaxHeap<Map.Entry<K, Float>> maxHeap = new MaxHeap<Map.Entry<K, Float>>(size, new Comparator<Map.Entry<K, Float>>()
-        {
+    public List<Map.Entry<K, Float>> nearest(Vector vector, int size) {
+        MaxHeap<Map.Entry<K, Float>> maxHeap = new MaxHeap<Map.Entry<K, Float>>(size, new Comparator<Map.Entry<K, Float>>() {
             @Override
-            public int compare(Map.Entry<K, Float> o1, Map.Entry<K, Float> o2)
-            {
+            public int compare(Map.Entry<K, Float> o1, Map.Entry<K, Float> o2) {
                 return o1.getValue().compareTo(o2.getValue());
             }
         });
 
-        for (Map.Entry<K, Vector> entry : storage.entrySet())
-        {
+        for (Map.Entry<K, Vector> entry : storage.entrySet()) {
             maxHeap.add(new AbstractMap.SimpleEntry<K, Float>(entry.getKey(), entry.getValue().cosineForUnitVector(vector)));
         }
         return maxHeap.toList();
@@ -146,8 +128,7 @@ public abstract class AbstractVectorModel<K>
      * @param vector 向量
      * @return 键值对列表, 键是相似词语, 值是相似度, 按相似度降序排列
      */
-    public List<Map.Entry<K, Float>> nearest(Vector vector)
-    {
+    public List<Map.Entry<K, Float>> nearest(Vector vector) {
         return nearest(vector, 10);
     }
 
@@ -157,8 +138,7 @@ public abstract class AbstractVectorModel<K>
      * @param key 词语
      * @return 键值对列表, 键是相似词语, 值是相似度, 按相似度降序排列
      */
-    public List<Map.Entry<K, Float>> nearest(K key)
-    {
+    public List<Map.Entry<K, Float>> nearest(K key) {
         return nearest(key, 10);
     }
 
@@ -169,18 +149,13 @@ public abstract class AbstractVectorModel<K>
      * @param size  需要返回前多少个对象
      * @return
      */
-    final List<Map.Entry<K, Float>> queryNearest(String query, int size)
-    {
-        if (query == null || query.length() == 0)
-        {
+    final List<Map.Entry<K, Float>> queryNearest(String query, int size) {
+        if (query == null || query.length() == 0) {
             return Collections.emptyList();
         }
-        try
-        {
+        try {
             return nearest(query(query), size);
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             return Collections.emptyList();
         }
     }
@@ -198,8 +173,7 @@ public abstract class AbstractVectorModel<K>
      *
      * @return
      */
-    public int size()
-    {
+    public int size() {
         return storage.size();
     }
 
@@ -208,10 +182,8 @@ public abstract class AbstractVectorModel<K>
      *
      * @return
      */
-    public int dimension()
-    {
-        if (storage == null || storage.isEmpty())
-        {
+    public int dimension() {
+        if (storage == null || storage.isEmpty()) {
             return 0;
         }
         return storage.values().iterator().next().size();
@@ -223,8 +195,7 @@ public abstract class AbstractVectorModel<K>
      * @param key
      * @return
      */
-    public Vector remove(K key)
-    {
+    public Vector remove(K key) {
         return storage.remove(key);
     }
 }

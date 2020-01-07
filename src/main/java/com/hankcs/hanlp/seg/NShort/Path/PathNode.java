@@ -13,10 +13,10 @@ package com.hankcs.hanlp.seg.NShort.Path;
 
 /**
  * 路径上的节点
+ *
  * @author hankcs
  */
-public class PathNode
-{
+public class PathNode {
     /**
      * 节点前驱
      */
@@ -28,18 +28,17 @@ public class PathNode
 
     /**
      * 构造一个节点
-     * @param from 节点前驱
+     *
+     * @param from  节点前驱
      * @param index 节点在顶点数组中的下标
      */
-    public PathNode(int from, int index)
-    {
+    public PathNode(int from, int index) {
         this.from = from;
         this.index = index;
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "PathNode{" +
                 "from=" + from +
                 ", index=" + index +

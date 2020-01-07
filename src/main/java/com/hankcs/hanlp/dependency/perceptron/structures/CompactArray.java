@@ -13,13 +13,11 @@ import java.io.Serializable;
 /**
  * 一个稀疏数组，实际只有一个连续区间被分配内存
  */
-public class CompactArray implements Serializable
-{
+public class CompactArray implements Serializable {
     float[] array;
     int offset;
 
-    public CompactArray(int offset, float[] array)
-    {
+    public CompactArray(int offset, float[] array) {
         this.offset = offset;
         this.array = array;
     }
@@ -30,51 +28,40 @@ public class CompactArray implements Serializable
      * @param index
      * @param value
      */
-    public void set(int index, float value)
-    {
-        if (index < offset + array.length && index >= offset)
-        {
+    public void set(int index, float value) {
+        if (index < offset + array.length && index >= offset) {
             array[index - offset] += value;
-        }
-        else if (index < offset)
-        {  //expand from left
+        } else if (index < offset) {  //expand from left
             int gap = offset - index;
             int newSize = gap + array.length;
             float[] newArray = new float[newSize];
             newArray[0] = value;
-            for (int i = 0; i < array.length; i++)
-            {
+            for (int i = 0; i < array.length; i++) {
                 newArray[gap + i] = array[i];
             }
             this.offset = index;
             this.array = newArray;
-        }
-        else
-        {
+        } else {
             int gap = index - (array.length + offset - 1);
             int newSize = array.length + gap;
             float[] newArray = new float[newSize];
             newArray[newSize - 1] = value;
-            for (int i = 0; i < array.length; i++)
-            {
+            for (int i = 0; i < array.length; i++) {
                 newArray[i] = array[i];
             }
             this.array = newArray;
         }
     }
 
-    public float[] getArray()
-    {
+    public float[] getArray() {
         return array;
     }
 
-    public int getOffset()
-    {
+    public int getOffset() {
         return offset;
     }
 
-    public int length()
-    {
+    public int length() {
         return array.length;
     }
 }

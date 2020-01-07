@@ -16,7 +16,6 @@ import com.hankcs.hanlp.corpus.document.sentence.word.IWord;
 import com.hankcs.hanlp.corpus.io.IOUtil;
 
 import java.io.BufferedWriter;
-import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.util.Map;
 
@@ -27,22 +26,19 @@ import static com.hankcs.hanlp.utility.Predefine.logger;
  *
  * @author hankcs
  */
-public class NGramDictionaryMaker
-{
+public class NGramDictionaryMaker {
     BinTrie<Integer> trie;
     /**
      * 转移矩阵
      */
     TMDictionaryMaker tmDictionaryMaker;
 
-    public NGramDictionaryMaker()
-    {
+    public NGramDictionaryMaker() {
         trie = new BinTrie<Integer>();
         tmDictionaryMaker = new TMDictionaryMaker();
     }
 
-    public void addPair(IWord first, IWord second)
-    {
+    public void addPair(IWord first, IWord second) {
         String combine = first.getValue() + "@" + second.getValue();
         Integer frequency = trie.get(combine);
         if (frequency == null) frequency = 0;
@@ -57,8 +53,7 @@ public class NGramDictionaryMaker
      * @param path
      * @return
      */
-    public boolean saveTxtTo(String path)
-    {
+    public boolean saveTxtTo(String path) {
         saveNGramToTxt(path + ".ngram.txt");
         saveTransformMatrixToTxt(path + ".tr.txt");
         return true;
@@ -70,20 +65,15 @@ public class NGramDictionaryMaker
      * @param path
      * @return
      */
-    public boolean saveNGramToTxt(String path)
-    {
-        try
-        {
+    public boolean saveNGramToTxt(String path) {
+        try {
             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(IOUtil.newOutputStream(path), "UTF-8"));
-            for (Map.Entry<String, Integer> entry : trie.entrySet())
-            {
+            for (Map.Entry<String, Integer> entry : trie.entrySet()) {
                 bw.write(entry.getKey() + " " + entry.getValue());
                 bw.newLine();
             }
             bw.close();
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             logger.warning("在保存NGram词典到" + path + "时发生异常" + e);
             return false;
         }
@@ -97,8 +87,7 @@ public class NGramDictionaryMaker
      * @param path
      * @return
      */
-    public boolean saveTransformMatrixToTxt(String path)
-    {
+    public boolean saveTransformMatrixToTxt(String path) {
         return tmDictionaryMaker.saveTxtTo(path);
     }
 }

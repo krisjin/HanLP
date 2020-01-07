@@ -19,42 +19,34 @@ import java.util.List;
 /**
  * @author hankcs
  */
-public class Instance
-{
+public class Instance {
     public int[][] featureMatrix;
     public int[] tagArray;
 
-    protected Instance()
-    {
+    protected Instance() {
     }
 
-    protected static int[] toFeatureArray(List<Integer> featureVector)
-    {
+    protected static int[] toFeatureArray(List<Integer> featureVector) {
         int[] featureArray = new int[featureVector.size() + 1];   // 最后一列留给转移特征
         int index = -1;
-        for (Integer feature : featureVector)
-        {
+        for (Integer feature : featureVector) {
             featureArray[++index] = feature;
         }
 
         return featureArray;
     }
 
-    public int[] getFeatureAt(int position)
-    {
+    public int[] getFeatureAt(int position) {
         return featureMatrix[position];
     }
 
-    public int length()
-    {
+    public int length() {
         return tagArray.length;
     }
 
-    protected static void addFeature(CharSequence rawFeature, List<Integer> featureVector, FeatureMap featureMap)
-    {
+    protected static void addFeature(CharSequence rawFeature, List<Integer> featureVector, FeatureMap featureMap) {
         int id = featureMap.idOf(rawFeature.toString());
-        if (id != -1)
-        {
+        if (id != -1) {
             featureVector.add(id);
         }
     }
@@ -66,11 +58,9 @@ public class Instance
      * @param featureVector
      * @param featureMap
      */
-    protected static void addFeatureThenClear(StringBuilder rawFeature, List<Integer> featureVector, FeatureMap featureMap)
-    {
+    protected static void addFeatureThenClear(StringBuilder rawFeature, List<Integer> featureVector, FeatureMap featureMap) {
         int id = featureMap.idOf(rawFeature.toString());
-        if (id != -1)
-        {
+        if (id != -1) {
             featureVector.add(id);
         }
         rawFeature.setLength(0);
@@ -82,13 +72,11 @@ public class Instance
      * @param tagSet
      * @return
      */
-    public String[] tags(TagSet tagSet)
-    {
+    public String[] tags(TagSet tagSet) {
         assert tagArray != null;
 
         String[] tags = new String[tagArray.length];
-        for (int i = 0; i < tags.length; i++)
-        {
+        for (int i = 0; i < tags.length; i++) {
             tags[i] = tagSet.stringOf(tagArray[i]);
         }
 
@@ -100,8 +88,7 @@ public class Instance
      *
      * @return
      */
-    public int size()
-    {
+    public int size() {
         return featureMatrix.length;
     }
 }

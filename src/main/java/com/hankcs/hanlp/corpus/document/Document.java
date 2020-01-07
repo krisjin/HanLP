@@ -30,26 +30,21 @@ import static com.hankcs.hanlp.utility.Predefine.logger;
 /**
  * @author hankcs
  */
-public class Document implements Serializable
-{
+public class Document implements Serializable {
     public List<Sentence> sentenceList;
 
-    public Document(List<Sentence> sentenceList)
-    {
+    public Document(List<Sentence> sentenceList) {
         this.sentenceList = sentenceList;
     }
 
-    public static Document create(String param)
-    {
+    public static Document create(String param) {
         Pattern pattern = Pattern.compile(".+?((。/w)|(！/w )|(？/w )|\\n|$)");
         Matcher matcher = pattern.matcher(param);
         List<Sentence> sentenceList = new LinkedList<Sentence>();
-        while (matcher.find())
-        {
+        while (matcher.find()) {
             String single = matcher.group();
             Sentence sentence = Sentence.create(single);
-            if (sentence == null)
-            {
+            if (sentence == null) {
                 logger.warning("使用" + single + "构建句子失败");
                 return null;
             }
@@ -63,28 +58,21 @@ public class Document implements Serializable
      *
      * @return
      */
-    public List<IWord> getWordList()
-    {
+    public List<IWord> getWordList() {
         List<IWord> wordList = new LinkedList<IWord>();
-        for (Sentence sentence : sentenceList)
-        {
+        for (Sentence sentence : sentenceList) {
             wordList.addAll(sentence.wordList);
         }
         return wordList;
     }
 
-    public List<Word> getSimpleWordList()
-    {
+    public List<Word> getSimpleWordList() {
         List<IWord> wordList = getWordList();
         List<Word> simpleWordList = new LinkedList<Word>();
-        for (IWord word : wordList)
-        {
-            if (word instanceof CompoundWord)
-            {
+        for (IWord word : wordList) {
+            if (word instanceof CompoundWord) {
                 simpleWordList.addAll(((CompoundWord) word).innerList);
-            }
-            else
-            {
+            } else {
                 simpleWordList.add((Word) word);
             }
         }
@@ -97,23 +85,16 @@ public class Document implements Serializable
      *
      * @return
      */
-    public List<List<Word>> getSimpleSentenceList()
-    {
+    public List<List<Word>> getSimpleSentenceList() {
         List<List<Word>> simpleList = new LinkedList<List<Word>>();
-        for (Sentence sentence : sentenceList)
-        {
+        for (Sentence sentence : sentenceList) {
             List<Word> wordList = new LinkedList<Word>();
-            for (IWord word : sentence.wordList)
-            {
-                if (word instanceof CompoundWord)
-                {
-                    for (Word inner : ((CompoundWord) word).innerList)
-                    {
+            for (IWord word : sentence.wordList) {
+                if (word instanceof CompoundWord) {
+                    for (Word inner : ((CompoundWord) word).innerList) {
                         wordList.add(inner);
                     }
-                }
-                else
-                {
+                } else {
                     wordList.add((Word) word);
                 }
             }
@@ -128,11 +109,9 @@ public class Document implements Serializable
      *
      * @return
      */
-    public List<List<IWord>> getComplexSentenceList()
-    {
+    public List<List<IWord>> getComplexSentenceList() {
         List<List<IWord>> complexList = new LinkedList<List<IWord>>();
-        for (Sentence sentence : sentenceList)
-        {
+        for (Sentence sentence : sentenceList) {
             complexList.add(sentence.wordList);
         }
 
@@ -145,30 +124,20 @@ public class Document implements Serializable
      * @param spilt 如果为真，其中复合词会被拆分为简单词
      * @return
      */
-    public List<List<Word>> getSimpleSentenceList(boolean spilt)
-    {
+    public List<List<Word>> getSimpleSentenceList(boolean spilt) {
         List<List<Word>> simpleList = new LinkedList<List<Word>>();
-        for (Sentence sentence : sentenceList)
-        {
+        for (Sentence sentence : sentenceList) {
             List<Word> wordList = new LinkedList<Word>();
-            for (IWord word : sentence.wordList)
-            {
-                if (word instanceof CompoundWord)
-                {
-                    if (spilt)
-                    {
-                        for (Word inner : ((CompoundWord) word).innerList)
-                        {
+            for (IWord word : sentence.wordList) {
+                if (word instanceof CompoundWord) {
+                    if (spilt) {
+                        for (Word inner : ((CompoundWord) word).innerList) {
                             wordList.add(inner);
                         }
-                    }
-                    else
-                    {
+                    } else {
                         wordList.add(((CompoundWord) word).toWord());
                     }
-                }
-                else
-                {
+                } else {
                     wordList.add((Word) word);
                 }
             }
@@ -184,30 +153,20 @@ public class Document implements Serializable
      * @param labelSet
      * @return
      */
-    public List<List<Word>> getSimpleSentenceList(Set<String> labelSet)
-    {
+    public List<List<Word>> getSimpleSentenceList(Set<String> labelSet) {
         List<List<Word>> simpleList = new LinkedList<List<Word>>();
-        for (Sentence sentence : sentenceList)
-        {
+        for (Sentence sentence : sentenceList) {
             List<Word> wordList = new LinkedList<Word>();
-            for (IWord word : sentence.wordList)
-            {
-                if (word instanceof CompoundWord)
-                {
-                    if (labelSet.contains(word.getLabel()))
-                    {
-                        for (Word inner : ((CompoundWord) word).innerList)
-                        {
+            for (IWord word : sentence.wordList) {
+                if (word instanceof CompoundWord) {
+                    if (labelSet.contains(word.getLabel())) {
+                        for (Word inner : ((CompoundWord) word).innerList) {
                             wordList.add(inner);
                         }
-                    }
-                    else
-                    {
+                    } else {
                         wordList.add(((CompoundWord) word).toWord());
                     }
-                }
-                else
-                {
+                } else {
                     wordList.add((Word) word);
                 }
             }
@@ -218,11 +177,9 @@ public class Document implements Serializable
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         StringBuilder sb = new StringBuilder();
-        for (Sentence sentence : sentenceList)
-        {
+        for (Sentence sentence : sentenceList) {
             sb.append(sentence);
             sb.append(' ');
         }
@@ -230,17 +187,14 @@ public class Document implements Serializable
         return sb.toString();
     }
 
-    public static Document create(File file)
-    {
+    public static Document create(File file) {
         IOUtil.LineIterator lineIterator = new IOUtil.LineIterator(file.getAbsolutePath());
         List<Sentence> sentenceList = new LinkedList<Sentence>();
-        for (String line : lineIterator)
-        {
+        for (String line : lineIterator) {
             line = line.trim();
             if (line.isEmpty()) continue;
             Sentence sentence = Sentence.create(line);
-            if (sentence == null)
-            {
+            if (sentence == null) {
                 logger.warning("使用 " + line + " 创建句子失败");
                 return null;
             }

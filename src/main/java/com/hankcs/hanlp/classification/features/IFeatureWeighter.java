@@ -5,8 +5,7 @@ import java.io.Serializable;
 /**
  * 词权重计算
  */
-public interface IFeatureWeighter extends Serializable
-{
+public interface IFeatureWeighter extends Serializable {
     /**
      * 计算权重
      *

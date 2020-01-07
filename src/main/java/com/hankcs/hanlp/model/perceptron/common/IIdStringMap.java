@@ -13,9 +13,9 @@ package com.hankcs.hanlp.model.perceptron.common;
 
 /**
  * 从id到label的映射
+ *
  * @author hankcs
  */
-public interface IIdStringMap
-{
+public interface IIdStringMap {
     String stringOf(int id);
 }

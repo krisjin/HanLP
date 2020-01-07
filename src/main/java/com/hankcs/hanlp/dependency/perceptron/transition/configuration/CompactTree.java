@@ -10,13 +10,11 @@ import com.hankcs.hanlp.dependency.perceptron.accessories.Pair;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class CompactTree
-{
+public class CompactTree {
     public HashMap<Integer, Pair<Integer, String>> goldDependencies;
     public ArrayList<String> posTags;
 
-    public CompactTree(HashMap<Integer, Pair<Integer, String>> goldDependencies, ArrayList<String> posTags)
-    {
+    public CompactTree(HashMap<Integer, Pair<Integer, String>> goldDependencies, ArrayList<String> posTags) {
         this.goldDependencies = goldDependencies;
         this.posTags = posTags;
     }

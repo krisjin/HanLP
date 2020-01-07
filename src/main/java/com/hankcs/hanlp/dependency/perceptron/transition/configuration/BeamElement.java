@@ -5,15 +5,13 @@
 
 package com.hankcs.hanlp.dependency.perceptron.transition.configuration;
 
-public class BeamElement implements Comparable<BeamElement>
-{
+public class BeamElement implements Comparable<BeamElement> {
     public float score;
     public int index;
     public int action;
     public int label;
 
-    public BeamElement(float score, int index, int action, int label)
-    {
+    public BeamElement(float score, int index, int action, int label) {
         this.score = score;
         this.index = index;
         this.action = action;
@@ -21,8 +19,7 @@ public class BeamElement implements Comparable<BeamElement>
     }
 
     @Override
-    public int compareTo(BeamElement beamElement)
-    {
+    public int compareTo(BeamElement beamElement) {
         float diff = score - beamElement.score;
         if (diff > 0)
             return 2;
@@ -34,8 +31,7 @@ public class BeamElement implements Comparable<BeamElement>
     }
 
     @Override
-    public boolean equals(Object o)
-    {
+    public boolean equals(Object o) {
         return false;
     }
 }

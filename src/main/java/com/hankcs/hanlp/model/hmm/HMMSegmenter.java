@@ -25,35 +25,29 @@ import java.util.List;
 /**
  * @author hankcs
  */
-public class HMMSegmenter extends HMMTrainer implements Segmenter
-{
+public class HMMSegmenter extends HMMTrainer implements Segmenter {
     CWSTagSet tagSet;
 
-    public HMMSegmenter(HiddenMarkovModel model)
-    {
+    public HMMSegmenter(HiddenMarkovModel model) {
         super(model);
         tagSet = new CWSTagSet();
     }
 
-    public HMMSegmenter()
-    {
+    public HMMSegmenter() {
         tagSet = new CWSTagSet();
     }
 
     @Override
-    public List<String> segment(String text)
-    {
+    public List<String> segment(String text) {
         List<String> wordList = new LinkedList<String>();
         segment(text, CharTable.convert(text), wordList);
         return wordList;
     }
 
     @Override
-    public void segment(String text, String normalized, List<String> output)
-    {
+    public void segment(String text, String normalized, List<String> output) {
         int[] obsArray = new int[text.length()];
-        for (int i = 0; i < obsArray.length; i++)
-        {
+        for (int i = 0; i < obsArray.length; i++) {
             obsArray[i] = vocabulary.idOf(normalized.substring(i, i + 1));
         }
         int[] tagArray = new int[text.length()];
@@ -61,37 +55,28 @@ public class HMMSegmenter extends HMMTrainer implements Segmenter
         StringBuilder result = new StringBuilder();
         result.append(text.charAt(0));
 
-        for (int i = 1; i < tagArray.length; i++)
-        {
-            if (tagArray[i] == tagSet.B || tagArray[i] == tagSet.S)
-            {
+        for (int i = 1; i < tagArray.length; i++) {
+            if (tagArray[i] == tagSet.B || tagArray[i] == tagSet.S) {
                 output.add(result.toString());
                 result.setLength(0);
             }
             result.append(text.charAt(i));
         }
-        if (result.length() != 0)
-        {
+        if (result.length() != 0) {
             output.add(result.toString());
         }
     }
 
     @Override
-    protected List<String[]> convertToSequence(Sentence sentence)
-    {
+    protected List<String[]> convertToSequence(Sentence sentence) {
         List<String[]> charList = new LinkedList<String[]>();
-        for (Word w : sentence.toSimpleWordList())
-        {
+        for (Word w : sentence.toSimpleWordList()) {
             String word = CharTable.convert(w.value);
-            if (word.length() == 1)
-            {
+            if (word.length() == 1) {
                 charList.add(new String[]{word, "S"});
-            }
-            else
-            {
+            } else {
                 charList.add(new String[]{word.substring(0, 1), "B"});
-                for (int i = 1; i < word.length() - 1; ++i)
-                {
+                for (int i = 1; i < word.length() - 1; ++i) {
                     charList.add(new String[]{word.substring(i, i + 1), "M"});
                 }
                 charList.add(new String[]{word.substring(word.length() - 1), "E"});
@@ -101,8 +86,7 @@ public class HMMSegmenter extends HMMTrainer implements Segmenter
     }
 
     @Override
-    protected TagSet getTagSet()
-    {
+    protected TagSet getTagSet() {
         return tagSet;
     }
 
@@ -111,17 +95,13 @@ public class HMMSegmenter extends HMMTrainer implements Segmenter
      *
      * @return
      */
-    public Segment toSegment()
-    {
-        return new Segment()
-        {
+    public Segment toSegment() {
+        return new Segment() {
             @Override
-            protected List<Term> segSentence(char[] sentence)
-            {
+            protected List<Term> segSentence(char[] sentence) {
                 List<String> wordList = segment(new String(sentence));
                 List<Term> termList = new LinkedList<Term>();
-                for (String word : wordList)
-                {
+                for (String word : wordList) {
                     termList.add(new Term(word, null));
                 }
                 return termList;

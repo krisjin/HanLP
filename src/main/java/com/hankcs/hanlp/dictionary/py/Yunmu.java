@@ -14,8 +14,7 @@ package com.hankcs.hanlp.dictionary.py;
 /**
  * @author hankcs
  */
-public enum Yunmu
-{
+public enum Yunmu {
     a,
     ai,
     an,

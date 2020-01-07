@@ -21,40 +21,33 @@ import java.util.List;
 
 /**
  * 流水线式词法分析器
+ *
  * @author hankcs
  */
-public class LexicalAnalyzerPipeline extends Pipeline<String, List<IWord>, List<IWord>> implements LexicalAnalyzer
-{
-    public LexicalAnalyzerPipeline(Pipe<String, List<IWord>> first, Pipe<List<IWord>, List<IWord>> last)
-    {
+public class LexicalAnalyzerPipeline extends Pipeline<String, List<IWord>, List<IWord>> implements LexicalAnalyzer {
+    public LexicalAnalyzerPipeline(Pipe<String, List<IWord>> first, Pipe<List<IWord>, List<IWord>> last) {
         super(first, last);
     }
 
-    public LexicalAnalyzerPipeline(LexicalAnalyzer analyzer)
-    {
+    public LexicalAnalyzerPipeline(LexicalAnalyzer analyzer) {
         this(new LexicalAnalyzerPipe(analyzer));
     }
 
-    public LexicalAnalyzerPipeline(LexicalAnalyzerPipe analyzer)
-    {
-        this(new Pipe<String, List<IWord>>()
-             {
+    public LexicalAnalyzerPipeline(LexicalAnalyzerPipe analyzer) {
+        this(new Pipe<String, List<IWord>>() {
                  @Override
-                 public List<IWord> flow(String input)
-                 {
+                 public List<IWord> flow(String input) {
                      List<IWord> output = new LinkedList<IWord>();
                      output.add(new Word(input, null));
                      return output;
                  }
              },
-             new Pipe<List<IWord>, List<IWord>>()
-             {
-                 @Override
-                 public List<IWord> flow(List<IWord> input)
-                 {
-                     return input;
-                 }
-             }
+                new Pipe<List<IWord>, List<IWord>>() {
+                    @Override
+                    public List<IWord> flow(List<IWord> input) {
+                        return input;
+                    }
+                }
         );
         add(analyzer);
     }
@@ -64,12 +57,9 @@ public class LexicalAnalyzerPipeline extends Pipeline<String, List<IWord>, List<
      *
      * @return
      */
-    public LexicalAnalyzer getAnalyzer()
-    {
-        for (Pipe<List<IWord>, List<IWord>> pipe : this)
-        {
-            if (pipe instanceof LexicalAnalyzerPipe)
-            {
+    public LexicalAnalyzer getAnalyzer() {
+        for (Pipe<List<IWord>, List<IWord>> pipe : this) {
+            if (pipe instanceof LexicalAnalyzerPipe) {
                 return ((LexicalAnalyzerPipe) pipe).analyzer;
             }
         }
@@ -77,8 +67,7 @@ public class LexicalAnalyzerPipeline extends Pipeline<String, List<IWord>, List<
     }
 
     @Override
-    public void segment(String sentence, String normalized, List<String> wordList)
-    {
+    public void segment(String sentence, String normalized, List<String> wordList) {
         LexicalAnalyzer analyzer = getAnalyzer();
         if (analyzer == null)
             throw new IllegalStateException("流水线中没有LexicalAnalyzerPipe");
@@ -86,8 +75,7 @@ public class LexicalAnalyzerPipeline extends Pipeline<String, List<IWord>, List<
     }
 
     @Override
-    public List<String> segment(String sentence)
-    {
+    public List<String> segment(String sentence) {
         LexicalAnalyzer analyzer = getAnalyzer();
         if (analyzer == null)
             throw new IllegalStateException("流水线中没有LexicalAnalyzerPipe");
@@ -95,8 +83,7 @@ public class LexicalAnalyzerPipeline extends Pipeline<String, List<IWord>, List<
     }
 
     @Override
-    public String[] recognize(String[] wordArray, String[] posArray)
-    {
+    public String[] recognize(String[] wordArray, String[] posArray) {
         LexicalAnalyzer analyzer = getAnalyzer();
         if (analyzer == null)
             throw new IllegalStateException("流水线中没有LexicalAnalyzerPipe");
@@ -104,8 +91,7 @@ public class LexicalAnalyzerPipeline extends Pipeline<String, List<IWord>, List<
     }
 
     @Override
-    public String[] tag(String... words)
-    {
+    public String[] tag(String... words) {
         LexicalAnalyzer analyzer = getAnalyzer();
         if (analyzer == null)
             throw new IllegalStateException("流水线中没有LexicalAnalyzerPipe");
@@ -113,8 +99,7 @@ public class LexicalAnalyzerPipeline extends Pipeline<String, List<IWord>, List<
     }
 
     @Override
-    public String[] tag(List<String> wordList)
-    {
+    public String[] tag(List<String> wordList) {
         LexicalAnalyzer analyzer = getAnalyzer();
         if (analyzer == null)
             throw new IllegalStateException("流水线中没有LexicalAnalyzerPipe");
@@ -122,8 +107,7 @@ public class LexicalAnalyzerPipeline extends Pipeline<String, List<IWord>, List<
     }
 
     @Override
-    public NERTagSet getNERTagSet()
-    {
+    public NERTagSet getNERTagSet() {
         LexicalAnalyzer analyzer = getAnalyzer();
         if (analyzer == null)
             throw new IllegalStateException("流水线中没有LexicalAnalyzerPipe");
@@ -131,8 +115,7 @@ public class LexicalAnalyzerPipeline extends Pipeline<String, List<IWord>, List<
     }
 
     @Override
-    public Sentence analyze(String sentence)
-    {
+    public Sentence analyze(String sentence) {
         return new Sentence(flow(sentence));
     }
 }

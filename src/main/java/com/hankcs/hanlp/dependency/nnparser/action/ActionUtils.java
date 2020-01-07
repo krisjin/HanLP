@@ -19,17 +19,13 @@ import java.util.List;
 /**
  * @author hankcs
  */
-public class ActionUtils implements ActionType
-{
-    public static boolean is_shift(final Action act)
-    {
+public class ActionUtils implements ActionType {
+    public static boolean is_shift(final Action act) {
         return (act.name() == kShift);
     }
 
-    public static boolean is_left_arc(final Action act, int[] deprel)
-    {
-        if (act.name() == kLeftArc)
-        {
+    public static boolean is_left_arc(final Action act, int[] deprel) {
+        if (act.name() == kLeftArc) {
             deprel[0] = act.rel();
             return true;
         }
@@ -37,10 +33,8 @@ public class ActionUtils implements ActionType
         return false;
     }
 
-    public static boolean is_right_arc(final Action act, int[] deprel)
-    {
-        if (act.name() == kRightArc)
-        {
+    public static boolean is_right_arc(final Action act, int[] deprel) {
+        if (act.name() == kRightArc) {
             deprel[0] = act.rel();
             return true;
         }
@@ -50,8 +44,7 @@ public class ActionUtils implements ActionType
 
     void get_oracle_actions(List<Integer> heads,
                             List<Integer> deprels,
-                            List<Action> actions)
-    {
+                            List<Action> actions) {
         // The oracle finding algorithm for arcstandard is using a in-order tree
         // searching.
         int N = heads.size();
@@ -59,17 +52,13 @@ public class ActionUtils implements ActionType
         List<List<Integer>> tree = new ArrayList<List<Integer>>(N);
 
         actions.clear();
-        for (int i = 0; i < N; ++i)
-        {
+        for (int i = 0; i < N; ++i) {
             int head = heads.get(i);
-            if (head == -1)
-            {
+            if (head == -1) {
                 if (root == -1)
                     System.err.println("error: there should be only one root.");
                 root = i;
-            }
-            else
-            {
+            } else {
                 tree.get(head).add(i);
             }
         }
@@ -81,38 +70,33 @@ public class ActionUtils implements ActionType
                                    List<Integer> heads,
                                    List<Integer> deprels,
                                    List<List<Integer>> tree,
-                                   List<Action> actions)
-    {
+                                   List<Action> actions) {
         List<Integer> children = tree.get(root);
 
         int i;
-        for (i = 0; i < children.size() && children.get(i) < root; ++i)
-        {
+        for (i = 0; i < children.size() && children.get(i) < root; ++i) {
             get_oracle_actions_travel(children.get(i), heads, deprels, tree, actions);
         }
 
         actions.add(ActionFactory.make_shift());
 
-        for (int j = i; j < children.size(); ++j)
-        {
+        for (int j = i; j < children.size(); ++j) {
             int child = children.get(j);
             get_oracle_actions_travel(child, heads, deprels, tree, actions);
-            actions.add(ActionFactory.make_right_arc (deprels.get(child)));
+            actions.add(ActionFactory.make_right_arc(deprels.get(child)));
         }
 
-        for (int j = i - 1; j >= 0; --j)
-        {
+        for (int j = i - 1; j >= 0; --j) {
             int child = children.get(j);
-            actions.add(ActionFactory.make_left_arc (deprels.get(child)));
+            actions.add(ActionFactory.make_left_arc(deprels.get(child)));
         }
     }
 
-    void get_oracle_actions2( Dependency instance,
-                        List<Action> actions)
-    {
+    void get_oracle_actions2(Dependency instance,
+                             List<Action> actions) {
         get_oracle_actions2(instance.heads, instance.deprels, actions);
     }
-    
+
     void get_oracle_actions2(List<Integer> heads,
                              List<Integer> deprels,
                              List<Action> actions) {
@@ -121,37 +105,31 @@ public class ActionUtils implements ActionType
         List<Integer> sigma = new ArrayList<Integer>();
         int beta = 0;
         List<Integer> output = new ArrayList<Integer>(len);
-        for (int i = 0; i < len; i++)
-        {
+        for (int i = 0; i < len; i++) {
             output.add(-1);
         }
 
         int step = 0;
-        while (!(sigma.size() ==1 && beta == len))
-        {
+        while (!(sigma.size() == 1 && beta == len)) {
             int[] beta_reference = new int[]{beta};
             get_oracle_actions_onestep(heads, deprels, sigma, beta_reference, output, actions);
             beta = beta_reference[0];
         }
     }
-    
+
     void get_oracle_actions_onestep(List<Integer> heads,
                                     List<Integer> deprels,
                                     List<Integer> sigma,
                                     int[] beta,
                                     List<Integer> output,
-                                    List<Action> actions)
-    {
+                                    List<Action> actions) {
         int top0 = (sigma.size() > 0 ? sigma.get(sigma.size() - 1) : -1);
         int top1 = (sigma.size() > 1 ? sigma.get(sigma.size() - 2) : -1);
 
         boolean all_descendents_reduced = true;
-        if (top0 >= 0)
-        {
-            for (int i = 0; i < heads.size(); ++i)
-            {
-                if (heads.get(i) == top0 && output.get(i) != top0)
-                {
+        if (top0 >= 0) {
+            for (int i = 0; i < heads.size(); ++i) {
+                if (heads.get(i) == top0 && output.get(i) != top0) {
                     // _INFO << i << " " << output[i];
                     all_descendents_reduced = false;
                     break;
@@ -159,22 +137,17 @@ public class ActionUtils implements ActionType
             }
         }
 
-        if (top1 >= 0 && heads.get(top1) == top0)
-        {
+        if (top1 >= 0 && heads.get(top1) == top0) {
             actions.add(ActionFactory.make_left_arc(deprels.get(top1)));
             output.set(top1, top0);
             sigma.remove(sigma.size() - 1);
             sigma.set(sigma.size() - 1, top0);
-        }
-        else if (top1 >= 0 && heads.get(top0) == top1 && all_descendents_reduced)
-        {
+        } else if (top1 >= 0 && heads.get(top0) == top1 && all_descendents_reduced) {
             actions.add(ActionFactory.make_right_arc(deprels.get(top0)));
             output.set(top0, top1);
             sigma.remove(sigma.size() - 1);
-        }
-        else if (beta[0] < heads.size())
-        {
-            actions.add(ActionFactory.make_shift ());
+        } else if (beta[0] < heads.size()) {
+            actions.add(ActionFactory.make_shift());
             sigma.add(beta[0]);
             ++beta[0];
         }

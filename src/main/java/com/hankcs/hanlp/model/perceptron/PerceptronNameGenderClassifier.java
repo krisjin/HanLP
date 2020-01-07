@@ -22,25 +22,20 @@ import java.util.List;
  *
  * @author hankcs
  */
-public class PerceptronNameGenderClassifier extends PerceptronClassifier
-{
-    public PerceptronNameGenderClassifier()
-    {
+public class PerceptronNameGenderClassifier extends PerceptronClassifier {
+    public PerceptronNameGenderClassifier() {
     }
 
-    public PerceptronNameGenderClassifier(LinearModel model)
-    {
+    public PerceptronNameGenderClassifier(LinearModel model) {
         super(model);
     }
 
-    public PerceptronNameGenderClassifier(String modelPath) throws IOException
-    {
+    public PerceptronNameGenderClassifier(String modelPath) throws IOException {
         super(modelPath);
     }
 
     @Override
-    protected List<Integer> extractFeature(String text, FeatureMap featureMap)
-    {
+    protected List<Integer> extractFeature(String text, FeatureMap featureMap) {
         List<Integer> featureList = new LinkedList<Integer>();
         String givenName = extractGivenName(text);
         // 特征模板1：g[0]
@@ -60,8 +55,7 @@ public class PerceptronNameGenderClassifier extends PerceptronClassifier
      * @param name 姓名
      * @return 名
      */
-    public static String extractGivenName(String name)
-    {
+    public static String extractGivenName(String name) {
         if (name.length() <= 2)
             return "_" + name.substring(name.length() - 1);
         else

@@ -3,8 +3,7 @@ package com.hankcs.hanlp.algorithm.ahocorasick.trie;
 /**
  * 配置
  */
-public class TrieConfig
-{
+public class TrieConfig {
     /**
      * 允许重叠
      */
@@ -20,8 +19,7 @@ public class TrieConfig
      *
      * @return
      */
-    public boolean isAllowOverlaps()
-    {
+    public boolean isAllowOverlaps() {
         return allowOverlaps;
     }
 
@@ -30,8 +28,7 @@ public class TrieConfig
      *
      * @param allowOverlaps
      */
-    public void setAllowOverlaps(boolean allowOverlaps)
-    {
+    public void setAllowOverlaps(boolean allowOverlaps) {
         this.allowOverlaps = allowOverlaps;
     }
 }

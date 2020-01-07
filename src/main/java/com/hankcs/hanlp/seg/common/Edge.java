@@ -13,10 +13,10 @@ package com.hankcs.hanlp.seg.common;
 
 /**
  * 基础边，不允许构造
+ *
  * @author hankcs
  */
-public class Edge
-{
+public class Edge {
     /**
      * 花费
      */
@@ -26,8 +26,7 @@ public class Edge
      */
     String name;
 
-    protected Edge(double weight, String name)
-    {
+    protected Edge(double weight, String name) {
         this.weight = weight;
         this.name = name;
     }

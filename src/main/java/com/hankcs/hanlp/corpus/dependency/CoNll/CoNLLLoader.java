@@ -17,18 +17,15 @@ import java.util.LinkedList;
 
 /**
  * CoNLL格式依存语料加载
+ *
  * @author hankcs
  */
-public class CoNLLLoader
-{
-    public static LinkedList<CoNLLSentence> loadSentenceList(String path)
-    {
+public class CoNLLLoader {
+    public static LinkedList<CoNLLSentence> loadSentenceList(String path) {
         LinkedList<CoNLLSentence> result = new LinkedList<CoNLLSentence>();
         LinkedList<CoNllLine> lineList = new LinkedList<CoNllLine>();
-        for (String line : IOUtil.readLineListWithLessMemory(path))
-        {
-            if (line.trim().length() == 0)
-            {
+        for (String line : IOUtil.readLineListWithLessMemory(path)) {
+            if (line.trim().length() == 0) {
                 result.add(new CoNLLSentence(lineList));
                 lineList = new LinkedList<CoNllLine>();
                 continue;

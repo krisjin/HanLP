@@ -28,40 +28,34 @@ import java.util.List;
  *
  * @author hankcs
  */
-public abstract class PerceptronClassifier
-{
+public abstract class PerceptronClassifier {
     LinearModel model;
 
-    public PerceptronClassifier()
-    {
+    public PerceptronClassifier() {
     }
 
-    public PerceptronClassifier(LinearModel model)
-    {
+    public PerceptronClassifier(LinearModel model) {
         if (model != null && model.taskType() != TaskType.CLASSIFICATION)
             throw new IllegalArgumentException("传入的模型并非分类模型");
         this.model = model;
     }
 
-    public PerceptronClassifier(String modelPath) throws IOException
-    {
+    public PerceptronClassifier(String modelPath) throws IOException {
         this(new LinearModel(modelPath));
     }
 
     /**
      * 朴素感知机训练算法
-     *  @param instanceList 训练实例
+     *
+     * @param instanceList 训练实例
      * @param featureMap   特征函数
      * @param maxIteration 训练迭代次数
      */
-    private static LinearModel trainNaivePerceptron(Instance[] instanceList, FeatureMap featureMap, int maxIteration)
-    {
+    private static LinearModel trainNaivePerceptron(Instance[] instanceList, FeatureMap featureMap, int maxIteration) {
         LinearModel model = new LinearModel(featureMap, new float[featureMap.size()]);
-        for (int it = 0; it < maxIteration; ++it)
-        {
+        for (int it = 0; it < maxIteration; ++it) {
             Utility.shuffleArray(instanceList);
-            for (Instance instance : instanceList)
-            {
+            for (Instance instance : instanceList) {
                 int y = model.decode(instance.x);
                 if (y != instance.y) // 误差反馈
                     model.update(instance.x, instance.y);
@@ -72,23 +66,21 @@ public abstract class PerceptronClassifier
 
     /**
      * 平均感知机训练算法
-     *  @param instanceList 训练实例
+     *
+     * @param instanceList 训练实例
      * @param featureMap   特征函数
      * @param maxIteration 训练迭代次数
      */
-    private static LinearModel trainAveragedPerceptron(Instance[] instanceList, FeatureMap featureMap, int maxIteration)
-    {
+    private static LinearModel trainAveragedPerceptron(Instance[] instanceList, FeatureMap featureMap, int maxIteration) {
         float[] parameter = new float[featureMap.size()];
         double[] sum = new double[featureMap.size()];
         int[] time = new int[featureMap.size()];
 
         AveragedPerceptron model = new AveragedPerceptron(featureMap, parameter);
         int t = 0;
-        for (int it = 0; it < maxIteration; ++it)
-        {
+        for (int it = 0; it < maxIteration; ++it) {
             Utility.shuffleArray(instanceList);
-            for (Instance instance : instanceList)
-            {
+            for (Instance instance : instanceList) {
                 ++t;
                 int y = model.decode(instance.x);
                 if (y != instance.y) // 误差反馈
@@ -106,8 +98,7 @@ public abstract class PerceptronClassifier
      * @param maxIteration 最大迭代次数
      * @return 模型在训练集上的准确率
      */
-    public BinaryClassificationFMeasure train(String corpus, int maxIteration)
-    {
+    public BinaryClassificationFMeasure train(String corpus, int maxIteration) {
         return train(corpus, maxIteration, true);
     }
 
@@ -119,13 +110,12 @@ public abstract class PerceptronClassifier
      * @param averagePerceptron 是否使用平均感知机算法
      * @return 模型在训练集上的准确率
      */
-    public BinaryClassificationFMeasure train(String corpus, int maxIteration, boolean averagePerceptron)
-    {
+    public BinaryClassificationFMeasure train(String corpus, int maxIteration, boolean averagePerceptron) {
         FeatureMap featureMap = new LockableFeatureMap(new TagSet(TaskType.CLASSIFICATION));
         featureMap.mutable = true; // 训练时特征映射可拓充
         Instance[] instanceList = readInstance(corpus, featureMap);
         model = averagePerceptron ? trainAveragedPerceptron(instanceList, featureMap, maxIteration)
-            : trainNaivePerceptron(instanceList, featureMap, maxIteration);
+                : trainNaivePerceptron(instanceList, featureMap, maxIteration);
         featureMap.mutable = false; // 训练结束后特征不可写
         return evaluate(instanceList);
     }
@@ -136,8 +126,7 @@ public abstract class PerceptronClassifier
      * @param text
      * @return
      */
-    public String predict(String text)
-    {
+    public String predict(String text) {
         int y = model.decode(extractFeature(text, model.featureMap));
         if (y == -1)
             y = 0;
@@ -150,8 +139,7 @@ public abstract class PerceptronClassifier
      * @param corpus
      * @return
      */
-    public BinaryClassificationFMeasure evaluate(String corpus)
-    {
+    public BinaryClassificationFMeasure evaluate(String corpus) {
         Instance[] instanceList = readInstance(corpus, model.featureMap);
         return evaluate(instanceList);
     }
@@ -162,20 +150,16 @@ public abstract class PerceptronClassifier
      * @param instanceList
      * @return
      */
-    public BinaryClassificationFMeasure evaluate(Instance[] instanceList)
-    {
+    public BinaryClassificationFMeasure evaluate(Instance[] instanceList) {
         int TP = 0, FP = 0, FN = 0;
-        for (Instance instance : instanceList)
-        {
+        for (Instance instance : instanceList) {
             int y = model.decode(instance.x);
-            if (y == 1)
-            {
+            if (y == 1) {
                 if (instance.y == 1)
                     ++TP;
                 else
                     ++FP;
-            }
-            else if (instance.y == 1)
+            } else if (instance.y == 1)
                 ++FN;
         }
         float p = TP / (float) (TP + FP) * 100;
@@ -190,12 +174,10 @@ public abstract class PerceptronClassifier
      * @param featureMap 特征映射
      * @return 数据集
      */
-    private Instance[] readInstance(String corpus, FeatureMap featureMap)
-    {
+    private Instance[] readInstance(String corpus, FeatureMap featureMap) {
         IOUtil.LineIterator lineIterator = new IOUtil.LineIterator(corpus);
         List<Instance> instanceList = new LinkedList<Instance>();
-        for (String line : lineIterator)
-        {
+        for (String line : lineIterator) {
             String[] cells = line.split(",");
             String text = cells[0], label = cells[1];
             List<Integer> x = extractFeature(text, featureMap);
@@ -225,8 +207,7 @@ public abstract class PerceptronClassifier
      * @param featureMap  特征映射
      * @param featureList 特征向量
      */
-    protected static void addFeature(String feature, FeatureMap featureMap, List<Integer> featureList)
-    {
+    protected static void addFeature(String feature, FeatureMap featureMap, List<Integer> featureList) {
         int featureId = featureMap.idOf(feature);
         if (featureId != -1)
             featureList.add(featureId);
@@ -235,8 +216,7 @@ public abstract class PerceptronClassifier
     /**
      * 样本
      */
-    static class Instance
-    {
+    static class Instance {
         /**
          * 特征向量
          */
@@ -246,8 +226,7 @@ public abstract class PerceptronClassifier
          */
         int y;
 
-        public Instance(List<Integer> x, int y)
-        {
+        public Instance(List<Integer> x, int y) {
             this.x = x;
             this.y = y;
         }
@@ -256,26 +235,22 @@ public abstract class PerceptronClassifier
     /**
      * 准确率度量
      */
-    static class BinaryClassificationFMeasure
-    {
+    static class BinaryClassificationFMeasure {
         float P, R, F1;
 
-        public BinaryClassificationFMeasure(float p, float r, float f1)
-        {
+        public BinaryClassificationFMeasure(float p, float r, float f1) {
             P = p;
             R = r;
             F1 = f1;
         }
 
         @Override
-        public String toString()
-        {
+        public String toString() {
             return String.format("P=%.2f R=%.2f F1=%.2f", P, R, F1);
         }
     }
 
-    public LinearModel getModel()
-    {
+    public LinearModel getModel() {
         return model;
     }
 }

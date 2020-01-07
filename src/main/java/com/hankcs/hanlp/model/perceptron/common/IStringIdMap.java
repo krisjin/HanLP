@@ -12,7 +12,6 @@
 
 package com.hankcs.hanlp.model.perceptron.common;
 
-public interface IStringIdMap
-{
+public interface IStringIdMap {
     int idOf(String string);
 }

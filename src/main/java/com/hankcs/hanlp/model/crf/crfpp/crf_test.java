@@ -5,7 +5,10 @@ import com.hankcs.hanlp.corpus.io.IOUtil;
 import com.hankcs.hanlp.model.perceptron.cli.Args;
 import com.hankcs.hanlp.model.perceptron.cli.Argument;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.List;
 
 /**
@@ -13,10 +16,8 @@ import java.util.List;
  *
  * @author zhifac
  */
-public class crf_test
-{
-    private static class Option
-    {
+public class crf_test {
+    private static class Option {
         @Argument(description = "set FILE for model file", alias = "m", required = true)
         String model;
         @Argument(description = "output n-best results", alias = "n")
@@ -31,21 +32,16 @@ public class crf_test
         Boolean help = false;
     }
 
-    public static boolean run(String[] args)
-    {
+    public static boolean run(String[] args) {
         Option cmd = new Option();
         List<String> unkownArgs = null;
-        try
-        {
+        try {
             unkownArgs = Args.parse(cmd, args, false);
-        }
-        catch (IllegalArgumentException e)
-        {
+        } catch (IllegalArgumentException e) {
             Args.usage(cmd);
             return false;
         }
-        if (cmd.help)
-        {
+        if (cmd.help) {
             Args.usage(cmd);
             return true;
         }
@@ -56,78 +52,60 @@ public class crf_test
         String outputFile = cmd.output;
 
         TaggerImpl tagger = new TaggerImpl(TaggerImpl.Mode.TEST);
-        try
-        {
+        try {
             InputStream stream = IOUtil.newInputStream(model);
-            if (!tagger.open(stream, nbest, vlevel, costFactor))
-            {
+            if (!tagger.open(stream, nbest, vlevel, costFactor)) {
                 System.err.println("open error");
                 return false;
             }
             String[] restArgs = unkownArgs.toArray(new String[0]);
-            if (restArgs.length == 0)
-            {
+            if (restArgs.length == 0) {
                 return false;
             }
 
             OutputStreamWriter osw = null;
-            if (outputFile != null)
-            {
+            if (outputFile != null) {
                 osw = new OutputStreamWriter(IOUtil.newOutputStream(outputFile));
             }
-            for (String inputFile : restArgs)
-            {
+            for (String inputFile : restArgs) {
                 InputStream fis = IOUtil.newInputStream(inputFile);
                 InputStreamReader isr = new InputStreamReader(fis, "UTF-8");
                 BufferedReader br = new BufferedReader(isr);
 
-                while (true)
-                {
+                while (true) {
                     TaggerImpl.ReadStatus status = tagger.read(br);
-                    if (TaggerImpl.ReadStatus.ERROR == status)
-                    {
+                    if (TaggerImpl.ReadStatus.ERROR == status) {
                         System.err.println("read error");
                         return false;
-                    }
-                    else if (TaggerImpl.ReadStatus.EOF == status && tagger.empty())
-                    {
+                    } else if (TaggerImpl.ReadStatus.EOF == status && tagger.empty()) {
                         break;
                     }
-                    if (!tagger.parse())
-                    {
+                    if (!tagger.parse()) {
                         System.err.println("parse error");
                         return false;
                     }
-                    if (osw == null)
-                    {
+                    if (osw == null) {
                         System.out.print(tagger.toString());
-                    }
-                    else
-                    {
+                    } else {
                         osw.write(tagger.toString());
                     }
                 }
-                if (osw != null)
-                {
+                if (osw != null) {
                     osw.flush();
                 }
                 br.close();
             }
-            if (osw != null)
-            {
+            if (osw != null) {
                 osw.close();
             }
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
         return true;
     }
 
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         crf_test.run(args);
     }
 }

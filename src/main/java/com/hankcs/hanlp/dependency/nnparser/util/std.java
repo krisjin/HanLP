@@ -18,28 +18,23 @@ import java.util.ListIterator;
 /**
  * @author hankcs
  */
-public class std
-{
-    public static <E> void fill(List<E> list, E value)
-    {
+public class std {
+    public static <E> void fill(List<E> list, E value) {
         if (list == null) return;
         ListIterator<E> listIterator = list.listIterator();
         while (listIterator.hasNext()) listIterator.set(value);
     }
 
-    public static <E> List<E> create(int size, E value)
-    {
+    public static <E> List<E> create(int size, E value) {
         List<E> list = new ArrayList<E>(size);
-        for (int i = 0; i < size; i++)
-        {
+        for (int i = 0; i < size; i++) {
             list.add(value);
         }
 
         return list;
     }
 
-    public static <E> E pop_back(List<E> list)
-    {
+    public static <E> E pop_back(List<E> list) {
         E back = list.get(list.size() - 1);
         list.remove(list.size() - 1);
         return back;

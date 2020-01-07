@@ -13,39 +13,27 @@ package com.hankcs.hanlp.dependency.perceptron.transition.parser;
 /**
  * @author hankcs
  */
-public class LabeledAction
-{
+public class LabeledAction {
     public Action action;
     public int label;
 
-    public LabeledAction(Action action, int label)
-    {
+    public LabeledAction(Action action, int label) {
         this.action = action;
         this.label = label;
     }
 
-    public LabeledAction(final int actionCode, final int labelSize)
-    {
-        if (actionCode == Action.Shift.ordinal())
-        {
+    public LabeledAction(final int actionCode, final int labelSize) {
+        if (actionCode == Action.Shift.ordinal()) {
             action = Action.Shift;
-        }
-        else if (actionCode == Action.Reduce.ordinal())
-        {
+        } else if (actionCode == Action.Reduce.ordinal()) {
             action = Action.Reduce;
-        }
-        else if (actionCode >= Action.RightArc.ordinal() + labelSize)
-        {
+        } else if (actionCode >= Action.RightArc.ordinal() + labelSize) {
             label = actionCode - (Action.RightArc.ordinal() + labelSize);
             action = Action.LeftArc;
-        }
-        else if (actionCode >= Action.RightArc.ordinal())
-        {
+        } else if (actionCode >= Action.RightArc.ordinal()) {
             label = actionCode - Action.RightArc.ordinal();
             action = Action.RightArc;
-        }
-        else if (actionCode == Action.Unshift.ordinal())
-        {
+        } else if (actionCode == Action.Unshift.ordinal()) {
             action = Action.Unshift;
         }
     }

@@ -21,8 +21,7 @@ package com.hankcs.hanlp.classification.statistics;
  *
  * @author Vasilis Vryniotis <bbriniotis@datumbox.com>
  */
-public class ContinuousDistributions
-{
+public class ContinuousDistributions {
 
     /**
      * 给定卡方值和自由度，计算从0到x的累积分布函数值<br>
@@ -32,10 +31,8 @@ public class ContinuousDistributions
      * @return 从0到x的累积分布函数值
      * @throws IllegalArgumentException
      */
-    public static double ChisquareCdf(double x, int df) throws IllegalArgumentException
-    {
-        if (df <= 0)
-        {
+    public static double ChisquareCdf(double x, int df) throws IllegalArgumentException {
+        if (df <= 0) {
             throw new IllegalArgumentException();
         }
 
@@ -49,8 +46,7 @@ public class ContinuousDistributions
      * @param z 从负无穷到正无穷的值
      * @return 高斯函数累积分布函数值
      */
-    public static double GaussCdf(double z)
-    {
+    public static double GaussCdf(double z) {
         // input = z-value (-inf to +inf)
         // output = p under Normal curve from -inf to z
         // e.g., if z = 0.0, function returns 0.5000
@@ -59,42 +55,33 @@ public class ContinuousDistributions
         double p; // result. called ‘z’ in 209
         double w; // 209 scratch variable
 
-        if (z == 0.0)
-        {
+        if (z == 0.0) {
             p = 0.0;
-        }
-        else
-        {
+        } else {
             y = Math.abs(z) / 2.0;
-            if (y >= 3.0)
-            {
+            if (y >= 3.0) {
                 p = 1.0;
-            }
-            else if (y < 1.0)
-            {
+            } else if (y < 1.0) {
                 w = y * y;
                 p = ((((((((0.000124818987 * w
-                    - 0.001075204047) * w + 0.005198775019) * w
-                    - 0.019198292004) * w + 0.059054035642) * w
-                    - 0.151968751364) * w + 0.319152932694) * w
-                    - 0.531923007300) * w + 0.797884560593) * y * 2.0;
-            }
-            else
-            {
+                        - 0.001075204047) * w + 0.005198775019) * w
+                        - 0.019198292004) * w + 0.059054035642) * w
+                        - 0.151968751364) * w + 0.319152932694) * w
+                        - 0.531923007300) * w + 0.797884560593) * y * 2.0;
+            } else {
                 y = y - 2.0;
                 p = (((((((((((((-0.000045255659 * y
-                    + 0.000152529290) * y - 0.000019538132) * y
-                    - 0.000676904986) * y + 0.001390604284) * y
-                    - 0.000794620820) * y - 0.002034254874) * y
-                    + 0.006549791214) * y - 0.010557625006) * y
-                    + 0.011630447319) * y - 0.009279453341) * y
-                    + 0.005353579108) * y - 0.002141268741) * y
-                    + 0.000535310849) * y + 0.999936657524;
+                        + 0.000152529290) * y - 0.000019538132) * y
+                        - 0.000676904986) * y + 0.001390604284) * y
+                        - 0.000794620820) * y - 0.002034254874) * y
+                        + 0.006549791214) * y - 0.010557625006) * y
+                        + 0.011630447319) * y - 0.009279453341) * y
+                        + 0.005353579108) * y - 0.002141268741) * y
+                        + 0.000535310849) * y + 0.999936657524;
             }
         }
 
-        if (z > 0.0)
-        {
+        if (z > 0.0) {
             return (p + 1.0) / 2.0;
         }
 
@@ -107,8 +94,7 @@ public class ContinuousDistributions
      * @param Z
      * @return
      */
-    public static double LogGamma(double Z)
-    {
+    public static double LogGamma(double Z) {
         double S = 1.0 + 76.18009173 / Z - 86.50532033 / (Z + 1.0) + 24.01409822 / (Z + 2.0) - 1.231739516 / (Z + 3.0) + 0.00120858003 / (Z + 4.0) - 0.00000536382 / (Z + 5.0);
         double LG = (Z - 0.5) * Math.log(Z + 4.5) - (Z + 4.5) + Math.log(S * 2.50662827465);
 
@@ -122,8 +108,7 @@ public class ContinuousDistributions
      * @param A
      * @return
      */
-    protected static double Gcf(double x, double A)
-    {
+    protected static double Gcf(double x, double A) {
         // Good for X>A+1
         double A0 = 0;
         double B0 = 1;
@@ -131,8 +116,7 @@ public class ContinuousDistributions
         double B1 = x;
         double AOLD = 0;
         double N = 0;
-        while (Math.abs((A1 - AOLD) / A1) > .00001)
-        {
+        while (Math.abs((A1 - AOLD) / A1) > .00001) {
             AOLD = A1;
             N = N + 1;
             A0 = A1 + (N - A) * A0;
@@ -156,14 +140,12 @@ public class ContinuousDistributions
      * @param A
      * @return
      */
-    protected static double Gser(double x, double A)
-    {
+    protected static double Gser(double x, double A) {
         // Good for X<A+1.
         double T9 = 1 / A;
         double G = T9;
         double I = 1;
-        while (T9 > G * 0.00001)
-        {
+        while (T9 > G * 0.00001) {
             T9 = T9 * x / (A + I);
             G = G + T9;
             ++I;
@@ -181,16 +163,13 @@ public class ContinuousDistributions
      * @return
      * @throws IllegalArgumentException
      */
-    protected static double GammaCdf(double x, double a) throws IllegalArgumentException
-    {
-        if (x < 0)
-        {
+    protected static double GammaCdf(double x, double a) throws IllegalArgumentException {
+        if (x < 0) {
             throw new IllegalArgumentException();
         }
 
         double GI = 0;
-        if (a > 200)
-        {
+        if (a > 200) {
             double z = (x - a) / Math.sqrt(a);
             double y = GaussCdf(z);
             double b1 = 2 / Math.sqrt(a);
@@ -200,13 +179,9 @@ public class ContinuousDistributions
             int zXor4 = ((int) z) ^ 4;
             double u = 3 * b2 * (z * z - 3) + b1 * b1 * (zXor4 - 10 * z * z + 15);
             GI = w - phiz * z * u / 72;        //Edgeworth2
-        }
-        else if (x < a + 1)
-        {
+        } else if (x < a + 1) {
             GI = Gser(x, a);
-        }
-        else
-        {
+        } else {
             GI = Gcf(x, a);
         }
 
@@ -221,32 +196,24 @@ public class ContinuousDistributions
      * @param df
      * @return
      */
-    public static double ChisquareInverseCdf(double p, int df)
-    {
+    public static double ChisquareInverseCdf(double p, int df) {
         final double CHI_EPSILON = 0.000001;   /* Accuracy of critchi approximation */
         final double CHI_MAX = 99999.0;        /* Maximum chi-square value */
         double minchisq = 0.0;
         double maxchisq = CHI_MAX;
         double chisqval = 0.0;
 
-        if (p <= 0.0)
-        {
+        if (p <= 0.0) {
             return CHI_MAX;
-        }
-        else if (p >= 1.0)
-        {
+        } else if (p >= 1.0) {
             return 0.0;
         }
 
         chisqval = df / Math.sqrt(p);    /* fair first value */
-        while ((maxchisq - minchisq) > CHI_EPSILON)
-        {
-            if (1 - ChisquareCdf(chisqval, df) < p)
-            {
+        while ((maxchisq - minchisq) > CHI_EPSILON) {
+            if (1 - ChisquareCdf(chisqval, df) < p) {
                 maxchisq = chisqval;
-            }
-            else
-            {
+            } else {
                 minchisq = chisqval;
             }
             chisqval = (maxchisq + minchisq) * 0.5;

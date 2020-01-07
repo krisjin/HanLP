@@ -34,25 +34,21 @@ import static com.hankcs.hanlp.utility.Predefine.logger;
  *
  * @author hankcs
  */
-public class Sentence implements Serializable, Iterable<IWord>
-{
+public class Sentence implements Serializable, Iterable<IWord> {
     /**
      * 词语列表（复合或简单单词的列表）
      */
     public List<IWord> wordList;
 
-    public Sentence(List<IWord> wordList)
-    {
+    public Sentence(List<IWord> wordList) {
         this.wordList = wordList;
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         StringBuilder sb = new StringBuilder(size() * 4);
         int i = 1;
-        for (IWord word : wordList)
-        {
+        for (IWord word : wordList) {
             sb.append(word);
             if (i != wordList.size()) sb.append(' ');
             ++i;
@@ -65,23 +61,18 @@ public class Sentence implements Serializable, Iterable<IWord>
      *
      * @return
      */
-    public String toStringWithoutLabels()
-    {
+    public String toStringWithoutLabels() {
         StringBuilder sb = new StringBuilder(size() * 4);
         int i = 1;
-        for (IWord word : wordList)
-        {
-            if (word instanceof CompoundWord)
-            {
+        for (IWord word : wordList) {
+            if (word instanceof CompoundWord) {
                 int j = 0;
-                for (Word w : ((CompoundWord) word).innerList)
-                {
+                for (Word w : ((CompoundWord) word).innerList) {
                     sb.append(w.getValue());
                     if (++j != ((CompoundWord) word).innerList.size())
                         sb.append(' ');
                 }
-            }
-            else
+            } else
                 sb.append(word.getValue());
             if (i != wordList.size()) sb.append(' ');
             ++i;
@@ -95,8 +86,7 @@ public class Sentence implements Serializable, Iterable<IWord>
      *
      * @return
      */
-    public String toStandoff()
-    {
+    public String toStandoff() {
         return toStandoff(false);
     }
 
@@ -107,33 +97,27 @@ public class Sentence implements Serializable, Iterable<IWord>
      * @param withComment
      * @return
      */
-    public String toStandoff(boolean withComment)
-    {
+    public String toStandoff(boolean withComment) {
         StringBuilder sb = new StringBuilder(size() * 4);
         String delimiter = " ";
         String text = text(delimiter);
         sb.append(text).append('\n');
         int i = 1;
         int offset = 0;
-        for (IWord word : wordList)
-        {
+        for (IWord word : wordList) {
             assert text.charAt(offset) == word.getValue().charAt(0);
             printWord(word, sb, i, offset, withComment);
             ++i;
-            if (word instanceof CompoundWord)
-            {
+            if (word instanceof CompoundWord) {
                 int offsetChild = offset;
-                for (Word child : ((CompoundWord) word).innerList)
-                {
+                for (Word child : ((CompoundWord) word).innerList) {
                     printWord(child, sb, i, offsetChild, withComment);
                     offsetChild += child.length();
                     offsetChild += delimiter.length();
                     ++i;
                 }
                 offset += delimiter.length() * ((CompoundWord) word).innerList.size();
-            }
-            else
-            {
+            } else {
                 offset += delimiter.length();
             }
             offset += word.length();
@@ -146,15 +130,11 @@ public class Sentence implements Serializable, Iterable<IWord>
      *
      * @return
      */
-    public Sentence translateLabels()
-    {
-        for (IWord word : wordList)
-        {
+    public Sentence translateLabels() {
+        for (IWord word : wordList) {
             word.setLabel(PartOfSpeechTagDictionary.translate(word.getLabel()));
-            if (word instanceof CompoundWord)
-            {
-                for (Word child : ((CompoundWord) word).innerList)
-                {
+            if (word instanceof CompoundWord) {
+                for (Word child : ((CompoundWord) word).innerList) {
                     child.setLabel(PartOfSpeechTagDictionary.translate(child.getLabel()));
                 }
             }
@@ -167,40 +147,34 @@ public class Sentence implements Serializable, Iterable<IWord>
      *
      * @return
      */
-    public Sentence translateCompoundWordLabels()
-    {
-        for (IWord word : wordList)
-        {
+    public Sentence translateCompoundWordLabels() {
+        for (IWord word : wordList) {
             if (word instanceof CompoundWord)
                 word.setLabel(PartOfSpeechTagDictionary.translate(word.getLabel()));
         }
         return this;
     }
 
-    private void printWord(IWord word, StringBuilder sb, int id, int offset)
-    {
+    private void printWord(IWord word, StringBuilder sb, int id, int offset) {
         printWord(word, sb, id, offset, false);
     }
 
-    private void printWord(IWord word, StringBuilder sb, int id, int offset, boolean withComment)
-    {
+    private void printWord(IWord word, StringBuilder sb, int id, int offset, boolean withComment) {
         char delimiter = '\t';
         char endLine = '\n';
         sb.append('T').append(id).append(delimiter);
         sb.append(word.getLabel()).append(delimiter);
         int length = word.length();
-        if (word instanceof CompoundWord)
-        {
+        if (word instanceof CompoundWord) {
             length += ((CompoundWord) word).innerList.size() - 1;
         }
         sb.append(offset).append(delimiter).append(offset + length).append(delimiter);
         sb.append(word.getValue()).append(endLine);
         String translated = PartOfSpeechTagDictionary.translate(word.getLabel());
-        if (withComment && !word.getLabel().equals(translated))
-        {
+        if (withComment && !word.getLabel().equals(translated)) {
             sb.append('#').append(id).append(delimiter).append("AnnotatorNotes").append(delimiter)
-                .append('T').append(id).append(delimiter).append(translated)
-                .append(endLine);
+                    .append('T').append(id).append(delimiter).append(translated)
+                    .append(endLine);
         }
     }
 
@@ -210,26 +184,21 @@ public class Sentence implements Serializable, Iterable<IWord>
      * @param param
      * @return
      */
-    public static Sentence create(String param)
-    {
-        if (param == null)
-        {
+    public static Sentence create(String param) {
+        if (param == null) {
             return null;
         }
         param = param.trim();
-        if (param.isEmpty())
-        {
+        if (param.isEmpty()) {
             return null;
         }
         Pattern pattern = Pattern.compile("(\\[(([^\\s]+/[0-9a-zA-Z]+)\\s+)+?([^\\s]+/[0-9a-zA-Z]+)]/?[0-9a-zA-Z]+)|([^\\s]+/[0-9a-zA-Z]+)");
         Matcher matcher = pattern.matcher(param);
         List<IWord> wordList = new LinkedList<IWord>();
-        while (matcher.find())
-        {
+        while (matcher.find()) {
             String single = matcher.group();
             IWord word = WordFactory.create(single);
-            if (word == null)
-            {
+            if (word == null) {
                 logger.warning("在用 " + single + " 构造单词时失败，句子构造参数为 " + param);
                 return null;
             }
@@ -237,8 +206,7 @@ public class Sentence implements Serializable, Iterable<IWord>
         }
         if (wordList.isEmpty()) // 按照无词性来解析
         {
-            for (String w : param.split("\\s+"))
-            {
+            for (String w : param.split("\\s+")) {
                 wordList.add(new Word(w, null));
             }
         }
@@ -251,8 +219,7 @@ public class Sentence implements Serializable, Iterable<IWord>
      *
      * @return
      */
-    public int size()
-    {
+    public int size() {
         return wordList.size();
     }
 
@@ -261,11 +228,9 @@ public class Sentence implements Serializable, Iterable<IWord>
      *
      * @return
      */
-    public int length()
-    {
+    public int length() {
         int length = 0;
-        for (IWord word : this)
-        {
+        for (IWord word : this) {
             length += word.getValue().length();
         }
 
@@ -277,8 +242,7 @@ public class Sentence implements Serializable, Iterable<IWord>
      *
      * @return
      */
-    public String text()
-    {
+    public String text() {
         return text(null);
     }
 
@@ -288,21 +252,15 @@ public class Sentence implements Serializable, Iterable<IWord>
      * @param delimiter 词语之间的分隔符
      * @return
      */
-    public String text(String delimiter)
-    {
+    public String text(String delimiter) {
         if (delimiter == null) delimiter = "";
         StringBuilder sb = new StringBuilder(size() * 3);
-        for (IWord word : this)
-        {
-            if (word instanceof CompoundWord)
-            {
-                for (Word child : ((CompoundWord) word).innerList)
-                {
+        for (IWord word : this) {
+            if (word instanceof CompoundWord) {
+                for (Word child : ((CompoundWord) word).innerList) {
                     sb.append(child.getValue()).append(delimiter);
                 }
-            }
-            else
-            {
+            } else {
                 sb.append(word.getValue()).append(delimiter);
             }
         }
@@ -312,8 +270,7 @@ public class Sentence implements Serializable, Iterable<IWord>
     }
 
     @Override
-    public Iterator<IWord> iterator()
-    {
+    public Iterator<IWord> iterator() {
         return wordList.iterator();
     }
 
@@ -323,13 +280,10 @@ public class Sentence implements Serializable, Iterable<IWord>
      * @param label
      * @return
      */
-    public List<IWord> findWordsByLabel(String label)
-    {
+    public List<IWord> findWordsByLabel(String label) {
         List<IWord> wordList = new LinkedList<IWord>();
-        for (IWord word : this)
-        {
-            if (label.equals(word.getLabel()))
-            {
+        for (IWord word : this) {
+            if (label.equals(word.getLabel())) {
                 wordList.add(word);
             }
         }
@@ -342,12 +296,9 @@ public class Sentence implements Serializable, Iterable<IWord>
      * @param label
      * @return
      */
-    public IWord findFirstWordByLabel(String label)
-    {
-        for (IWord word : this)
-        {
-            if (label.equals(word.getLabel()))
-            {
+    public IWord findFirstWordByLabel(String label) {
+        for (IWord word : this) {
+            if (label.equals(word.getLabel())) {
                 return word;
             }
         }
@@ -362,14 +313,11 @@ public class Sentence implements Serializable, Iterable<IWord>
      * @param label
      * @return
      */
-    public ListIterator<IWord> findFirstWordIteratorByLabel(String label)
-    {
+    public ListIterator<IWord> findFirstWordIteratorByLabel(String label) {
         ListIterator<IWord> listIterator = this.wordList.listIterator();
-        while (listIterator.hasNext())
-        {
+        while (listIterator.hasNext()) {
             IWord word = listIterator.next();
-            if (label.equals(word.getLabel()))
-            {
+            if (label.equals(word.getLabel())) {
                 return listIterator;
             }
         }
@@ -382,8 +330,7 @@ public class Sentence implements Serializable, Iterable<IWord>
      * @param label
      * @return
      */
-    public boolean containsWordWithLabel(String label)
-    {
+    public boolean containsWordWithLabel(String label) {
         return findFirstWordByLabel(label) != null;
     }
 
@@ -392,17 +339,12 @@ public class Sentence implements Serializable, Iterable<IWord>
      *
      * @return
      */
-    public List<Word> toSimpleWordList()
-    {
+    public List<Word> toSimpleWordList() {
         List<Word> wordList = new LinkedList<Word>();
-        for (IWord word : this.wordList)
-        {
-            if (word instanceof CompoundWord)
-            {
+        for (IWord word : this.wordList) {
+            if (word instanceof CompoundWord) {
                 wordList.addAll(((CompoundWord) word).innerList);
-            }
-            else
-            {
+            } else {
                 wordList.add((Word) word);
             }
         }
@@ -415,13 +357,11 @@ public class Sentence implements Serializable, Iterable<IWord>
      *
      * @return
      */
-    public String[] toWordArray()
-    {
+    public String[] toWordArray() {
         List<Word> wordList = toSimpleWordList();
         String[] wordArray = new String[wordList.size()];
         Iterator<Word> iterator = wordList.iterator();
-        for (int i = 0; i < wordArray.length; i++)
-        {
+        for (int i = 0; i < wordArray.length; i++) {
             wordArray[i] = iterator.next().value;
         }
         return wordArray;
@@ -432,13 +372,11 @@ public class Sentence implements Serializable, Iterable<IWord>
      *
      * @return
      */
-    public String[][] toWordTagArray()
-    {
+    public String[][] toWordTagArray() {
         List<Word> wordList = toSimpleWordList();
         String[][] pair = new String[2][wordList.size()];
         Iterator<Word> iterator = wordList.iterator();
-        for (int i = 0; i < pair[0].length; i++)
-        {
+        for (int i = 0; i < pair[0].length; i++) {
             Word word = iterator.next();
             pair[0][i] = word.value;
             pair[1][i] = word.label;
@@ -452,30 +390,24 @@ public class Sentence implements Serializable, Iterable<IWord>
      * @param tagSet
      * @return
      */
-    public String[][] toWordTagNerArray(NERTagSet tagSet)
-    {
+    public String[][] toWordTagNerArray(NERTagSet tagSet) {
         List<String[]> tupleList = Utility.convertSentenceToNER(this, tagSet);
         String[][] result = new String[3][tupleList.size()];
         Iterator<String[]> iterator = tupleList.iterator();
-        for (int i = 0; i < result[0].length; i++)
-        {
+        for (int i = 0; i < result[0].length; i++) {
             String[] tuple = iterator.next();
-            for (int j = 0; j < 3; ++j)
-            {
+            for (int j = 0; j < 3; ++j) {
                 result[j][i] = tuple[j];
             }
         }
         return result;
     }
 
-    public Sentence mergeCompoundWords()
-    {
+    public Sentence mergeCompoundWords() {
         ListIterator<IWord> listIterator = wordList.listIterator();
-        while (listIterator.hasNext())
-        {
+        while (listIterator.hasNext()) {
             IWord word = listIterator.next();
-            if (word instanceof CompoundWord)
-            {
+            if (word instanceof CompoundWord) {
                 listIterator.set(new Word(word.getValue(), word.getLabel()));
             }
         }
@@ -483,8 +415,7 @@ public class Sentence implements Serializable, Iterable<IWord>
     }
 
     @Override
-    public boolean equals(Object o)
-    {
+    public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
@@ -493,8 +424,7 @@ public class Sentence implements Serializable, Iterable<IWord>
     }
 
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         return toString().hashCode();
     }
 }

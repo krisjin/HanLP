@@ -16,40 +16,34 @@ import com.hankcs.hanlp.corpus.document.Document;
 import com.hankcs.hanlp.corpus.document.sentence.word.IWord;
 import com.hankcs.hanlp.corpus.document.sentence.word.Word;
 import com.hankcs.hanlp.corpus.tag.Nature;
-import com.hankcs.hanlp.corpus.util.CorpusUtil;
 import com.hankcs.hanlp.corpus.util.Precompiler;
-import com.hankcs.hanlp.utility.TextUtility;
 import com.hankcs.hanlp.utility.Predefine;
+import com.hankcs.hanlp.utility.TextUtility;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeSet;
+
 import static com.hankcs.hanlp.utility.Predefine.logger;
 
 /**
  * @author hankcs
  */
-public class NatureDictionaryMaker extends CommonDictionaryMaker
-{
-    public NatureDictionaryMaker()
-    {
+public class NatureDictionaryMaker extends CommonDictionaryMaker {
+    public NatureDictionaryMaker() {
         super(null);
     }
 
     @Override
-    protected void addToDictionary(List<List<IWord>> sentenceList)
-    {
+    protected void addToDictionary(List<List<IWord>> sentenceList) {
         logger.info("开始制作词典");
         // 制作NGram词典
-        for (List<IWord> wordList : sentenceList)
-        {
+        for (List<IWord> wordList : sentenceList) {
             IWord pre = null;
-            for (IWord word : wordList)
-            {
+            for (IWord word : wordList) {
                 // 制作词性词频词典
                 dictionaryMaker.add(word);
-                if (pre != null)
-                {
+                if (pre != null) {
                     nGramDictionaryMaker.addPair(pre, word);
                 }
                 pre = word;
@@ -58,15 +52,12 @@ public class NatureDictionaryMaker extends CommonDictionaryMaker
     }
 
     @Override
-    protected void roleTag(List<List<IWord>> sentenceList)
-    {
+    protected void roleTag(List<List<IWord>> sentenceList) {
         logger.info("开始标注");
         int i = 0;
-        for (List<IWord> wordList : sentenceList)
-        {
+        for (List<IWord> wordList : sentenceList) {
             logger.info(++i + " / " + sentenceList.size());
-            for (IWord word : wordList)
-            {
+            for (IWord word : wordList) {
                 Precompiler.compile(word);  // 编译为等效字符串
             }
             LinkedList<IWord> wordLinkedList = (LinkedList<IWord>) wordList;
@@ -77,22 +68,18 @@ public class NatureDictionaryMaker extends CommonDictionaryMaker
 
     /**
      * 指定语料库文件夹，制作一份词频词典
+     *
      * @return
      */
-    static boolean makeCoreDictionary(String inPath, String outPath)
-    {
+    static boolean makeCoreDictionary(String inPath, String outPath) {
         final DictionaryMaker dictionaryMaker = new DictionaryMaker();
         final TreeSet<String> labelSet = new TreeSet<String>();
 
-        CorpusLoader.walk(inPath, new CorpusLoader.Handler()
-        {
+        CorpusLoader.walk(inPath, new CorpusLoader.Handler() {
             @Override
-            public void handle(Document document)
-            {
-                for (List<Word> sentence : document.getSimpleSentenceList(true))
-                {
-                    for (Word word : sentence)
-                    {
+            public void handle(Document document) {
+                for (List<Word> sentence : document.getSimpleSentenceList(true)) {
+                    for (Word word : sentence) {
                         if (shouldInclude(word))
                             dictionaryMaker.add(word);
                     }
@@ -112,14 +99,10 @@ public class NatureDictionaryMaker extends CommonDictionaryMaker
              * @param word
              * @return
              */
-            boolean shouldInclude(Word word)
-            {
-                if ("m".equals(word.label) || "mq".equals(word.label) || "w".equals(word.label) || "t".equals(word.label))
-                {
+            boolean shouldInclude(Word word) {
+                if ("m".equals(word.label) || "mq".equals(word.label) || "w".equals(word.label) || "t".equals(word.label)) {
                     if (!TextUtility.isAllChinese(word.value)) return false;
-                }
-                else if ("nr".equals(word.label))
-                {
+                } else if ("nr".equals(word.label)) {
                     return false;
                 }
 
@@ -127,7 +110,7 @@ public class NatureDictionaryMaker extends CommonDictionaryMaker
             }
         });
         if (outPath != null)
-        return dictionaryMaker.saveTxtTo(outPath);
+            return dictionaryMaker.saveTxtTo(outPath);
         return false;
     }
 }

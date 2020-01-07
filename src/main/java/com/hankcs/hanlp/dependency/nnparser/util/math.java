@@ -14,8 +14,7 @@ package com.hankcs.hanlp.dependency.nnparser.util;
 /**
  * @author hankcs
  */
-public class math
-{
+public class math {
     /**
      * 对距离的度量（距离越大，返回的值越大，但总是限制在10以内）
      */

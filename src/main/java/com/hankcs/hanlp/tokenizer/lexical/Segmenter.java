@@ -17,8 +17,7 @@ import java.util.List;
  *
  * @author hankcs
  */
-public interface Segmenter
-{
+public interface Segmenter {
     /**
      * 中文分词
      *
@@ -26,5 +25,6 @@ public interface Segmenter
      * @return 词语
      */
     List<String> segment(String text);
+
     void segment(String text, String normalized, List<String> output);
 }

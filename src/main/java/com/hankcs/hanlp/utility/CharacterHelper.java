@@ -3,29 +3,24 @@ package com.hankcs.hanlp.utility;
 /**
  * 字符集识别辅助工具类
  */
-public class CharacterHelper
-{
+public class CharacterHelper {
 
-    public static boolean isSpaceLetter(char input)
-    {
+    public static boolean isSpaceLetter(char input) {
         return input == 8 || input == 9
                 || input == 10 || input == 13
                 || input == 32 || input == 160;
     }
 
-    public static boolean isEnglishLetter(char input)
-    {
+    public static boolean isEnglishLetter(char input) {
         return (input >= 'a' && input <= 'z')
                 || (input >= 'A' && input <= 'Z');
     }
 
-    public static boolean isArabicNumber(char input)
-    {
+    public static boolean isArabicNumber(char input) {
         return input >= '0' && input <= '9';
     }
 
-    public static boolean isCJKCharacter(char input)
-    {
+    public static boolean isCJKCharacter(char input) {
         Character.UnicodeBlock ub = Character.UnicodeBlock.of(input);
         if (ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS
                 || ub == Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS
@@ -40,12 +35,9 @@ public class CharacterHelper
                 || ub == Character.UnicodeBlock.HIRAGANA //平假名
                 || ub == Character.UnicodeBlock.KATAKANA //片假名
                 || ub == Character.UnicodeBlock.KATAKANA_PHONETIC_EXTENSIONS
-                )
-        {
+        ) {
             return true;
-        }
-        else
-        {
+        } else {
             return false;
         }
         //其他的CJK标点符号，可以不做处理
@@ -60,20 +52,14 @@ public class CharacterHelper
      * @param input
      * @return char
      */
-    public static char regularize(char input)
-    {
-        if (input == 12288)
-        {
+    public static char regularize(char input) {
+        if (input == 12288) {
             input = (char) 32;
 
-        }
-        else if (input > 65280 && input < 65375)
-        {
+        } else if (input > 65280 && input < 65375) {
             input = (char) (input - 65248);
 
-        }
-        else if (input >= 'A' && input <= 'Z')
-        {
+        } else if (input >= 'A' && input <= 'Z') {
             input += 32;
         }
 

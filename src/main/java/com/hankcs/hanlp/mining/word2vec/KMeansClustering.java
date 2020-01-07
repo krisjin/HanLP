@@ -5,22 +5,19 @@ import java.nio.charset.Charset;
 import java.util.LinkedList;
 import java.util.List;
 
-public final class KMeansClustering
-{
+public final class KMeansClustering {
     static final Charset ENCODING = Charset.forName("UTF-8");
     private final VectorsReader reader;
     private final int clcn;
     private final String outFile;
 
-    public KMeansClustering(VectorsReader reader, int k, String outFile)
-    {
+    public KMeansClustering(VectorsReader reader, int k, String outFile) {
         this.reader = reader;
         this.clcn = k;
         this.outFile = outFile;
     }
 
-    public void clustering() throws IOException
-    {
+    public void clustering() throws IOException {
         final int vocabSize = reader.getNumWords();
         final int layer1Size = reader.getSize();
 
@@ -28,8 +25,7 @@ public final class KMeansClustering
         Writer w = null;
         PrintWriter pw = null;
 
-        try
-        {
+        try {
             os = new FileOutputStream(outFile);
             w = new OutputStreamWriter(os, ENCODING);
             pw = new PrintWriter(w);
@@ -45,47 +41,37 @@ public final class KMeansClustering
             for (int i = 0; i < vocabSize; i++)
                 cl[i] = i % clcn;
 
-            for (int it = 0; it < MAX_ITER; it++)
-            {
+            for (int it = 0; it < MAX_ITER; it++) {
                 for (int j = 0; j < centSize; j++)
                     cent[j] = 0;
                 for (int j = 0; j < clcn; j++)
                     centcn[j] = 1;
-                for (int k = 0; k < vocabSize; k++)
-                {
-                    for (int l = 0; l < layer1Size; l++)
-                    {
+                for (int k = 0; k < vocabSize; k++) {
+                    for (int l = 0; l < layer1Size; l++) {
                         cent[layer1Size * cl[k] + l] += reader.getMatrixElement(k, l);
                     }
                     centcn[cl[k]]++;
                 }
-                for (int j = 0; j < clcn; j++)
-                {
+                for (int j = 0; j < clcn; j++) {
                     double closev = 0;
-                    for (int k = 0; k < layer1Size; k++)
-                    {
+                    for (int k = 0; k < layer1Size; k++) {
                         cent[layer1Size * j + k] /= centcn[j];
                         closev += cent[layer1Size * j + k] * cent[layer1Size * j + k];
                     }
                     closev = Math.sqrt(closev);
-                    for (int k = 0; k < layer1Size; k++)
-                    {
+                    for (int k = 0; k < layer1Size; k++) {
                         cent[layer1Size * j + k] /= closev;
                     }
                 }
-                for (int k = 0; k < vocabSize; k++)
-                {
+                for (int k = 0; k < vocabSize; k++) {
                     double closev = -10;
                     int closeid = 0;
-                    for (int l = 0; l < clcn; l++)
-                    {
+                    for (int l = 0; l < clcn; l++) {
                         double x = 0;
-                        for (int j = 0; j < layer1Size; j++)
-                        {
+                        for (int j = 0; j < layer1Size; j++) {
                             x += cent[layer1Size * l + j] * reader.getMatrixElement(k, j);
                         }
-                        if (x > closev)
-                        {
+                        if (x > closev) {
                             closev = x;
                             closeid = l;
                         }
@@ -96,24 +82,18 @@ public final class KMeansClustering
             // Save the K-means classes
             System.err.printf("now saving the result of K-means clustering to the file %s\n", outFile);
             List<String>[] cluster = new List[clcn];
-            for (int i = 0; i < cluster.length; i++)
-            {
+            for (int i = 0; i < cluster.length; i++) {
                 cluster[i] = new LinkedList<String>();
             }
-            for (int i = 0; i < vocabSize; i++)
-            {
+            for (int i = 0; i < vocabSize; i++) {
                 cluster[cl[i]].add(reader.getWord(i));
             }
-            for (int i = 0; i < cluster.length; i++)
-            {
-                for (String word : cluster[i])
-                {
+            for (int i = 0; i < cluster.length; i++) {
+                for (String word : cluster[i]) {
                     pw.printf("%s\t%d\n", word, i);
                 }
             }
-        }
-        finally
-        {
+        } finally {
             Utility.closeQuietly(pw);
             Utility.closeQuietly(w);
             Utility.closeQuietly(os);

@@ -11,8 +11,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-public class Options implements Serializable
-{
+public class Options implements Serializable {
     public boolean train;
     public boolean parseTaggedFile;
     public boolean parseConllFile;
@@ -46,8 +45,7 @@ public class Options implements Serializable
 
     public int partialTrainingStartingIteration;
 
-    public Options()
-    {
+    public Options() {
         showHelp = false;
         train = false;
         parseConllFile = false;
@@ -109,8 +107,7 @@ public class Options implements Serializable
         punctuations.add("?");
     }
 
-    public static void showHelp()
-    {
+    public static void showHelp() {
         StringBuilder output = new StringBuilder();
         output.append("© Yara YaraParser.Parser \n");
         output.append("\u00a9 Copyright 2014, Yahoo! Inc.\n");
@@ -162,12 +159,10 @@ public class Options implements Serializable
         System.out.println(output.toString());
     }
 
-    public static Options processArgs(String[] args) throws Exception
-    {
+    public static Options processArgs(String[] args) throws Exception {
         Options options = new Options();
 
-        for (int i = 0; i < args.length; i++)
-        {
+        for (int i = 0; i < args.length; i++) {
             if (args[i].equals("--help") || args[i].equals("-h") || args[i].equals("-help"))
                 options.showHelp = true;
             else if (args[i].equals("train"))
@@ -192,12 +187,10 @@ public class Options implements Serializable
                 options.goldFile = args[i + 1];
             else if (args[i].startsWith("-parse"))
                 options.predFile = args[i + 1];
-            else if (args[i].startsWith("-cluster"))
-            {
+            else if (args[i].startsWith("-cluster")) {
                 options.clusterFile = args[i + 1];
                 options.useExtendedWithBrownClusterFeatures = true;
-            }
-            else if (args[i].startsWith("-out"))
+            } else if (args[i].startsWith("-out"))
                 options.outputFile = args[i + 1];
             else if (args[i].startsWith("-delim"))
                 options.separator = args[i + 1];
@@ -233,15 +226,13 @@ public class Options implements Serializable
         return options;
     }
 
-    public static ArrayList<Options> getAllPossibleOptions(Options option)
-    {
+    public static ArrayList<Options> getAllPossibleOptions(Options option) {
         ArrayList<Options> options = new ArrayList<Options>();
         options.add(option);
 
         ArrayList<Options> tmp = new ArrayList<Options>();
 
-        for (Options opt : options)
-        {
+        for (Options opt : options) {
             Options o1 = opt.clone();
             o1.labeled = true;
 
@@ -255,8 +246,7 @@ public class Options implements Serializable
         tmp = new ArrayList<Options>();
 
 
-        for (Options opt : options)
-        {
+        for (Options opt : options) {
             Options o1 = opt.clone();
             o1.lowercase = true;
 
@@ -269,8 +259,7 @@ public class Options implements Serializable
         options = tmp;
         tmp = new ArrayList<Options>();
 
-        for (Options opt : options)
-        {
+        for (Options opt : options) {
             Options o1 = opt.clone();
             o1.useExtendedFeatures = true;
 
@@ -283,8 +272,7 @@ public class Options implements Serializable
         options = tmp;
         tmp = new ArrayList<Options>();
 
-        for (Options opt : options)
-        {
+        for (Options opt : options) {
             Options o1 = opt.clone();
             o1.useDynamicOracle = true;
 
@@ -297,8 +285,7 @@ public class Options implements Serializable
         options = tmp;
         tmp = new ArrayList<Options>();
 
-        for (Options opt : options)
-        {
+        for (Options opt : options) {
             Options o1 = opt.clone();
             o1.useMaxViol = true;
 
@@ -311,8 +298,7 @@ public class Options implements Serializable
         options = tmp;
         tmp = new ArrayList<Options>();
 
-        for (Options opt : options)
-        {
+        for (Options opt : options) {
             Options o1 = opt.clone();
             o1.useRandomOracleSelection = true;
 
@@ -326,8 +312,7 @@ public class Options implements Serializable
         tmp = new ArrayList<Options>();
 
 
-        for (Options opt : options)
-        {
+        for (Options opt : options) {
             Options o1 = opt.clone();
             o1.rootFirst = true;
 
@@ -341,24 +326,20 @@ public class Options implements Serializable
         return options;
     }
 
-    public void changePunc(String puncPath) throws Exception
-    {
+    public void changePunc(String puncPath) throws Exception {
         BufferedReader reader = new BufferedReader(new FileReader(puncPath));
 
         punctuations = new HashSet<String>();
         String line;
-        while ((line = reader.readLine()) != null)
-        {
+        while ((line = reader.readLine()) != null) {
             line = line.trim();
             if (line.length() > 0)
                 punctuations.add(line.split(" ")[0].trim());
         }
     }
 
-    public String toString()
-    {
-        if (train)
-        {
+    public String toString() {
+        if (train) {
             StringBuilder builder = new StringBuilder();
             builder.append("train file: " + inputFile + "\n");
             builder.append("dev file: " + devPath + "\n");
@@ -378,9 +359,7 @@ public class Options implements Serializable
             builder.append("index of threads: " + numOfThreads + "\n");
             builder.append("partial training starting iteration: " + partialTrainingStartingIteration + "\n");
             return builder.toString();
-        }
-        else if (parseConllFile)
-        {
+        } else if (parseConllFile) {
             StringBuilder builder = new StringBuilder();
             builder.append("parse conll" + "\n");
             builder.append("input file: " + inputFile + "\n");
@@ -389,9 +368,7 @@ public class Options implements Serializable
             builder.append("score file: " + scorePath + "\n");
             builder.append("index of threads: " + numOfThreads + "\n");
             return builder.toString();
-        }
-        else if (parseTaggedFile)
-        {
+        } else if (parseTaggedFile) {
             StringBuilder builder = new StringBuilder();
             builder.append("parse  tag file" + "\n");
             builder.append("input file: " + inputFile + "\n");
@@ -400,9 +377,7 @@ public class Options implements Serializable
             builder.append("score file: " + scorePath + "\n");
             builder.append("index of threads: " + numOfThreads + "\n");
             return builder.toString();
-        }
-        else if (parsePartialConll)
-        {
+        } else if (parsePartialConll) {
             StringBuilder builder = new StringBuilder();
             builder.append("parse partial conll" + "\n");
             builder.append("input file: " + inputFile + "\n");
@@ -412,9 +387,7 @@ public class Options implements Serializable
             builder.append("labeled: " + labeled + "\n");
             builder.append("index of threads: " + numOfThreads + "\n");
             return builder.toString();
-        }
-        else if (evaluate)
-        {
+        } else if (evaluate) {
             StringBuilder builder = new StringBuilder();
             builder.append("Evaluate" + "\n");
             builder.append("gold file: " + goldFile + "\n");
@@ -424,8 +397,7 @@ public class Options implements Serializable
         return "";
     }
 
-    public Options clone()
-    {
+    public Options clone() {
         Options options = new Options();
         options.train = train;
         options.labeled = labeled;

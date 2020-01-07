@@ -13,10 +13,10 @@ package com.hankcs.hanlp.model.crf;
 
 /**
  * 给一个实例生成一个元素表
+ *
  * @author hankcs
  */
-public class Table
-{
+public class Table {
     /**
      * 真实值，请不要直接读取
      */
@@ -24,14 +24,11 @@ public class Table
     static final String HEAD = "_B";
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         if (v == null) return "null";
         final StringBuilder sb = new StringBuilder(v.length * v[0].length * 2);
-        for (String[] line : v)
-        {
-            for (String element : line)
-            {
+        for (String[] line : v) {
+            for (String element : line) {
                 sb.append(element).append('\t');
             }
             sb.append('\n');
@@ -41,25 +38,23 @@ public class Table
 
     /**
      * 获取表中某一个元素
+     *
      * @param x
      * @param y
      * @return
      */
-    public String get(int x, int y)
-    {
+    public String get(int x, int y) {
         if (x < 0) return HEAD + x;
         if (x >= v.length) return HEAD + "+" + (x - v.length + 1);
 
         return v[x][y];
     }
 
-    public void setLast(int x, String t)
-    {
+    public void setLast(int x, String t) {
         v[x][v[x].length - 1] = t;
     }
 
-    public int size()
-    {
+    public int size() {
         return v.length;
     }
 }

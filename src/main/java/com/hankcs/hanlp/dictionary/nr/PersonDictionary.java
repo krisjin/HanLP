@@ -22,19 +22,21 @@ import com.hankcs.hanlp.seg.common.Vertex;
 import com.hankcs.hanlp.seg.common.WordNet;
 import com.hankcs.hanlp.utility.Predefine;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.TreeMap;
 
-import static com.hankcs.hanlp.corpus.tag.NR.*;
+import static com.hankcs.hanlp.corpus.tag.NR.B;
+import static com.hankcs.hanlp.dictionary.nr.NRConstant.WORD_ID;
 import static com.hankcs.hanlp.utility.Predefine.logger;
-import static com.hankcs.hanlp.dictionary.nr.NRConstant.*;
 
 /**
  * 人名识别用的词典，实际上是对两个词典的包装
  *
  * @author hankcs
  */
-public class PersonDictionary
-{
+public class PersonDictionary {
     /**
      * 人名词典
      */
@@ -50,20 +52,17 @@ public class PersonDictionary
 
     public static final CoreDictionary.Attribute ATTRIBUTE = new CoreDictionary.Attribute(Nature.nr, 100);
 
-    static
-    {
+    static {
         long start = System.currentTimeMillis();
         dictionary = new NRDictionary();
-        if (!dictionary.load(HanLP.Config.PersonDictionaryPath))
-        {
+        if (!dictionary.load(HanLP.Config.PersonDictionaryPath)) {
             throw new IllegalArgumentException("人名词典加载失败：" + HanLP.Config.PersonDictionaryPath);
         }
         transformMatrixDictionary = new TransformMatrixDictionary<NR>(NR.class);
         transformMatrixDictionary.load(HanLP.Config.PersonDictionaryTrPath);
         trie = new AhoCorasickDoubleArrayTrie<NRPattern>();
         TreeMap<String, NRPattern> map = new TreeMap<String, NRPattern>();
-        for (NRPattern pattern : NRPattern.values())
-        {
+        for (NRPattern pattern : NRPattern.values()) {
             map.put(pattern.toString(), pattern);
         }
         trie.build(map);
@@ -78,24 +77,20 @@ public class PersonDictionary
      * @param wordNetOptimum 待优化的图
      * @param wordNetAll     全词图
      */
-    public static void parsePattern(List<NR> nrList, List<Vertex> vertexList, final WordNet wordNetOptimum, final WordNet wordNetAll)
-    {
+    public static void parsePattern(List<NR> nrList, List<Vertex> vertexList, final WordNet wordNetOptimum, final WordNet wordNetAll) {
         // 拆分UV
         ListIterator<Vertex> listIterator = vertexList.listIterator();
         StringBuilder sbPattern = new StringBuilder(nrList.size());
         NR preNR = NR.A;
         boolean backUp = false;
         int index = 0;
-        for (NR nr : nrList)
-        {
+        for (NR nr : nrList) {
             ++index;
             Vertex current = listIterator.next();
 //            logger.trace("{}/{}", current.realWord, nr);
-            switch (nr)
-            {
+            switch (nr) {
                 case U:
-                    if (!backUp)
-                    {
+                    if (!backUp) {
                         vertexList = new ArrayList<Vertex>(vertexList);
                         listIterator = vertexList.listIterator(index);
                         backUp = true;
@@ -111,18 +106,14 @@ public class PersonDictionary
                     listIterator.add(new Vertex(nowB));
                     continue;
                 case V:
-                    if (!backUp)
-                    {
+                    if (!backUp) {
                         vertexList = new ArrayList<Vertex>(vertexList);
                         listIterator = vertexList.listIterator(index);
                         backUp = true;
                     }
-                    if (preNR == B)
-                    {
+                    if (preNR == B) {
                         sbPattern.append(NR.E.toString());  //BE
-                    }
-                    else
-                    {
+                    } else {
                         sbPattern.append(NR.D.toString());  //CD
                     }
                     sbPattern.append(NR.L.toString());
@@ -151,26 +142,21 @@ public class PersonDictionary
         final Vertex[] wordArray = vertexList.toArray(new Vertex[0]);
         final int[] offsetArray = new int[wordArray.length];
         offsetArray[0] = 0;
-        for (int i = 1; i < wordArray.length; ++i)
-        {
+        for (int i = 1; i < wordArray.length; ++i) {
             offsetArray[i] = offsetArray[i - 1] + wordArray[i - 1].realWord.length();
         }
-        trie.parseText(pattern, new AhoCorasickDoubleArrayTrie.IHit<NRPattern>()
-        {
+        trie.parseText(pattern, new AhoCorasickDoubleArrayTrie.IHit<NRPattern>() {
             @Override
-            public void hit(int begin, int end, NRPattern value)
-            {
+            public void hit(int begin, int end, NRPattern value) {
 //            logger.trace("匹配到：{}", keyword);
                 StringBuilder sbName = new StringBuilder();
-                for (int i = begin; i < end; ++i)
-                {
+                for (int i = begin; i < end; ++i) {
                     sbName.append(wordArray[i].realWord);
                 }
                 String name = sbName.toString();
 //            logger.trace("识别出：{}", name);
                 // 对一些bad case做出调整
-                switch (value)
-                {
+                switch (value) {
                     case BCD:
                         if (name.charAt(0) == name.charAt(2)) return; // 姓和最后一个名不可能相等的
 //                        String cd = name.substring(1);
@@ -184,8 +170,7 @@ public class PersonDictionary
                 if (isBadCase(name)) return;
 
                 // 正式算它是一个名字
-                if (HanLP.Config.DEBUG)
-                {
+                if (HanLP.Config.DEBUG) {
                     System.out.printf("识别出人名：%s %s\n", name, value);
                 }
                 int offset = offsetArray[begin];
@@ -201,8 +186,7 @@ public class PersonDictionary
      * @param name
      * @return
      */
-    static boolean isBadCase(String name)
-    {
+    static boolean isBadCase(String name) {
         EnumItem<NR> nrEnumItem = dictionary.get(name);
         if (nrEnumItem == null) return false;
         return nrEnumItem.containsLabel(NR.A);

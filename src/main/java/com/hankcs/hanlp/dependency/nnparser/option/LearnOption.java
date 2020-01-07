@@ -14,8 +14,7 @@ package com.hankcs.hanlp.dependency.nnparser.option;
 /**
  * @author hankcs
  */
-public class LearnOption extends BasicOption
-{
+public class LearnOption extends BasicOption {
     public double ada_eps;             //! Eps used in AdaGrad
     public double ada_alpha;           //! Alpha used in AdaGrad
     public double lambda;              //! TODO not known.

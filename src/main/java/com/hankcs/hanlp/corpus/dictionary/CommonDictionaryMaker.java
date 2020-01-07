@@ -21,11 +21,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+
 /**
  * @author hankcs
  */
-public abstract class CommonDictionaryMaker implements ISaveAble
-{
+public abstract class CommonDictionaryMaker implements ISaveAble {
     public boolean verbose = false;
     /**
      * 语料库中的单词
@@ -40,20 +40,16 @@ public abstract class CommonDictionaryMaker implements ISaveAble
      */
     NGramDictionaryMaker nGramDictionaryMaker;
 
-    public CommonDictionaryMaker(EasyDictionary dictionary)
-    {
+    public CommonDictionaryMaker(EasyDictionary dictionary) {
         nGramDictionaryMaker = new NGramDictionaryMaker();
         dictionaryMaker = new DictionaryMaker();
         this.dictionary = dictionary;
     }
 
     @Override
-    public boolean saveTxtTo(String path)
-    {
-        if (dictionaryMaker.saveTxtTo(path + ".txt"))
-        {
-            if (nGramDictionaryMaker.saveTxtTo(path))
-            {
+    public boolean saveTxtTo(String path) {
+        if (dictionaryMaker.saveTxtTo(path + ".txt")) {
+            if (nGramDictionaryMaker.saveTxtTo(path)) {
                 return true;
             }
         }
@@ -64,21 +60,19 @@ public abstract class CommonDictionaryMaker implements ISaveAble
     /**
      * 处理语料，准备词典
      */
-    public void compute(List<List<IWord>> sentenceList)
-    {
+    public void compute(List<List<IWord>> sentenceList) {
         roleTag(sentenceList);
         addToDictionary(sentenceList);
     }
 
     /**
      * 同compute
+     *
      * @param sentenceList
      */
-    public void learn(List<Sentence> sentenceList)
-    {
+    public void learn(List<Sentence> sentenceList) {
         List<List<IWord>> s = new ArrayList<List<IWord>>(sentenceList.size());
-        for (Sentence sentence : sentenceList)
-        {
+        for (Sentence sentence : sentenceList) {
             s.add(sentence.wordList);
         }
         compute(s);
@@ -86,28 +80,25 @@ public abstract class CommonDictionaryMaker implements ISaveAble
 
     /**
      * 同compute
+     *
      * @param sentences
      */
-    public void learn(Sentence ... sentences)
-    {
+    public void learn(Sentence... sentences) {
         learn(Arrays.asList(sentences));
     }
 
     /**
      * 训练
+     *
      * @param corpus 语料库路径
      */
-    public void train(String corpus)
-    {
-        CorpusLoader.walk(corpus, new CorpusLoader.Handler()
-        {
+    public void train(String corpus) {
+        CorpusLoader.walk(corpus, new CorpusLoader.Handler() {
             @Override
-            public void handle(Document document)
-            {
+            public void handle(Document document) {
                 List<List<Word>> simpleSentenceList = document.getSimpleSentenceList();
                 List<List<IWord>> compatibleList = new LinkedList<List<IWord>>();
-                for (List<Word> wordList : simpleSentenceList)
-                {
+                for (List<Word> wordList : simpleSentenceList) {
                     compatibleList.add(new LinkedList<IWord>(wordList));
                 }
                 CommonDictionaryMaker.this.compute(compatibleList);
@@ -117,6 +108,7 @@ public abstract class CommonDictionaryMaker implements ISaveAble
 
     /**
      * 加入到词典中，允许子类自定义过滤等等，这样比较灵活
+     *
      * @param sentenceList
      */
     abstract protected void addToDictionary(List<List<IWord>> sentenceList);

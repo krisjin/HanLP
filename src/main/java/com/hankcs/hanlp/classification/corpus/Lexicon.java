@@ -23,29 +23,24 @@ import java.util.List;
  *
  * @author hankcs
  */
-public class Lexicon
-{
+public class Lexicon {
     public BinTrie<Integer> wordId;
     public List<String> idWord;
 
-    public Lexicon()
-    {
+    public Lexicon() {
         wordId = new BinTrie<Integer>();
         idWord = new LinkedList<String>();
     }
 
-    public Lexicon(BinTrie<Integer> wordIdTrie)
-    {
+    public Lexicon(BinTrie<Integer> wordIdTrie) {
         wordId = wordIdTrie;
     }
 
-    public int addWord(String word)
-    {
+    public int addWord(String word) {
         assert word != null;
         char[] charArray = word.toCharArray();
         Integer id = wordId.get(charArray);
-        if (id == null)
-        {
+        if (id == null) {
             id = wordId.size();
             wordId.put(charArray, id);
             idWord.add(word);
@@ -55,31 +50,26 @@ public class Lexicon
         return id;
     }
 
-    public Integer getId(String word)
-    {
+    public Integer getId(String word) {
         return wordId.get(word);
     }
 
-    public String getWord(int id)
-    {
+    public String getWord(int id) {
         assert 0 <= id;
         assert id <= idWord.size();
         return idWord.get(id);
     }
 
-    public int size()
-    {
+    public int size() {
         return idWord.size();
     }
 
-    public String[] getWordIdArray()
-    {
+    public String[] getWordIdArray() {
         String[] wordIdArray = new String[idWord.size()];
         if (idWord.isEmpty()) return wordIdArray;
         int p = -1;
         Iterator<String> iterator = idWord.iterator();
-        while (iterator.hasNext())
-        {
+        while (iterator.hasNext()) {
             wordIdArray[++p] = iterator.next();
         }
 

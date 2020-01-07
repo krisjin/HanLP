@@ -14,6 +14,5 @@ package com.hankcs.hanlp.dependency.nnparser;
 /**
  * @author hankcs
  */
-public class Parser
-{
+public class Parser {
 }

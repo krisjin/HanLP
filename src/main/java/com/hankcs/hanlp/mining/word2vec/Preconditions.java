@@ -1,10 +1,8 @@
 package com.hankcs.hanlp.mining.word2vec;
 
-class Preconditions
-{
+class Preconditions {
 
-    private Preconditions()
-    {
+    private Preconditions() {
     }
 
     /**
@@ -13,10 +11,8 @@ class Preconditions
      * @param expression a boolean expression
      * @throws IllegalArgumentException if {@code expression} is false
      */
-    public static void checkArgument(boolean expression)
-    {
-        if (!expression)
-        {
+    public static void checkArgument(boolean expression) {
+        if (!expression) {
             throw new IllegalArgumentException();
         }
     }
@@ -29,10 +25,8 @@ class Preconditions
      *                     string using {@link String#valueOf(Object)}
      * @throws IllegalArgumentException if {@code expression} is false
      */
-    public static void checkArgument(boolean expression, Object errorMessage)
-    {
-        if (!expression)
-        {
+    public static void checkArgument(boolean expression, Object errorMessage) {
+        if (!expression) {
             throw new IllegalArgumentException(String.valueOf(errorMessage));
         }
     }
@@ -54,10 +48,8 @@ class Preconditions
      */
     public static void checkArgument(boolean expression,
                                      String errorMessageTemplate,
-                                     Object... errorMessageArgs)
-    {
-        if (!expression)
-        {
+                                     Object... errorMessageArgs) {
+        if (!expression) {
             throw new IllegalArgumentException(format(errorMessageTemplate, errorMessageArgs));
         }
     }
@@ -69,10 +61,8 @@ class Preconditions
      * @param expression a boolean expression
      * @throws IllegalStateException if {@code expression} is false
      */
-    public static void checkState(boolean expression)
-    {
-        if (!expression)
-        {
+    public static void checkState(boolean expression) {
+        if (!expression) {
             throw new IllegalStateException();
         }
     }
@@ -86,10 +76,8 @@ class Preconditions
      *                     string using {@link String#valueOf(Object)}
      * @throws IllegalStateException if {@code expression} is false
      */
-    public static void checkState(boolean expression, Object errorMessage)
-    {
-        if (!expression)
-        {
+    public static void checkState(boolean expression, Object errorMessage) {
+        if (!expression) {
             throw new IllegalStateException(String.valueOf(errorMessage));
         }
     }
@@ -112,10 +100,8 @@ class Preconditions
      */
     public static void checkState(boolean expression,
                                   String errorMessageTemplate,
-                                  Object... errorMessageArgs)
-    {
-        if (!expression)
-        {
+                                  Object... errorMessageArgs) {
+        if (!expression) {
             throw new IllegalStateException(format(errorMessageTemplate, errorMessageArgs));
         }
     }
@@ -127,10 +113,8 @@ class Preconditions
      * @return the non-null reference that was validated
      * @throws NullPointerException if {@code reference} is null
      */
-    public static <T> T checkNotNull(T reference)
-    {
-        if (reference == null)
-        {
+    public static <T> T checkNotNull(T reference) {
+        if (reference == null) {
             throw new NullPointerException();
         }
         return reference;
@@ -145,10 +129,8 @@ class Preconditions
      * @return the non-null reference that was validated
      * @throws NullPointerException if {@code reference} is null
      */
-    public static <T> T checkNotNull(T reference, Object errorMessage)
-    {
-        if (reference == null)
-        {
+    public static <T> T checkNotNull(T reference, Object errorMessage) {
+        if (reference == null) {
             throw new NullPointerException(String.valueOf(errorMessage));
         }
         return reference;
@@ -170,41 +152,39 @@ class Preconditions
      */
     public static <T> T checkNotNull(T reference,
                                      String errorMessageTemplate,
-                                     Object... errorMessageArgs)
-    {
-        if (reference == null)
-        {
+                                     Object... errorMessageArgs) {
+        if (reference == null) {
             // If either of these parameters is null, the right thing happens anyway
             throw new NullPointerException(format(errorMessageTemplate, errorMessageArgs));
         }
         return reference;
     }
 
-  /*
-   * All recent hotspots (as of 2009) *really* like to have the natural code
-   *
-   * if (guardExpression) {
-   *    throw new BadException(messageExpression);
-   * }
-   *
-   * refactored so that messageExpression is moved to a separate String-returning method.
-   *
-   * if (guardExpression) {
-   *    throw new BadException(badMsg(...));
-   * }
-   *
-   * The alternative natural refactorings into void or Exception-returning methods are much slower.
-   * This is a big deal - we're talking factors of 2-8 in microbenchmarks, not just 10-20%.  (This
-   * is a hotspot optimizer bug, which should be fixed, but that's a separate, big project).
-   *
-   * The coding pattern above is heavily used in java.util, e.g. in ArrayList.  There is a
-   * RangeCheckMicroBenchmark in the JDK that was used to test this.
-   *
-   * But the methods in this class want to throw different exceptions, depending on the args, so it
-   * appears that this pattern is not directly applicable.  But we can use the ridiculous, devious
-   * trick of throwing an exception in the middle of the construction of another exception.  Hotspot
-   * is fine with that.
-   */
+    /*
+     * All recent hotspots (as of 2009) *really* like to have the natural code
+     *
+     * if (guardExpression) {
+     *    throw new BadException(messageExpression);
+     * }
+     *
+     * refactored so that messageExpression is moved to a separate String-returning method.
+     *
+     * if (guardExpression) {
+     *    throw new BadException(badMsg(...));
+     * }
+     *
+     * The alternative natural refactorings into void or Exception-returning methods are much slower.
+     * This is a big deal - we're talking factors of 2-8 in microbenchmarks, not just 10-20%.  (This
+     * is a hotspot optimizer bug, which should be fixed, but that's a separate, big project).
+     *
+     * The coding pattern above is heavily used in java.util, e.g. in ArrayList.  There is a
+     * RangeCheckMicroBenchmark in the JDK that was used to test this.
+     *
+     * But the methods in this class want to throw different exceptions, depending on the args, so it
+     * appears that this pattern is not directly applicable.  But we can use the ridiculous, devious
+     * trick of throwing an exception in the middle of the construction of another exception.  Hotspot
+     * is fine with that.
+     */
 
     /**
      * Ensures that {@code index} specifies a valid <i>element</i> in an array, list or string of size
@@ -216,8 +196,7 @@ class Preconditions
      * @throws IndexOutOfBoundsException if {@code index} is negative or is not less than {@code size}
      * @throws IllegalArgumentException  if {@code size} is negative
      */
-    public static int checkElementIndex(int index, int size)
-    {
+    public static int checkElementIndex(int index, int size) {
         return checkElementIndex(index, size, "index");
     }
 
@@ -233,28 +212,20 @@ class Preconditions
      * @throws IllegalArgumentException  if {@code size} is negative
      */
     public static int checkElementIndex(
-            int index, int size, String desc)
-    {
+            int index, int size, String desc) {
         // Carefully optimized for execution by hotspot (explanatory comment above)
-        if (index < 0 || index >= size)
-        {
+        if (index < 0 || index >= size) {
             throw new IndexOutOfBoundsException(badElementIndex(index, size, desc));
         }
         return index;
     }
 
-    private static String badElementIndex(int index, int size, String desc)
-    {
-        if (index < 0)
-        {
+    private static String badElementIndex(int index, int size, String desc) {
+        if (index < 0) {
             return format("%s (%s) must not be negative", desc, index);
-        }
-        else if (size < 0)
-        {
+        } else if (size < 0) {
             throw new IllegalArgumentException("negative size: " + size);
-        }
-        else
-        { // index >= size
+        } else { // index >= size
             return format("%s (%s) must be less than size (%s)", desc, index, size);
         }
     }
@@ -269,8 +240,7 @@ class Preconditions
      * @throws IndexOutOfBoundsException if {@code index} is negative or is greater than {@code size}
      * @throws IllegalArgumentException  if {@code size} is negative
      */
-    public static int checkPositionIndex(int index, int size)
-    {
+    public static int checkPositionIndex(int index, int size) {
         return checkPositionIndex(index, size, "index");
     }
 
@@ -285,28 +255,20 @@ class Preconditions
      * @throws IndexOutOfBoundsException if {@code index} is negative or is greater than {@code size}
      * @throws IllegalArgumentException  if {@code size} is negative
      */
-    public static int checkPositionIndex(int index, int size, String desc)
-    {
+    public static int checkPositionIndex(int index, int size, String desc) {
         // Carefully optimized for execution by hotspot (explanatory comment above)
-        if (index < 0 || index > size)
-        {
+        if (index < 0 || index > size) {
             throw new IndexOutOfBoundsException(badPositionIndex(index, size, desc));
         }
         return index;
     }
 
-    private static String badPositionIndex(int index, int size, String desc)
-    {
-        if (index < 0)
-        {
+    private static String badPositionIndex(int index, int size, String desc) {
+        if (index < 0) {
             return format("%s (%s) must not be negative", desc, index);
-        }
-        else if (size < 0)
-        {
+        } else if (size < 0) {
             throw new IllegalArgumentException("negative size: " + size);
-        }
-        else
-        { // index > size
+        } else { // index > size
             return format("%s (%s) must not be greater than size (%s)", desc, index, size);
         }
     }
@@ -323,23 +285,18 @@ class Preconditions
      *                                   or if {@code end} is less than {@code start}
      * @throws IllegalArgumentException  if {@code size} is negative
      */
-    public static void checkPositionIndexes(int start, int end, int size)
-    {
+    public static void checkPositionIndexes(int start, int end, int size) {
         // Carefully optimized for execution by hotspot (explanatory comment above)
-        if (start < 0 || end < start || end > size)
-        {
+        if (start < 0 || end < start || end > size) {
             throw new IndexOutOfBoundsException(badPositionIndexes(start, end, size));
         }
     }
 
-    private static String badPositionIndexes(int start, int end, int size)
-    {
-        if (start < 0 || start > size)
-        {
+    private static String badPositionIndexes(int start, int end, int size) {
+        if (start < 0 || start > size) {
             return badPositionIndex(start, size, "start index");
         }
-        if (end < 0 || end > size)
-        {
+        if (end < 0 || end > size) {
             return badPositionIndex(end, size, "end index");
         }
         // end < start
@@ -357,19 +314,16 @@ class Preconditions
      *                 to strings using {@link String#valueOf(Object)}. Arguments can be null.
      */
     // Note that this is somewhat-improperly used from Verify.java as well.
-    static String format(String template, Object... args)
-    {
+    static String format(String template, Object... args) {
         template = String.valueOf(template); // null -> "null"
 
         // start substituting the arguments into the '%s' placeholders
         StringBuilder builder = new StringBuilder(template.length() + 16 * args.length);
         int templateStart = 0;
         int i = 0;
-        while (i < args.length)
-        {
+        while (i < args.length) {
             int placeholderStart = template.indexOf("%s", templateStart);
-            if (placeholderStart == -1)
-            {
+            if (placeholderStart == -1) {
                 break;
             }
             builder.append(template.substring(templateStart, placeholderStart));
@@ -379,12 +333,10 @@ class Preconditions
         builder.append(template.substring(templateStart));
 
         // if we run out of placeholders, append the extra args in square braces
-        if (i < args.length)
-        {
+        if (i < args.length) {
             builder.append(" [");
             builder.append(args[i++]);
-            while (i < args.length)
-            {
+            while (i < args.length) {
                 builder.append(", ");
                 builder.append(args[i++]);
             }

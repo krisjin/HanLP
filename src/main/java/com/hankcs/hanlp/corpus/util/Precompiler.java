@@ -14,7 +14,6 @@ package com.hankcs.hanlp.corpus.util;
 import com.hankcs.hanlp.corpus.dependency.CoNll.PosTagCompiler;
 import com.hankcs.hanlp.corpus.document.sentence.word.IWord;
 import com.hankcs.hanlp.corpus.document.sentence.word.Word;
-import com.hankcs.hanlp.utility.Predefine;
 
 import java.util.List;
 
@@ -23,16 +22,14 @@ import java.util.List;
  *
  * @author hankcs
  */
-public class Precompiler
-{
+public class Precompiler {
     /**
      * 将一个单词编译为等效字串
      *
      * @param word
      * @return
      */
-    public static Word compile(Word word)
-    {
+    public static Word compile(Word word) {
         word.value = PosTagCompiler.compile(word.label, word.value);
 //        switch (word.label)
 //        {
@@ -92,19 +89,17 @@ public class Precompiler
         return word;
     }
 
-    public static Word compile(IWord word)
-    {
-        return compile((Word)word);
+    public static Word compile(IWord word) {
+        return compile((Word) word);
     }
 
     /**
      * 在忽略ns的前提下预编译
+     *
      * @param wordList
      */
-    public static void compileWithoutNS(List<IWord> wordList)
-    {
-        for (IWord word : wordList)
-        {
+    public static void compileWithoutNS(List<IWord> wordList) {
+        for (IWord word : wordList) {
             if (word.getLabel().startsWith("ns")) continue;
             word.setValue(PosTagCompiler.compile(word.getLabel(), word.getValue()));
 //            switch (word.getLabel())
@@ -159,12 +154,11 @@ public class Precompiler
 
     /**
      * 在忽略ns的前提下预编译
+     *
      * @param wordList
      */
-    public static void compileWithoutNT(List<IWord> wordList)
-    {
-        for (IWord word : wordList)
-        {
+    public static void compileWithoutNT(List<IWord> wordList) {
+        for (IWord word : wordList) {
             if (word.getLabel().startsWith("nt")) continue;
             word.setValue(PosTagCompiler.compile(word.getLabel(), word.getValue()));
         }

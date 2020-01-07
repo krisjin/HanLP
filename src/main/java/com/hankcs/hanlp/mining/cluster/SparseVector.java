@@ -17,11 +17,9 @@ import java.util.TreeMap;
 /**
  * @author hankcs
  */
-public class SparseVector extends TreeMap<Integer, Double>
-{
+public class SparseVector extends TreeMap<Integer, Double> {
     @Override
-    public Double get(Object key)
-    {
+    public Double get(Object key) {
         Double v = super.get(key);
         if (v == null) return 0.;
         return v;
@@ -30,11 +28,9 @@ public class SparseVector extends TreeMap<Integer, Double>
     /**
      * Normalize a vector.
      */
-    void normalize()
-    {
+    void normalize() {
         double nrm = norm();
-        for (Map.Entry<Integer, Double> d : entrySet())
-        {
+        for (Map.Entry<Integer, Double> d : entrySet()) {
             d.setValue(d.getValue() / nrm);
         }
     }
@@ -42,11 +38,9 @@ public class SparseVector extends TreeMap<Integer, Double>
     /**
      * Calculate a squared norm.
      */
-    double norm_squared()
-    {
+    double norm_squared() {
         double sum = 0;
-        for (Double point : values())
-        {
+        for (Double point : values()) {
             sum += point * point;
         }
         return sum;
@@ -55,18 +49,15 @@ public class SparseVector extends TreeMap<Integer, Double>
     /**
      * Calculate a norm.
      */
-    double norm()
-    {
+    double norm() {
         return (double) Math.sqrt(norm_squared());
     }
 
     /**
      * Multiply each value of  avector by a constant value.
      */
-    void multiply_constant(double x)
-    {
-        for (Map.Entry<Integer, Double> entry : entrySet())
-        {
+    void multiply_constant(double x) {
+        for (Map.Entry<Integer, Double> entry : entrySet()) {
             entry.setValue(entry.getValue() * x);
         }
     }
@@ -74,11 +65,9 @@ public class SparseVector extends TreeMap<Integer, Double>
     /**
      * Add other vector.
      */
-    void add_vector(SparseVector vec)
-    {
+    void add_vector(SparseVector vec) {
 
-        for (Map.Entry<Integer, Double> entry : vec.entrySet())
-        {
+        for (Map.Entry<Integer, Double> entry : vec.entrySet()) {
             Double v = get(entry.getKey());
             if (v == null)
                 v = 0.;
@@ -89,11 +78,9 @@ public class SparseVector extends TreeMap<Integer, Double>
     /**
      * Subtract other vector.
      */
-    void sub_vector(SparseVector vec)
-    {
+    void sub_vector(SparseVector vec) {
 
-        for (Map.Entry<Integer, Double> entry : vec.entrySet())
-        {
+        for (Map.Entry<Integer, Double> entry : vec.entrySet()) {
             Double v = get(entry.getKey());
             if (v == null)
                 v = 0.;
@@ -138,23 +125,18 @@ public class SparseVector extends TreeMap<Integer, Double>
     /**
      * Calculate the inner product value between vectors.
      */
-    static double inner_product(SparseVector vec1, SparseVector vec2)
-    {
+    static double inner_product(SparseVector vec1, SparseVector vec2) {
         Iterator<Map.Entry<Integer, Double>> it;
         SparseVector other;
-        if (vec1.size() < vec2.size())
-        {
+        if (vec1.size() < vec2.size()) {
             it = vec1.entrySet().iterator();
             other = vec2;
-        }
-        else
-        {
+        } else {
             it = vec2.entrySet().iterator();
             other = vec1;
         }
         double prod = 0;
-        while (it.hasNext())
-        {
+        while (it.hasNext()) {
             Map.Entry<Integer, Double> entry = it.next();
             prod += entry.getValue() * other.get(entry.getKey());
         }
@@ -164,17 +146,13 @@ public class SparseVector extends TreeMap<Integer, Double>
     /**
      * Calculate the cosine value between vectors.
      */
-    double cosine(SparseVector vec1, SparseVector vec2)
-    {
+    double cosine(SparseVector vec1, SparseVector vec2) {
         double norm1 = vec1.norm();
         double norm2 = vec2.norm();
         double result = 0.0f;
-        if (norm1 == 0 && norm2 == 0)
-        {
+        if (norm1 == 0 && norm2 == 0) {
             return result;
-        }
-        else
-        {
+        } else {
             double prod = inner_product(vec1, vec2);
             result = prod / (norm1 * norm2);
             return Double.isNaN(result) ? 0.0f : result;

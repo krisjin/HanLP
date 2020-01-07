@@ -16,20 +16,18 @@ import com.hankcs.hanlp.suggest.scorer.ISentenceKey;
 
 /**
  * 对字符数组的封装，可以代替String
+ *
  * @author hankcs
  */
-public class CharArray implements Comparable<CharArray>, ISentenceKey<CharArray>
-{
+public class CharArray implements Comparable<CharArray>, ISentenceKey<CharArray> {
     char[] value;
 
-    public CharArray(char[] value)
-    {
+    public CharArray(char[] value) {
         this.value = value;
     }
 
     @Override
-    public int compareTo(CharArray other)
-    {
+    public int compareTo(CharArray other) {
         int len1 = value.length;
         int len2 = other.value.length;
         int lim = Math.min(len1, len2);
@@ -37,12 +35,10 @@ public class CharArray implements Comparable<CharArray>, ISentenceKey<CharArray>
         char v2[] = other.value;
 
         int k = 0;
-        while (k < lim)
-        {
+        while (k < lim) {
             char c1 = v1[k];
             char c2 = v2[k];
-            if (c1 != c2)
-            {
+            if (c1 != c2) {
                 return c1 - c2;
             }
             k++;
@@ -51,8 +47,7 @@ public class CharArray implements Comparable<CharArray>, ISentenceKey<CharArray>
     }
 
     @Override
-    public Double similarity(CharArray other)
-    {
+    public Double similarity(CharArray other) {
         int distance = EditDistance.compute(this.value, other.value) + 1;
         return 1.0 / distance;
     }

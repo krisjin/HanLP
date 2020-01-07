@@ -12,41 +12,38 @@
 package com.hankcs.hanlp.seg.NShort.Path;
 
 import com.hankcs.hanlp.corpus.tag.Nature;
-import com.hankcs.hanlp.dictionary.other.CharType;
 import com.hankcs.hanlp.dictionary.CoreDictionary;
+import com.hankcs.hanlp.dictionary.other.CharType;
 import com.hankcs.hanlp.seg.common.Vertex;
 import com.hankcs.hanlp.utility.Predefine;
 
 /**
  * 原子分词节点
+ *
  * @author hankcs
  */
-public class AtomNode
-{
+public class AtomNode {
     public String sWord;
     public int nPOS;
 
-    public AtomNode(String sWord, int nPOS)
-    {
+    public AtomNode(String sWord, int nPOS) {
         this.sWord = sWord;
         this.nPOS = nPOS;
     }
 
-    public AtomNode(char c, int nPOS)
-    {
+    public AtomNode(char c, int nPOS) {
         this.sWord = String.valueOf(c);
         this.nPOS = nPOS;
     }
 
     /**
      * 原子的词性
+     *
      * @return
      */
-    public Nature getNature()
-    {
+    public Nature getNature() {
         Nature nature = Nature.nz;
-        switch (nPOS)
-        {
+        switch (nPOS) {
             case CharType.CT_CHINESE:
                 break;
             case CharType.CT_NUM:
@@ -67,8 +64,7 @@ public class AtomNode
                 {
                     nature = Nature.m;
                     sWord = Predefine.TAG_NUMBER;
-                } else
-                {
+                } else {
                     nature = Nature.nx;
                     sWord = Predefine.TAG_CLUSTER;
                 }
@@ -80,21 +76,18 @@ public class AtomNode
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "AtomNode{" +
                 "word='" + sWord + '\'' +
                 ", nature=" + nPOS +
                 '}';
     }
 
-    public static Vertex convert(String word, int type)
-    {
+    public static Vertex convert(String word, int type) {
         String name = word;
         Nature nature = Nature.n;
         int dValue = 1;
-        switch (type)
-        {
+        switch (type) {
             case CharType.CT_CHINESE:
                 break;
             case CharType.CT_NUM:
@@ -117,8 +110,8 @@ public class AtomNode
 //                    word = Predefine.TAG_NUMBER;
 //                } else
 //                {
-                    nature = Nature.nx;
-                    word = Predefine.TAG_CLUSTER;
+                nature = Nature.nx;
+                word = Predefine.TAG_CLUSTER;
 //                }
                 break;
             default:

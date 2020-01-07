@@ -16,8 +16,7 @@ import com.hankcs.hanlp.classification.collections.FrequencyMap;
 /**
  * @author hankcs
  */
-public class BagOfWordsDocument implements ITermFrequencyHolder
-{
+public class BagOfWordsDocument implements ITermFrequencyHolder {
     //
     //    /**
     //     * 文档所属的词表
@@ -29,22 +28,20 @@ public class BagOfWordsDocument implements ITermFrequencyHolder
     //    private Catalog catalog;
     public FrequencyMap<Integer> tfMap;
 
-    public BagOfWordsDocument()
-    {
+    public BagOfWordsDocument() {
         tfMap = new FrequencyMap<Integer>();
     }
 
-    public FrequencyMap<Integer> getTfMap()
-    {
+    public FrequencyMap<Integer> getTfMap() {
         return tfMap;
     }
 
     /**
      * 是否为空(文档中没有任何词)
+     *
      * @return
      */
-    public boolean isEmpty()
-    {
+    public boolean isEmpty() {
         return tfMap.isEmpty();
     }
 }

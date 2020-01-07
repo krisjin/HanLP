@@ -19,8 +19,7 @@ import java.util.List;
  *
  * @author manabe
  */
-public class DoubleArray implements Serializable
-{
+public class DoubleArray implements Serializable {
     static Charset utf8 = Charset.forName("UTF-8");
 
     /**
@@ -29,8 +28,7 @@ public class DoubleArray implements Serializable
      * @param keys   字节形式的键
      * @param values 值
      */
-    public void build(byte[][] keys, int[] values)
-    {
+    public void build(byte[][] keys, int[] values) {
         Keyset keyset = new Keyset(keys, values);
         DoubleArrayBuilder builder = new DoubleArrayBuilder();
         builder.build(keyset);
@@ -38,13 +36,11 @@ public class DoubleArray implements Serializable
         _array = builder.copy();
     }
 
-    public void build(List<String> keys, int[] values)
-    {
+    public void build(List<String> keys, int[] values) {
         byte[][] byteKey = new byte[keys.size()][];
         Iterator<String> iteratorKey = keys.iterator();
         int i = 0;
-        while (iteratorKey.hasNext())
-        {
+        while (iteratorKey.hasNext()) {
             byteKey[i] = iteratorKey.next().getBytes(utf8);
             ++i;
         }
@@ -57,26 +53,20 @@ public class DoubleArray implements Serializable
      * @param stream
      * @throws java.io.IOException
      */
-    public void open(InputStream stream) throws IOException
-    {
+    public void open(InputStream stream) throws IOException {
 
         int size = (int) (stream.available() / UNIT_SIZE);
         _array = new int[size];
 
         DataInputStream in = null;
-        try
-        {
+        try {
             in = new DataInputStream(new BufferedInputStream(
                     stream));
-            for (int i = 0; i < size; ++i)
-            {
+            for (int i = 0; i < size; ++i) {
                 _array[i] = in.readInt();
             }
-        }
-        finally
-        {
-            if (in != null)
-            {
+        } finally {
+            if (in != null) {
                 in.close();
             }
         }
@@ -88,34 +78,26 @@ public class DoubleArray implements Serializable
      * @param stream
      * @throws java.io.IOException
      */
-    public void save(OutputStream stream) throws IOException
-    {
+    public void save(OutputStream stream) throws IOException {
         DataOutputStream out = null;
-        try
-        {
+        try {
             out = new DataOutputStream(new BufferedOutputStream(
                     stream));
-            for (int i = 0; i < _array.length; ++i)
-            {
+            for (int i = 0; i < _array.length; ++i) {
                 out.writeInt(_array[i]);
             }
-        }
-        finally
-        {
-            if (out != null)
-            {
+        } finally {
+            if (out != null) {
                 out.close();
             }
         }
     }
 
-    private void writeObject(ObjectOutputStream out) throws IOException
-    {
+    private void writeObject(ObjectOutputStream out) throws IOException {
         out.writeObject(_array);
     }
 
-    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException
-    {
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         _array = (int[]) in.readObject();
     }
 
@@ -126,8 +108,7 @@ public class DoubleArray implements Serializable
      * @param key search key
      * @return found value
      */
-    public int exactMatchSearch(String key)
-    {
+    public int exactMatchSearch(String key) {
         return exactMatchSearch(key.getBytes(utf8));
     }
 
@@ -137,25 +118,21 @@ public class DoubleArray implements Serializable
      * @param key search key
      * @return found value
      */
-    public int exactMatchSearch(byte[] key)
-    {
+    public int exactMatchSearch(byte[] key) {
         int unit = _array[0];
         int nodePos = 0;
 
-        for (byte b : key)
-        {
+        for (byte b : key) {
             // nodePos ^= unit.offset() ^ b
             nodePos ^= ((unit >>> 10) << ((unit & (1 << 9)) >>> 6)) ^ (b & 0xFF);
             unit = _array[nodePos];
             // if (unit.label() != b)
-            if ((unit & ((1 << 31) | 0xFF)) != (b & 0xff))
-            {
+            if ((unit & ((1 << 31) | 0xFF)) != (b & 0xff)) {
                 return -1;
             }
         }
         // if (!unit.has_leaf()) {
-        if (((unit >>> 8) & 1) != 1)
-        {
+        if (((unit >>> 8) & 1) != 1) {
             return -1;
         }
         // unit = _array[nodePos ^ unit.offset()];
@@ -175,21 +152,18 @@ public class DoubleArray implements Serializable
      */
     public List<Pair<Integer, Integer>> commonPrefixSearch(byte[] key,
                                                            int offset,
-                                                           int maxResults)
-    {
+                                                           int maxResults) {
         ArrayList<Pair<Integer, Integer>> result = new ArrayList<Pair<Integer, Integer>>();
         int unit = _array[0];
         int nodePos = 0;
         // nodePos ^= unit.offset();
         nodePos ^= ((unit >>> 10) << ((unit & (1 << 9)) >>> 6));
-        for (int i = offset; i < key.length; ++i)
-        {
+        for (int i = offset; i < key.length; ++i) {
             byte b = key[i];
             nodePos ^= (b & 0xff);
             unit = _array[nodePos];
             // if (unit.label() != b) {
-            if ((unit & ((1 << 31) | 0xFF)) != (b & 0xff))
-            {
+            if ((unit & ((1 << 31) | 0xFF)) != (b & 0xff)) {
                 return result;
             }
 
@@ -197,10 +171,8 @@ public class DoubleArray implements Serializable
             nodePos ^= ((unit >>> 10) << ((unit & (1 << 9)) >>> 6));
 
             // if (unit.has_leaf()) {
-            if (((unit >>> 8) & 1) == 1)
-            {
-                if (result.size() < maxResults)
-                {
+            if (((unit >>> 8) & 1) == 1) {
+                if (result.size() < maxResults) {
                     // result.add(new Pair<i, _array[nodePos].value());
                     result.add(new Pair<Integer, Integer>(i + 1, _array[nodePos] & ((1 << 31) - 1)));
                 }
@@ -214,8 +186,7 @@ public class DoubleArray implements Serializable
      *
      * @return
      */
-    public int size()
-    {
+    public int size() {
         return _array.length;
     }
 

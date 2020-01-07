@@ -16,8 +16,7 @@ package com.hankcs.hanlp.dictionary.nr;
  *
  * @author hankcs
  */
-public enum NRPattern
-{
+public enum NRPattern {
     BBCD,
     BBE,
     BBZ,
@@ -29,9 +28,9 @@ public enum NRPattern
     BG,
     DG,
     EG,
-//    BXD,
+    //    BXD,
     BZ,
-//    CD,
+    //    CD,
     EE,
     FE,
     FC,

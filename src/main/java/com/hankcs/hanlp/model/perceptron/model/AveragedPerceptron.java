@@ -20,15 +20,12 @@ import java.util.Collection;
  *
  * @author hankcs
  */
-public class AveragedPerceptron extends LinearModel
-{
-    public AveragedPerceptron(FeatureMap featureMap, float[] parameter)
-    {
+public class AveragedPerceptron extends LinearModel {
+    public AveragedPerceptron(FeatureMap featureMap, float[] parameter) {
         super(featureMap, parameter);
     }
 
-    public AveragedPerceptron(FeatureMap featureMap)
-    {
+    public AveragedPerceptron(FeatureMap featureMap) {
         super(featureMap);
     }
 
@@ -38,19 +35,15 @@ public class AveragedPerceptron extends LinearModel
      * @param goldIndex    预测正确的特征函数（非压缩形式）
      * @param predictIndex 命中的特征函数
      */
-    public void update(int[] goldIndex, int[] predictIndex, double[] total, int[] timestamp, int current)
-    {
-        for (int i = 0; i < goldIndex.length; ++i)
-        {
+    public void update(int[] goldIndex, int[] predictIndex, double[] total, int[] timestamp, int current) {
+        for (int i = 0; i < goldIndex.length; ++i) {
             if (goldIndex[i] == predictIndex[i])
                 continue;
-            else
-            {
+            else {
                 update(goldIndex[i], 1, total, timestamp, current);
                 if (predictIndex[i] >= 0 && predictIndex[i] < parameter.length)
                     update(predictIndex[i], -1, total, timestamp, current);
-                else
-                {
+                else {
                     throw new IllegalArgumentException("更新参数时传入了非法的下标");
                 }
             }
@@ -66,8 +59,7 @@ public class AveragedPerceptron extends LinearModel
      * @param timestamp     每个权值上次更新的时间戳
      * @param current       当前时间戳
      */
-    public void update(Collection<Integer> featureVector, float value, double[] total, int[] timestamp, int current)
-    {
+    public void update(Collection<Integer> featureVector, float value, double[] total, int[] timestamp, int current) {
         for (Integer i : featureVector)
             update(i, value, total, timestamp, current);
     }
@@ -81,18 +73,15 @@ public class AveragedPerceptron extends LinearModel
      * @param timestamp 每个权值上次更新的时间戳
      * @param current   当前时间戳
      */
-    private void update(int index, float value, double[] total, int[] timestamp, int current)
-    {
+    private void update(int index, float value, double[] total, int[] timestamp, int current) {
         int passed = current - timestamp[index];
         total[index] += passed * parameter[index];
         parameter[index] += value;
         timestamp[index] = current;
     }
 
-    public void average(double[] total, int[] timestamp, int current)
-    {
-        for (int i = 0; i < parameter.length; i++)
-        {
+    public void average(double[] total, int[] timestamp, int current) {
+        for (int i = 0; i < parameter.length; i++) {
             parameter[i] = (float) ((total[i] + (current - timestamp[i]) * parameter[i]) / current);
         }
     }

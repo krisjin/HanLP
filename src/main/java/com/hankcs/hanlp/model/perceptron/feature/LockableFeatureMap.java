@@ -17,16 +17,13 @@ import com.hankcs.hanlp.model.perceptron.tagset.TagSet;
  *
  * @author hankcs
  */
-public class LockableFeatureMap extends ImmutableFeatureMDatMap
-{
-    public LockableFeatureMap(TagSet tagSet)
-    {
+public class LockableFeatureMap extends ImmutableFeatureMDatMap {
+    public LockableFeatureMap(TagSet tagSet) {
         super(tagSet);
     }
 
     @Override
-    public int idOf(String string)
-    {
+    public int idOf(String string) {
         int id = super.idOf(string); // 查询id
         if (id == -1 && mutable) // 如果不存在该key且处于可写状态
         {

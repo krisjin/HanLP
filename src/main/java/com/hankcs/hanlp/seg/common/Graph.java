@@ -18,8 +18,7 @@ import java.util.List;
 /**
  * @author hankcs
  */
-public class Graph
-{
+public class Graph {
     /**
      * 顶点
      */
@@ -32,59 +31,54 @@ public class Graph
 
     /**
      * 将一个词网转为词图
+     *
      * @param vertexes 顶点数组
      */
-    public Graph(Vertex[] vertexes)
-    {
+    public Graph(Vertex[] vertexes) {
         int size = vertexes.length;
         this.vertexes = vertexes;
         edgesTo = new List[size];
-        for (int i = 0; i < size; ++i)
-        {
+        for (int i = 0; i < size; ++i) {
             edgesTo[i] = new LinkedList<EdgeFrom>();
         }
     }
 
     /**
      * 连接两个节点
-     * @param from 起点
-     * @param to 终点
+     *
+     * @param from   起点
+     * @param to     终点
      * @param weight 花费
      */
-    public void connect(int from, int to, double weight)
-    {
+    public void connect(int from, int to, double weight) {
         edgesTo[to].add(new EdgeFrom(from, weight, vertexes[from].word + '@' + vertexes[to].word));
     }
 
 
     /**
      * 获取到达顶点to的边列表
+     *
      * @param to 到达顶点to
      * @return 到达顶点to的边列表
      */
-    public List<EdgeFrom> getEdgeListTo(int to)
-    {
+    public List<EdgeFrom> getEdgeListTo(int to) {
         return edgesTo[to];
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "Graph{" +
                 "vertexes=" + Arrays.toString(vertexes) +
                 ", edgesTo=" + Arrays.toString(edgesTo) +
                 '}';
     }
 
-    public String printByTo()
-    {
+    public String printByTo() {
         StringBuffer sb = new StringBuffer();
         sb.append("========按终点打印========\n");
-        for (int to = 0; to < edgesTo.length; ++to)
-        {
+        for (int to = 0; to < edgesTo.length; ++to) {
             List<EdgeFrom> edgeFromList = edgesTo[to];
-            for (EdgeFrom edgeFrom : edgeFromList)
-            {
+            for (EdgeFrom edgeFrom : edgeFromList) {
                 sb.append(String.format("to:%3d, from:%3d, weight:%05.2f, word:%s\n", to, edgeFrom.from, edgeFrom.weight, edgeFrom.name));
             }
         }
@@ -94,14 +88,13 @@ public class Graph
 
     /**
      * 根据节点下标数组解释出对应的路径
+     *
      * @param path
      * @return
      */
-    public List<Vertex> parsePath(int[] path)
-    {
+    public List<Vertex> parsePath(int[] path) {
         List<Vertex> vertexList = new LinkedList<Vertex>();
-        for (int i : path)
-        {
+        for (int i : path) {
             vertexList.add(vertexes[i]);
         }
 
@@ -110,19 +103,17 @@ public class Graph
 
     /**
      * 从一个路径中转换出空格隔开的结果
+     *
      * @param path
      * @return
      */
-    public static String parseResult(List<Vertex> path)
-    {
-        if (path.size() < 2)
-        {
+    public static String parseResult(List<Vertex> path) {
+        if (path.size() < 2) {
             throw new RuntimeException("路径节点数小于2:" + path);
         }
         StringBuffer sb = new StringBuffer();
 
-        for (int i = 1; i < path.size() - 1; ++i)
-        {
+        for (int i = 1; i < path.size() - 1; ++i) {
             Vertex v = path.get(i);
             sb.append(v.getRealWord() + " ");
         }
@@ -130,13 +121,11 @@ public class Graph
         return sb.toString();
     }
 
-    public Vertex[] getVertexes()
-    {
+    public Vertex[] getVertexes() {
         return vertexes;
     }
 
-    public List<EdgeFrom>[] getEdgesTo()
-    {
+    public List<EdgeFrom>[] getEdgesTo() {
         return edgesTo;
     }
 }

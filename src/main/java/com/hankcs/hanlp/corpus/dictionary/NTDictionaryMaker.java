@@ -11,8 +11,6 @@
  */
 package com.hankcs.hanlp.corpus.dictionary;
 
-import com.hankcs.hanlp.corpus.document.CorpusLoader;
-import com.hankcs.hanlp.corpus.document.Document;
 import com.hankcs.hanlp.corpus.document.sentence.word.CompoundWord;
 import com.hankcs.hanlp.corpus.document.sentence.word.IWord;
 import com.hankcs.hanlp.corpus.document.sentence.word.Word;
@@ -28,38 +26,29 @@ import java.util.ListIterator;
 /**
  * @author hankcs
  */
-public class NTDictionaryMaker extends CommonDictionaryMaker
-{
+public class NTDictionaryMaker extends CommonDictionaryMaker {
     TFDictionary tfDictionary = new TFDictionary();
 
-    public NTDictionaryMaker(EasyDictionary dictionary)
-    {
+    public NTDictionaryMaker(EasyDictionary dictionary) {
         super(dictionary);
     }
 
     @Override
-    protected void addToDictionary(List<List<IWord>> sentenceList)
-    {
+    protected void addToDictionary(List<List<IWord>> sentenceList) {
 //        logger.warning("开始制作词典");
         // 将非A的词语保存下来
-        for (List<IWord> wordList : sentenceList)
-        {
-            for (IWord word : wordList)
-            {
-                if (!word.getLabel().equals(NT.Z.toString()))
-                {
+        for (List<IWord> wordList : sentenceList) {
+            for (IWord word : wordList) {
+                if (!word.getLabel().equals(NT.Z.toString())) {
                     dictionaryMaker.add(word);
                 }
             }
         }
         // 制作NGram词典
-        for (List<IWord> wordList : sentenceList)
-        {
+        for (List<IWord> wordList : sentenceList) {
             IWord pre = null;
-            for (IWord word : wordList)
-            {
-                if (pre != null)
-                {
+            for (IWord word : wordList) {
+                if (pre != null) {
                     nGramDictionaryMaker.addPair(pre, word);
                 }
                 pre = word;
@@ -68,14 +57,11 @@ public class NTDictionaryMaker extends CommonDictionaryMaker
     }
 
     @Override
-    protected void roleTag(List<List<IWord>> sentenceList)
-    {
+    protected void roleTag(List<List<IWord>> sentenceList) {
         int i = 0;
-        for (List<IWord> wordList : sentenceList)
-        {
+        for (List<IWord> wordList : sentenceList) {
             Precompiler.compileWithoutNT(wordList);
-            if (verbose)
-            {
+            if (verbose) {
                 System.out.print(++i + " / " + sentenceList.size() + " ");
                 System.out.println("原始语料 " + wordList);
             }
@@ -86,11 +72,9 @@ public class NTDictionaryMaker extends CommonDictionaryMaker
             // 标注上文
             Iterator<IWord> iterator = wordLinkedList.iterator();
             IWord pre = iterator.next();
-            while (iterator.hasNext())
-            {
+            while (iterator.hasNext()) {
                 IWord current = iterator.next();
-                if (current.getLabel().startsWith("nt") && !pre.getLabel().startsWith("nt") && !pre.getValue().equals(Predefine.TAG_BIGIN))
-                {
+                if (current.getLabel().startsWith("nt") && !pre.getLabel().startsWith("nt") && !pre.getValue().equals(Predefine.TAG_BIGIN)) {
                     pre.setLabel(NT.A.toString());
                 }
                 pre = current;
@@ -99,11 +83,9 @@ public class NTDictionaryMaker extends CommonDictionaryMaker
             // 标注下文
             iterator = wordLinkedList.descendingIterator();
             pre = iterator.next();
-            while (iterator.hasNext())
-            {
+            while (iterator.hasNext()) {
                 IWord current = iterator.next();
-                if (current.getLabel().startsWith("nt") && !pre.getLabel().startsWith("nt"))
-                {
+                if (current.getLabel().startsWith("nt") && !pre.getLabel().startsWith("nt")) {
                     pre.setLabel(NT.B.toString());
                 }
                 pre = current;
@@ -114,11 +96,9 @@ public class NTDictionaryMaker extends CommonDictionaryMaker
                 iterator = wordLinkedList.iterator();
                 IWord first = iterator.next();
                 IWord second = iterator.next();
-                while (iterator.hasNext())
-                {
+                while (iterator.hasNext()) {
                     IWord third = iterator.next();
-                    if (first.getLabel().startsWith("nt") && third.getLabel().startsWith("nt") && !second.getLabel().startsWith("nt"))
-                    {
+                    if (first.getLabel().startsWith("nt") && third.getLabel().startsWith("nt") && !second.getLabel().startsWith("nt")) {
                         second.setLabel(NT.X.toString());
                     }
                     first = second;
@@ -128,44 +108,34 @@ public class NTDictionaryMaker extends CommonDictionaryMaker
             }
             // 处理整个
             ListIterator<IWord> listIterator = wordLinkedList.listIterator();
-            while (listIterator.hasNext())
-            {
+            while (listIterator.hasNext()) {
                 IWord word = listIterator.next();
                 String label = word.getLabel();
                 if (label.equals(label.toUpperCase())) continue;
-                if (label.startsWith("nt"))
-                {
+                if (label.startsWith("nt")) {
                     StringBuilder sbPattern = new StringBuilder();
                     // 复杂机构
-                    if (word instanceof CompoundWord)
-                    {
+                    if (word instanceof CompoundWord) {
                         listIterator.remove();
                         Word last = null;
-                        for (Word inner : ((CompoundWord) word).innerList)
-                        {
+                        for (Word inner : ((CompoundWord) word).innerList) {
                             last = inner;
                             String innerLabel = inner.label;
-                            if (innerLabel.startsWith("ns"))
-                            {
+                            if (innerLabel.startsWith("ns")) {
                                 inner.setValue(Predefine.TAG_PLACE);
                                 inner.setLabel(NT.G.toString());
                                 listIterator.add(inner);
                                 sbPattern.append(inner.label);
-                            }
-                            else if (innerLabel.startsWith("nt"))
-                            {
+                            } else if (innerLabel.startsWith("nt")) {
                                 inner.value = Predefine.TAG_GROUP;
                                 inner.label = NT.K.toString();
                                 listIterator.add(inner);
                                 sbPattern.append(inner.label);
-                            }
-                            else if (innerLabel.equals("b") || innerLabel.equals("ng") || innerLabel.equals("j"))
-                            {
+                            } else if (innerLabel.equals("b") || innerLabel.equals("ng") || innerLabel.equals("j")) {
                                 inner.label = NT.J.toString();
                                 listIterator.add(inner);
                                 sbPattern.append(inner.label);
-                            }
-                            else if ("n".equals(innerLabel) ||
+                            } else if ("n".equals(innerLabel) ||
                                     "an".equals(innerLabel) ||
                                     "a".equals(innerLabel) ||
                                     "vn".equals(innerLabel) ||
@@ -179,85 +149,64 @@ public class NTDictionaryMaker extends CommonDictionaryMaker
                                     "cc".equals(innerLabel) ||
                                     "t".equals(innerLabel) ||
                                     "z".equals(innerLabel)
-                                    )
-                            {
+                            ) {
                                 inner.label = NT.C.toString();
                                 listIterator.add(inner);
                                 sbPattern.append(inner.label);
-                            }
-                            else if ("nz".equals(innerLabel))
-                            {
+                            } else if ("nz".equals(innerLabel)) {
                                 inner.label = NT.I.toString();
                                 listIterator.add(inner);
                                 sbPattern.append(inner.label);
-                            }
-                            else if ("m".equals(innerLabel))
-                            {
+                            } else if ("m".equals(innerLabel)) {
                                 inner.value = Predefine.TAG_NUMBER;
                                 inner.label = NT.M.toString();
                                 listIterator.add(inner);
                                 sbPattern.append(inner.label);
-                            }
-                            else if ("w".equals(innerLabel))
-                            {
+                            } else if ("w".equals(innerLabel)) {
                                 inner.label = NT.W.toString();
                                 listIterator.add(inner);
                                 sbPattern.append(inner.label);
-                            }
-                            else if (innerLabel.startsWith("nr") || "x".equals(innerLabel) || "nx".equals(innerLabel))
-                            {
+                            } else if (innerLabel.startsWith("nr") || "x".equals(innerLabel) || "nx".equals(innerLabel)) {
                                 inner.value = Predefine.TAG_PEOPLE;
                                 inner.label = NT.F.toString();
                                 listIterator.add(inner);
                                 sbPattern.append(inner.label);
-                            }
-                            else if (innerLabel.startsWith("ni"))
-                            {
+                            } else if (innerLabel.startsWith("ni")) {
                                 inner.label = NT.D.toString();
                                 listIterator.add(inner);
                                 sbPattern.append(inner.label);
-                            }
-                            else if ("f".equals(innerLabel) || "s".equals(innerLabel))
-                            {
+                            } else if ("f".equals(innerLabel) || "s".equals(innerLabel)) {
                                 inner.label = NT.L.toString();
                                 listIterator.add(inner);
                                 sbPattern.append(inner.label);
-                            }
-                            else
-                            {
+                            } else {
                                 inner.label = NT.P.toString();
                                 listIterator.add(inner);
                                 sbPattern.append(inner.label);
                             }
+                        }
+                        if (last != null) {
+                            last.label = NT.D.toString();
+                            sbPattern.deleteCharAt(sbPattern.length() - 1);
+                            sbPattern.append(last.label);
+                            tfDictionary.add(sbPattern.toString());
+                            sbPattern.setLength(0);
+                        }
+                    } else {
+                        word.setLabel(NT.K.toString());
                     }
-                    if (last != null)
-                    {
-                        last.label = NT.D.toString();
-                        sbPattern.deleteCharAt(sbPattern.length() - 1);
-                        sbPattern.append(last.label);
-                        tfDictionary.add(sbPattern.toString());
-                        sbPattern.setLength(0);
-                    }
-                }
-                else
-                {
-                    word.setLabel(NT.K.toString());
+                } else {
+                    word.setLabel(NT.Z.toString());
                 }
             }
-            else
-            {
-                word.setLabel(NT.Z.toString());
-            }
+            if (verbose) System.out.println("处理整个 " + wordList);
+            wordLinkedList.getFirst().setLabel(NT.S.toString());
         }
-        if (verbose) System.out.println("处理整个 " + wordList);
-        wordLinkedList.getFirst().setLabel(NT.S.toString());
+
     }
 
-}
-
     @Override
-    public boolean saveTxtTo(String path)
-    {
+    public boolean saveTxtTo(String path) {
         if (!super.saveTxtTo(path)) return false;
         return tfDictionary.saveKeyTo(path + ".pattern.txt");
     }

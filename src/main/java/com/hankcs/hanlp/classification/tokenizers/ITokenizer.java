@@ -16,7 +16,6 @@ import java.io.Serializable;
 /**
  * @author hankcs
  */
-public interface ITokenizer extends Serializable
-{
+public interface ITokenizer extends Serializable {
     String[] segment(String text);
 }

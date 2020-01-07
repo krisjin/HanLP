@@ -14,8 +14,7 @@ package com.hankcs.hanlp.corpus.dependency.CoNll;
 /**
  * @author hankcs
  */
-public class CoNLLWord
-{
+public class CoNLLWord {
     /**
      * ID	当前词在句子中的序号，１开始.
      */
@@ -56,13 +55,11 @@ public class CoNLLWord
     public static final CoNLLWord NULL = new CoNLLWord(-1, "##空白##", "NULL", "null");
 
     /**
-     *
-     * @param ID 当前词在句子中的序号，１开始.
-     * @param LEMMA 当前词语（或标点）的原型或词干，在中文中，此列与FORM相同
+     * @param ID     当前词在句子中的序号，１开始.
+     * @param LEMMA  当前词语（或标点）的原型或词干，在中文中，此列与FORM相同
      * @param POSTAG 当前词语的词性（细粒度）
      */
-    public CoNLLWord(int ID, String LEMMA, String POSTAG)
-    {
+    public CoNLLWord(int ID, String LEMMA, String POSTAG) {
         this.ID = ID;
         this.LEMMA = LEMMA;
         this.CPOSTAG = POSTAG.substring(0, 1);   // 取首字母作为粗粒度词性
@@ -71,14 +68,12 @@ public class CoNLLWord
     }
 
     /**
-     *
-     * @param ID 当前词在句子中的序号，１开始.
-     * @param LEMMA 当前词语（或标点）的原型或词干，在中文中，此列与FORM相同
+     * @param ID      当前词在句子中的序号，１开始.
+     * @param LEMMA   当前词语（或标点）的原型或词干，在中文中，此列与FORM相同
      * @param CPOSTAG 当前词语的词性（粗粒度）
-     * @param POSTAG 当前词语的词性（细粒度）
+     * @param POSTAG  当前词语的词性（细粒度）
      */
-    public CoNLLWord(int ID, String LEMMA, String CPOSTAG, String POSTAG)
-    {
+    public CoNLLWord(int ID, String LEMMA, String CPOSTAG, String POSTAG) {
         this.ID = ID;
         this.LEMMA = LEMMA;
         this.CPOSTAG = CPOSTAG;
@@ -86,13 +81,11 @@ public class CoNLLWord
         compile();
     }
 
-    private void compile()
-    {
+    private void compile() {
         this.NAME = PosTagCompiler.compile(POSTAG, LEMMA);
     }
 
-    public CoNLLWord(CoNllLine line)
-    {
+    public CoNLLWord(CoNllLine line) {
         LEMMA = line.value[2];
         CPOSTAG = line.value[3];
         POSTAG = line.value[4];
@@ -101,24 +94,22 @@ public class CoNLLWord
         compile();
     }
 
-    public CoNLLWord(CoNllLine[] lineArray, int index)
-    {
+    public CoNLLWord(CoNllLine[] lineArray, int index) {
         this(lineArray[index]);
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         final StringBuilder sb = new StringBuilder();
         // ID为0时为根节点，ID为-1时为空白节点
-        if (ID!=0 && ID!=-1){
+        if (ID != 0 && ID != -1) {
             sb.append(ID).append('\t').append(LEMMA).append('\t').append(LEMMA).append('\t').append(CPOSTAG).append('\t')
-                .append(POSTAG).append('\t').append('_').append('\t').append(HEAD.ID).append('\t').append(DEPREL).append('\t')
-                .append('_').append('\t').append('_');  
+                    .append(POSTAG).append('\t').append('_').append('\t').append(HEAD.ID).append('\t').append(DEPREL).append('\t')
+                    .append('_').append('\t').append('_');
         } else {
             sb.append(ID).append('\t').append(LEMMA).append('\t').append(LEMMA).append('\t').append(CPOSTAG).append('\t')
-                .append(POSTAG).append('\t').append('_').append('\t').append('_').append('\t').append(DEPREL).append('\t')
-                .append('_').append('\t').append('_');  
+                    .append(POSTAG).append('\t').append('_').append('\t').append('_').append('\t').append(DEPREL).append('\t')
+                    .append('_').append('\t').append('_');
         }
         return sb.toString();
     }

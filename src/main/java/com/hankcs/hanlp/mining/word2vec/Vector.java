@@ -15,41 +15,33 @@ import java.util.Arrays;
 /**
  * @author hankcs
  */
-public class Vector
-{
+public class Vector {
     float[] elementArray;
 
-    public Vector(float[] elementArray)
-    {
+    public Vector(float[] elementArray) {
         this.elementArray = elementArray;
     }
 
-    public Vector(int size)
-    {
+    public Vector(int size) {
         elementArray = new float[size];
         Arrays.fill(elementArray, 0);
     }
 
-    public int size()
-    {
+    public int size() {
         return elementArray.length;
     }
 
-    public float dot(Vector other)
-    {
+    public float dot(Vector other) {
         float ret = 0.0f;
-        for (int i = 0; i < size(); ++i)
-        {
+        for (int i = 0; i < size(); ++i) {
             ret += elementArray[i] * other.elementArray[i];
         }
         return ret;
     }
 
-    public float norm()
-    {
+    public float norm() {
         float ret = 0.0f;
-        for (int i = 0; i < size(); ++i)
-        {
+        for (int i = 0; i < size(); ++i) {
             ret += elementArray[i] * elementArray[i];
         }
         return (float) Math.sqrt(ret);
@@ -62,8 +54,7 @@ public class Vector
      * @param other
      * @return
      */
-    public float cosineForUnitVector(Vector other)
-    {
+    public float cosineForUnitVector(Vector other) {
         return dot(other);
     }
 
@@ -73,53 +64,42 @@ public class Vector
      * @param other
      * @return
      */
-    public float cosine(Vector other)
-    {
+    public float cosine(Vector other) {
         return dot(other) / this.norm() / other.norm();
     }
 
-    public Vector minus(Vector other)
-    {
+    public Vector minus(Vector other) {
         float[] result = new float[size()];
-        for (int i = 0; i < result.length; i++)
-        {
+        for (int i = 0; i < result.length; i++) {
             result[i] = elementArray[i] - other.elementArray[i];
         }
         return new Vector(result);
     }
 
-    public Vector add(Vector other)
-    {
+    public Vector add(Vector other) {
         float[] result = new float[size()];
-        for (int i = 0; i < result.length; i++)
-        {
+        for (int i = 0; i < result.length; i++) {
             result[i] = elementArray[i] + other.elementArray[i];
         }
         return new Vector(result);
     }
 
-    public Vector addToSelf(Vector other)
-    {
-        for (int i = 0; i < elementArray.length; i++)
-        {
+    public Vector addToSelf(Vector other) {
+        for (int i = 0; i < elementArray.length; i++) {
             elementArray[i] = elementArray[i] + other.elementArray[i];
         }
         return this;
     }
 
-    public Vector divideToSelf(int n)
-    {
-        for (int i = 0; i < elementArray.length; i++)
-        {
+    public Vector divideToSelf(int n) {
+        for (int i = 0; i < elementArray.length; i++) {
             elementArray[i] = elementArray[i] / n;
         }
         return this;
     }
 
-    public Vector divideToSelf(float f)
-    {
-        for (int i = 0; i < elementArray.length; i++)
-        {
+    public Vector divideToSelf(float f) {
+        for (int i = 0; i < elementArray.length; i++) {
             elementArray[i] = elementArray[i] / f;
         }
         return this;
@@ -130,19 +110,16 @@ public class Vector
      *
      * @return
      */
-    public Vector normalize()
-    {
+    public Vector normalize() {
         divideToSelf(norm());
         return this;
     }
 
-    public float[] getElementArray()
-    {
+    public float[] getElementArray() {
         return elementArray;
     }
 
-    public void setElementArray(float[] elementArray)
-    {
+    public void setElementArray(float[] elementArray) {
         this.elementArray = elementArray;
     }
 }

@@ -21,23 +21,19 @@ import com.hankcs.hanlp.dictionary.common.EnumItemDictionary;
  *
  * @author hankcs
  */
-public class NSDictionary extends EnumItemDictionary<NS>
-{
+public class NSDictionary extends EnumItemDictionary<NS> {
     @Override
-    protected NS valueOf(String name)
-    {
+    protected NS valueOf(String name) {
         return NS.valueOf(name);
     }
 
     @Override
-    protected NS[] values()
-    {
+    protected NS[] values() {
         return NS.values();
     }
 
     @Override
-    protected EnumItem<NS> newItem()
-    {
+    protected EnumItem<NS> newItem() {
         return new EnumItem<NS>();
     }
 }

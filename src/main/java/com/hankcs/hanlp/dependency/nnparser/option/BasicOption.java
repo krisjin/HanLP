@@ -14,8 +14,7 @@ package com.hankcs.hanlp.dependency.nnparser.option;
 /**
  * @author hankcs
  */
-public class BasicOption
-{
+public class BasicOption {
     String model_file;     //! The path to the model.
     String root;           //! The root.
 }

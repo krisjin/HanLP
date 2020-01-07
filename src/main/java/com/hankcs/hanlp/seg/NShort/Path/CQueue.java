@@ -16,21 +16,19 @@ package com.hankcs.hanlp.seg.NShort.Path;
  *
  * @author hankcs
  */
-public class CQueue
-{
+public class CQueue {
     private QueueElement pHead = null;
     private QueueElement pLastAccess = null;
 
     /**
      * 将QueueElement根据eWeight由小到大的顺序插入队列
+     *
      * @param newElement
      */
-    public void enQueue(QueueElement newElement)
-    {
+    public void enQueue(QueueElement newElement) {
         QueueElement pCur = pHead, pPre = null;
 
-        while (pCur != null && pCur.weight < newElement.weight)
-        {
+        while (pCur != null && pCur.weight < newElement.weight) {
             pPre = pCur;
             pCur = pCur.next;
         }
@@ -45,10 +43,10 @@ public class CQueue
 
     /**
      * 从队列中取出前面的一个元素
+     *
      * @return
      */
-    public QueueElement deQueue()
-    {
+    public QueueElement deQueue() {
         if (pHead == null)
             return null;
 
@@ -60,20 +58,20 @@ public class CQueue
 
     /**
      * 读取第一个元素，但不执行DeQueue操作
+     *
      * @return
      */
-    public QueueElement GetFirst()
-    {
+    public QueueElement GetFirst() {
         pLastAccess = pHead;
         return pLastAccess;
     }
 
     /**
      * 读取上次读取后的下一个元素，不执行DeQueue操作
+     *
      * @return
      */
-    public QueueElement GetNext()
-    {
+    public QueueElement GetNext() {
         if (pLastAccess != null)
             pLastAccess = pLastAccess.next;
 
@@ -82,18 +80,17 @@ public class CQueue
 
     /**
      * 是否仍然有下一个元素可供读取
+     *
      * @return
      */
-    public boolean CanGetNext()
-    {
+    public boolean CanGetNext() {
         return (pLastAccess.next != null);
     }
 
     /**
      * 清除所有元素
      */
-    public void clear()
-    {
+    public void clear() {
         pHead = null;
         pLastAccess = null;
     }
