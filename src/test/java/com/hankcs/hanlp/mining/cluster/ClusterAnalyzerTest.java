@@ -3,15 +3,12 @@ package com.hankcs.hanlp.mining.cluster;
 import com.hankcs.demo.DemoTextClustering;
 import junit.framework.TestCase;
 
-public class ClusterAnalyzerTest extends TestCase
-{
-    public void testAddDocument() throws Exception
-    {
+public class ClusterAnalyzerTest extends TestCase {
+    public void testAddDocument() throws Exception {
         DemoTextClustering.main(null);
     }
 
-    public void testRepeatedBisection()
-    {
+    public void testRepeatedBisection() {
         ClusterAnalyzer<String> analyzer = new ClusterAnalyzer<String>();
         analyzer.addDocument("赵一", "流行, 流行, 流行, 流行, 流行, 流行, 流行, 流行, 流行, 流行, 蓝调, 蓝调, 蓝调, 蓝调, 蓝调, 蓝调, 摇滚, 摇滚, 摇滚, 摇滚");
         analyzer.addDocument("钱二", "爵士, 爵士, 爵士, 爵士, 爵士, 爵士, 爵士, 爵士, 舞曲, 舞曲, 舞曲, 舞曲, 舞曲, 舞曲, 舞曲, 舞曲, 舞曲");

@@ -7,15 +7,12 @@ import junit.framework.TestCase;
 
 import java.util.*;
 
-public class AhoCorasickDoubleArrayTrieTest extends TestCase
-{
+public class AhoCorasickDoubleArrayTrieTest extends TestCase {
 
-    public void testTwoAC() throws Exception
-    {
+    public void testTwoAC() throws Exception {
         TreeMap<String, String> map = new TreeMap<String, String>();
         IOUtil.LineIterator iterator = new IOUtil.LineIterator("data/dictionary/CoreNatureDictionary.mini.txt");
-        while (iterator.hasNext())
-        {
+        while (iterator.hasNext()) {
             String line = iterator.next().split("\\s")[0];
             map.put(line, line);
         }
@@ -25,19 +22,16 @@ public class AhoCorasickDoubleArrayTrieTest extends TestCase
         AhoCorasickDoubleArrayTrie<String> act = new AhoCorasickDoubleArrayTrie<String>();
         act.build(map);
 
-        for (String key : map.keySet())
-        {
+        for (String key : map.keySet()) {
             Collection<Emit> emits = trie.parseText(key);
             Set<String> otherSet = new HashSet<String>();
-            for (Emit emit : emits)
-            {
+            for (Emit emit : emits) {
                 otherSet.add(emit.getKeyword() + emit.getEnd());
             }
 
             List<AhoCorasickDoubleArrayTrie<String>.Hit<String>> entries = act.parseText(key);
             Set<String> mySet = new HashSet<String>();
-            for (AhoCorasickDoubleArrayTrie<String>.Hit<String> entry : entries)
-            {
+            for (AhoCorasickDoubleArrayTrie<String>.Hit<String> entry : entries) {
                 mySet.add(entry.value + (entry.end - 1));
             }
 

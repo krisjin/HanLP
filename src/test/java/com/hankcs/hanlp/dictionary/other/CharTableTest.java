@@ -1,24 +1,17 @@
 package com.hankcs.hanlp.dictionary.other;
 
-import com.hankcs.hanlp.HanLP;
-import com.hankcs.hanlp.corpus.io.IOUtil;
 import junit.framework.TestCase;
 
-import java.io.BufferedWriter;
-import java.io.FileOutputStream;
-import java.io.ObjectOutputStream;
-
-public class CharTableTest extends TestCase
-{
-    public void testNormalization() throws Exception
-    {
+public class CharTableTest extends TestCase {
+    public void testNormalization() throws Exception {
         System.out.println(CharTable.convert('？'));
         assertEquals('(', CharTable.convert('（'));
     }
-    public void testNormalizeSpace() throws Exception{
-        assertEquals(CharTable.convert('\t'),' ');
-        assertEquals(CharTable.convert('\n'),' ');
-        assertEquals(CharTable.convert('\f'),' ');
+
+    public void testNormalizeSpace() throws Exception {
+        assertEquals(CharTable.convert('\t'), ' ');
+        assertEquals(CharTable.convert('\n'), ' ');
+        assertEquals(CharTable.convert('\f'), ' ');
     }
 //    public void testConvert() throws Exception
 //    {
