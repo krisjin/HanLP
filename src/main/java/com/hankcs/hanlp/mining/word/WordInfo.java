@@ -82,8 +82,7 @@ public class WordInfo {
             return;
         }
         for (int i = 1; i < text.length(); ++i) {
-            aggregation = Math.min(aggregation,
-                    p / word_cands.get(text.substring(0, i)).p / word_cands.get(text.substring(i)).p);
+            aggregation = Math.min(aggregation, p / word_cands.get(text.substring(0, i)).p / word_cands.get(text.substring(i)).p);
         }
     }
 
